@@ -1,9 +1,19 @@
 -- Minimal stand-in for what Supabase provides, so migrations and tests can run on
 -- a plain Postgres (locally and in CI). NOT applied to the real project.
-create role anon nologin;
-create role authenticated nologin;
-create role service_role nologin bypassrls;
-create role supabase_auth_admin nologin;
+-- Roles are shared by the whole server, so only create them once (re-runnable).
+do $$
+declare
+  r text;
+begin
+  foreach r in array array['anon', 'authenticated', 'supabase_auth_admin'] loop
+    if not exists (select 1 from pg_roles where rolname = r) then
+      execute format('create role %I nologin', r);
+    end if;
+  end loop;
+  if not exists (select 1 from pg_roles where rolname = 'service_role') then
+    create role service_role nologin bypassrls;
+  end if;
+end $$;
 
 create schema auth;
 create table auth.users (
