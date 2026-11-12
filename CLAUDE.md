@@ -16,6 +16,8 @@ How to work with Yash:
 - Ask instead of guessing when something is ambiguous.
 - Budget is €0/month. Ask before adding any service, paid or free.
 - Take security seriously on every change (checklist in CONVENTIONS.md). Never commit secrets.
+- Do not add `Co-Authored-By` trailers, "Generated with ..." lines or session links to commits
+  or pull requests.
 - Legal choices (Impressum address, privacy wording) are his to make; lay out options.
 
 Before you commit:

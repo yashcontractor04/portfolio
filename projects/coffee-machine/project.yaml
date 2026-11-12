@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../project.schema.json
+schema: 1
+name: Coffee Machine (OOP)
+type: in-browser
+status: building
+order: 42
+tags: [python]
+accent: amber
+summary:
+  en: "A coffee machine built with classes: takes orders, checks ingredients and handles coins."
+  de: "Eine Kaffeemaschine mit Klassen: nimmt Bestellungen an, prüft Zutaten und verarbeitet Münzen."
+repo: https://github.com/yashcontractor04/100-days-of-python
+readme: { path: Day-16/oop-coffee-machine/README.md }
+stack: [Python, Pyodide]
+
+in_browser:
+  entry: main.py
+  source:
+    repo: https://github.com/yashcontractor04/100-days-of-python
+    path: Day-16/oop-coffee-machine
+    ref: 642af1bd7fdc8f0bfb0f9dcff80e223b67c14f60

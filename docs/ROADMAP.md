@@ -7,13 +7,17 @@ add the date when you finish one. If you change scope, change this file in the s
 
 - [x] 2026-11-13 Database schema for all phases, with RLS, quota and queue functions
       (`supabase/migrations`). 84 SQL tests pass (`supabase/tests/run.sh`).
-- [x] 2026-11-13 Project manifest format (`projects/project.schema.json`) + validator + 3 example manifests.
+- [x] 2026-11-13 Project manifest format (`projects/project.schema.json`) + validator.
 - [x] 2026-11-13 `content/cv.yaml` (EN + DE) from Yash's German CV.
 - [x] 2026-11-13 CI: SQL tests + manifest validation on every push.
 
+- [x] 2026-11-13 Manifests for the first projects: `stock-sim`, `badminton-monitor`, `hangman`,
+      `blackjack`, `coffee-machine`, `stock-news-alert`, `flight-club`.
+
 ## Phase 1: public site (target: live on a vercel.app URL)
 
-1. [ ] **Design tokens + base components.** Yash picks one of the visual directions first.
+1. [ ] **Design tokens + base components.** Direction chosen 2026-11-13: "Ledger" base with
+   "Console" details (see CONVENTIONS.md, Design system).
    - Tokens as CSS variables in `web/src/styles/tokens.css`; themes `multicolor` and `mono`
      switchable via `data-theme`; dark only.
    - Components: Window (traffic-light chrome), MenuBar, Dock, StatTile, BentoTile, Chip,
@@ -32,7 +36,8 @@ add the date when you finish one. If you change scope, change this file in the s
 5. [ ] **Project pages** with tabs Overview (README from GitHub, sanitised, revalidated hourly),
    Run, Results, How it works. `static` type renders MDX.
 6. [ ] **In-browser runner**: Pyodide in a Web Worker + xterm.js, working `input()`.
-   Pick 2 to 3 projects from `yashcontractor04/100-days-of-python`, pinned by commit SHA.
+   Projects: `hangman`, `blackjack`, `coffee-machine` (manifests exist, pinned by commit SHA).
+   Set their status to `live` once they run.
    - Accept: an interactive game is playable; the page stays responsive during a busy loop;
      a Stop button terminates the worker.
 7. [ ] **CV pipeline**: Typst template in `content/cv/`, GitHub Action builds `cv-en.pdf` and

@@ -42,7 +42,7 @@
       "additionalProperties": false,
       "required": ["content"],
       "properties": {
-        "content": { "type": "string", "pattern": "^[a-z0-9._-]+\\.mdx?$", "description": "Write-up file in this folder." }
+        "content": { "type": "string", "pattern": "^[a-z0-9._-]+\\.mdx?$", "description": "Optional write-up file in this folder. Without it the page shows the README only." }
       }
     },
     "in_browser": {
@@ -97,7 +97,6 @@
     }
   },
   "allOf": [
-    { "if": { "properties": { "type": { "const": "static" } } }, "then": { "required": ["static"] } },
     { "if": { "properties": { "type": { "const": "in-browser" } } }, "then": { "required": ["in_browser"] } },
     { "if": { "properties": { "type": { "const": "runner" } } }, "then": { "required": ["runner"] } },
     { "if": { "properties": { "type": { "const": "bot-status" } } }, "then": { "required": ["bot"] } }

@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../project.schema.json
+schema: 1
+name: Hangman
+type: in-browser
+status: building
+order: 40
+tags: [python]
+accent: pink
+summary:
+  en: "Guess the word letter by letter before your lives run out. Runs in your browser."
+  de: "Errate das Wort Buchstabe für Buchstabe, bevor die Leben ausgehen. Läuft im Browser."
+repo: https://github.com/yashcontractor04/100-days-of-python
+readme: { path: Day-07/hangman/README.md }
+stack: [Python, Pyodide]
+
+in_browser:
+  entry: main.py
+  source:
+    repo: https://github.com/yashcontractor04/100-days-of-python
+    path: Day-07/hangman
+    ref: 642af1bd7fdc8f0bfb0f9dcff80e223b67c14f60

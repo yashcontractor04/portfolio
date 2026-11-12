@@ -180,7 +180,7 @@ sequenceDiagram
 
 | type | What the Run tab does | Backend needed |
 |---|---|---|
-| `static` | nothing, it is a write-up (MDX file in the folder) | none |
+| `static` | nothing: README overview, plus an optional MDX write-up in the folder | none |
 | `in-browser` | runs the Python file in Pyodide inside a Web Worker, xterm.js as terminal | none |
 | `runner` | form generated from `runner.inputs`, job goes to the queue | worker |
 | `bot-status` | read-only status from `bot_status` / `bot_heartbeats` | bot |
@@ -239,5 +239,5 @@ Enable the role once by hand: `alter role app_worker login password '<long rando
 
 - Impressum: German law requires a real postal address for most sites. Options to discuss
   before Phase 2 ships (do not decide for him).
-- Email and phone on the public CV: phone is left out of `cv.yaml` on purpose.
+- Phone is left out of `cv.yaml` on purpose (public repo). Email stays in; Yash to confirm he is fine with it being public.
 - Domain (GitHub Student Pack) and then Resend domain verification.

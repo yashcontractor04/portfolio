@@ -86,10 +86,9 @@ cv_projects:
     tech: [Java, Spring Boot, MySQL, HTML, CSS, JavaScript]
 
 # Shown as chips on the homepage and as a table in the PDF.
-# TODO(Yash): TypeScript, Docker and GitHub Actions come from your brief, not from the PDF CV. Confirm.
 skills:
   - group: { en: Languages, de: Sprachen }
-    items: [Python, Java, C, TypeScript, Perl, JavaScript, HTML, CSS, Assembly (MIPS)]
+    items: [Python, Java, C, Perl, JavaScript, HTML, CSS, Assembly (MIPS)]
   - group: { en: Frameworks, de: Frameworks }
     items: [Spring Boot (basics)]
   - group: { en: Databases, de: Datenbanken }

@@ -9,6 +9,8 @@ rule wins. To change a rule, change this file in the same commit and say why.
 - €0/month. Never add a paid service or a new third-party service without asking Yash.
 - Never commit secrets. Secrets live in environment variables; `.env.example` lists the names.
 - Small commits with a clear message. Do not rewrite or squash existing migrations.
+- No AI attribution in git: no `Co-Authored-By` trailers, no "Generated with" lines, no
+  session links, in commits or pull requests. (The site footer's "AI-assisted" credit stays.)
 - After each piece of work, explain to Yash what was built and why, in plain language.
 
 ## Security checklist (apply to every change)
@@ -67,8 +69,12 @@ rule wins. To change a rule, change this file in the same commit and say why.
   the dock and the ⌘K palette.
 - Motion is subtle and optional: everything respects `prefers-reduced-motion`.
 - Every interactive element is keyboard reachable with a visible focus ring.
-- The chosen visual direction and token values are recorded in `web/src/styles/tokens.css`
-  once Phase 1 item 1 is done.
+- Chosen direction (2026-11-13): **"Ledger"** as the base: pure black ground (`#000`), white
+  type, Inter for UI and headlines, big tabular numbers, 14 px radii, cursor spotlight + gentle
+  lift on cards. Borrowed from the "Console" direction: JetBrains Mono for every number that
+  is data (stat tiles, charts, tables), for terminals and for small meta labels; the ⌘K
+  palette is a first-class way to navigate; and the `mono` theme's single accent is amber
+  (`#F5B83D`). Token values live in `web/src/styles/tokens.css`.
 
 ## Python (worker, bots)
 
@@ -82,7 +88,8 @@ rule wins. To change a rule, change this file in the same commit and say why.
 
 1. Create `projects/<slug>/project.yaml` (see `projects/project.schema.json`; the examples
    in `projects/` cover every type). The folder name becomes the URL.
-2. `static`: add the MDX file named in `static.content`.
+2. `static`: nothing more needed (the page shows the repo README); optionally add an MDX
+   write-up and name it in `static.content`.
    `in-browser`: point `in_browser.source` at a repo path and a full commit SHA.
    `runner`: describe `inputs` and `demo.params`, then add `worker/runners/<slug>.py`.
    `bot-status`: set `bot.bot_slug`; the bot reports with `queue.bot_report`.

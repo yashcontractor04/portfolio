@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../project.schema.json
+schema: 1
+name: Stock News Alert
+type: static
+status: live
+order: 30
+tags: [python, bots, data]
+accent: blue
+summary:
+  en: "Checks how much a stock moved in a day and sends the news behind it to Telegram when the move is big. Runs on GitHub Actions."
+  de: "Prüft die Tagesbewegung einer Aktie und schickt bei großen Ausschlägen die passenden News per Telegram. Läuft über GitHub Actions."
+repo: https://github.com/yashcontractor04/100-days-of-python
+readme: { path: Day-36/stock-news/README.md }
+stack: [Python, requests, Telegram, GitHub Actions]

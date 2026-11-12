@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../project.schema.json
+schema: 1
+name: Flight Club
+type: static
+status: live
+order: 31
+tags: [python, bots, data]
+accent: cyan
+summary:
+  en: "Looks for cheaper flights on routes kept in a Google Sheet and alerts everyone on the list by Telegram and email."
+  de: "Sucht günstigere Flüge für Routen aus einem Google Sheet und benachrichtigt alle Einträge per Telegram und E-Mail."
+repo: https://github.com/yashcontractor04/100-days-of-python
+readme: { path: Day-40/flight-club/README.md }
+stack: [Python, requests, SerpAPI, Telegram, smtplib]

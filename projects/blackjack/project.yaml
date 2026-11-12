@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../project.schema.json
+schema: 1
+name: Blackjack
+type: in-browser
+status: building
+order: 41
+tags: [python]
+accent: indigo
+summary:
+  en: "Play Blackjack against the computer in a terminal, right in your browser."
+  de: "Blackjack gegen den Computer im Terminal, direkt im Browser."
+repo: https://github.com/yashcontractor04/100-days-of-python
+readme: { path: Day-11/blackjack/README.md }
+stack: [Python, Pyodide]
+
+in_browser:
+  entry: main.py
+  source:
+    repo: https://github.com/yashcontractor04/100-days-of-python
+    path: Day-11/blackjack
+    ref: 642af1bd7fdc8f0bfb0f9dcff80e223b67c14f60
