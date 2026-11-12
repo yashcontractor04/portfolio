@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../project.schema.json
+schema: 1
+name: IoT Botnet Detection (N-BaIoT)
+type: static
+status: coming-soon
+order: 30
+tags: [data]
+accent: violet
+summary:
+  en: A review of the N-BaIoT paper, which detects IoT botnet attacks with deep autoencoders trained on network traffic.
+  de: Review des N-BaIoT-Papers zur Erkennung von IoT-Botnetz-Angriffen mit Deep Autoencodern auf Netzwerkverkehr.
+stack: [Python]
+
+static:
+  content: content.en.mdx

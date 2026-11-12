@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../project.schema.json
+schema: 1
+name: Stock Allocation Simulator
+type: runner
+status: building
+featured: true
+order: 10
+tags: [python, data]
+accent: teal
+summary:
+  en: Backtest a portfolio allocation on historical daily prices, with periodic rebalancing, and compare it against a benchmark.
+  de: Backtest einer Portfolio-Allokation auf historischen Tageskursen mit regelmäßigem Rebalancing und Vergleich mit einer Benchmark.
+stack: [Python, pandas, Postgres, Docker]
+
+runner:
+  timeout_seconds: 120
+  max_attempts: 2
+  disclaimer: not-financial-advice
+  inputs:
+    - name: tickers
+      type: string_list
+      label: { en: Tickers, de: Ticker }
+      help: { en: "Up to 10 symbols, e.g. AAPL, MSFT", de: "Bis zu 10 Symbole, z. B. AAPL, MSFT" }
+      min_items: 1
+      max_items: 10
+      max_length: 12
+      pattern: "^[A-Z0-9.\\-]{1,12}$"
+      default: [AAPL, MSFT, NVDA]
+    - name: weights
+      type: number_list
+      label: { en: "Weights (%)", de: "Gewichtung (%)" }
+      help: { en: "One per ticker, must add up to 100", de: "Eine pro Ticker, Summe muss 100 ergeben" }
+      min: 0
+      max: 100
+      min_items: 1
+      max_items: 10
+      default: [40, 40, 20]
+    - name: start_date
+      type: date
+      label: { en: Start date, de: Startdatum }
+      min_date: "2005-01-01"
+      max_date: today
+      default: "2019-01-01"
+    - name: initial_capital
+      type: number
+      label: { en: "Initial capital (EUR)", de: "Startkapital (EUR)" }
+      min: 100
+      max: 10000000
+      default: 10000
+    - name: rebalance
+      type: select
+      label: { en: Rebalancing, de: Rebalancing }
+      default: quarterly
+      options:
+        - { value: never, label: { en: Never, de: Nie } }
+        - { value: monthly, label: { en: Monthly, de: Monatlich } }
+        - { value: quarterly, label: { en: Quarterly, de: Vierteljährlich } }
+        - { value: yearly, label: { en: Yearly, de: Jährlich } }
+    - name: benchmark
+      type: string
+      label: { en: Benchmark ticker, de: Benchmark-Ticker }
+      required: false
+      max_length: 12
+      pattern: "^[A-Z0-9.\\-]{1,12}$"
+      default: SPY
+  demo:
+    params:
+      tickers: [AAPL, MSFT, NVDA]
+      weights: [40, 40, 20]
+      start_date: "2019-01-01"
+      initial_capital: 10000
+      rebalance: quarterly
+      benchmark: SPY

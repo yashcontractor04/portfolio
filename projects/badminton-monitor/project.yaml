@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../project.schema.json
+schema: 1
+name: Badminton Course Monitor
+type: bot-status
+status: coming-soon
+order: 20
+tags: [python, bots]
+accent: orange
+summary:
+  en: A bot that watches the TU-Sport badminton course page and alerts me the moment a slot opens.
+  de: Ein Bot, der die Badminton-Kursseite von TU-Sport beobachtet und mich benachrichtigt, sobald ein Platz frei wird.
+stack: [Python, Docker]
+
+bot:
+  bot_slug: badminton-monitor
+  check_interval_minutes: 5

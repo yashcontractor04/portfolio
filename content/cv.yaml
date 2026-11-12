@@ -1,0 +1,111 @@
+# Single source of truth for the CV.
+# Feeds: the homepage "About" section, the skills chips, and the PDF CV (EN + DE)
+# built by GitHub Actions. To update your CV: edit this file and push.
+#
+# Text fields are either a plain string (same in both languages) or { en: ..., de: ... }.
+# PRIVACY: this repo is public. Phone number and home address are deliberately NOT here.
+schema: 1
+
+person:
+  name: Yash Contractor
+  location: { en: "Berlin, Germany", de: "Berlin, Deutschland" }
+  email: yashcontractor4@gmail.com
+  links:
+    github: https://github.com/yashcontractor04
+    linkedin: https://www.linkedin.com/in/yash-contractor
+  headline:
+    en: Computer Science student at TU Berlin, building backend systems in Python
+    de: Informatikstudent an der TU Berlin mit Schwerpunkt Backend-Entwicklung in Python
+  about:
+    en: >
+      I study Computer Science at TU Berlin and like building things that actually run:
+      bots, data tools and the backend behind them. Before university I spent six months
+      as an intern building internal fintech tools in Mumbai.
+    de: >
+      Ich studiere Informatik an der TU Berlin und baue am liebsten Dinge, die wirklich
+      laufen: Bots, Daten-Tools und das Backend dahinter. Vor dem Studium habe ich sechs
+      Monate als Praktikant interne Fintech-Tools in Mumbai entwickelt.
+
+education:
+  - institution: Technische Universität Berlin
+    location: { en: "Berlin, Germany", de: "Berlin, Deutschland" }
+    degree: { en: "B.Sc. Computer Science", de: "B.Sc. Informatik" }
+    start: 2024-10
+    end: present
+    grade: { en: "Grade: 2.1 (German scale)", de: "Note: 2,1" }
+    details:
+      en: >
+        Relevant coursework: Algorithms and Data Structures, Systems Programming,
+        Computer Networks and Distributed Systems, Software Engineering and Programming
+        Paradigms, Information Systems and Data Analysis
+      de: >
+        Relevante Studienleistungen: Algorithmen und Datenstrukturen, Systemprogrammierung,
+        Rechnernetze und verteilte Systeme, Softwaretechnik und Programmierparadigmen,
+        Informationssysteme und Datenanalyse
+  - institution: Technische Universität Berlin
+    location: { en: "Berlin, Germany", de: "Berlin, Deutschland" }
+    degree: { en: "Studienkolleg, T-Kurs (university preparatory course)", de: "Studienkolleg T-Kurs" }
+    start: 2023-09
+    end: 2024-07
+    grade: { en: "Grade: 1.4 (German scale)", de: "Note: 1,4" }
+
+experience:
+  - company: Infotech Financials Pvt Ltd.
+    location: { en: "Mumbai, India", de: "Mumbai, Indien" }
+    role: { en: Intern, de: Praktikant }
+    start: 2022-11
+    end: 2023-04
+    bullets:
+      - en: Full-stack development of internal fintech tools on a LAMP-style stack (Linux, Apache, Perl, MySQL).
+        de: Full-Stack-Entwicklung interner Fintech-Tools mittels LAMP-äquivalentem Stack (Linux, Apache, Perl, MySQL).
+      - en: Designed and built a secure web-based banking application (login and interactive dashboard) with HTML, CSS, JavaScript and MySQL.
+        de: Konzeption und Entwicklung einer sicheren, webbasierten Bankanwendung (Login und interaktives Dashboard) mit HTML, CSS, JavaScript und MySQL.
+      - en: Improved the UI/UX of a position-matching tool with asynchronous data updates via AJAX.
+        de: Optimierung der UI/UX durch Implementierung asynchroner Datenaktualisierungen via AJAX für ein Position-Matching-Tool.
+      - en: Wrote a Perl command-line tool to manage, sort, filter and validate employee data.
+        de: Programmierung eines Perl-Kommandozeilentools zur Verwaltung, Sortierung, Filterung und Validierung von Mitarbeiterdaten.
+      - en: Built and managed server/client sockets over TCP and UDP (socket programming).
+        de: Erstellung und Verwaltung von Server-/Client-Sockets mittels TCP- und UDP-Protokollen (Socket-Programmierung).
+
+# Projects listed on the PDF CV. (The website's project grid comes from projects/*/project.yaml.)
+cv_projects:
+  - name: { en: Secure Banking Dashboard, de: Sicheres Banking-Dashboard }
+    bullets:
+      - en: Enabled network-wide, device-independent user access to the dashboard and login page using socket programming.
+        de: Ermöglichte netzwerkweiten, geräteunabhängigen Benutzerzugriff auf Dashboard und Login-Seite mittels Socket-Programmierung.
+    tech: [Perl/CGI, MySQL, HTML, CSS, JavaScript, AJAX, Sockets]
+  - name: { en: Stock Data Reconciliation Tool, de: Abgleich-Tool für Börsendaten }
+    bullets:
+      - en: Tool that asynchronously reconciles stock-exchange data (CSV vs. MySQL database) using hash storage.
+        de: Tool zum asynchronen Abgleich von Börsendaten (CSV vs. MySQL-Datenbank) via Hash-Speicherung.
+    tech: [Perl, MySQL, Hashing, AJAX]
+  - name: { en: Web-based Employee CRUD System, de: Webbasiertes Mitarbeiter-CRUD-System }
+    bullets:
+      - en: Employee management system consisting of a command-line program and a web GUI for CRUD operations.
+        de: System zur Mitarbeiterverwaltung, bestehend aus einem Kommandozeilenprogramm und einer Web-GUI für CRUD-Operationen.
+    tech: [Java, Spring Boot, MySQL, HTML, CSS, JavaScript]
+
+# Shown as chips on the homepage and as a table in the PDF.
+# TODO(Yash): TypeScript, Docker and GitHub Actions come from your brief, not from the PDF CV. Confirm.
+skills:
+  - group: { en: Languages, de: Sprachen }
+    items: [Python, Java, C, TypeScript, Perl, JavaScript, HTML, CSS, Assembly (MIPS)]
+  - group: { en: Frameworks, de: Frameworks }
+    items: [Spring Boot (basics)]
+  - group: { en: Databases, de: Datenbanken }
+    items: [MySQL, Perl DBI]
+  - group: { en: "Tools & Platforms", de: "Tools & Plattformen" }
+    items: [Linux, Git, GitHub Actions, Docker, CGI, AJAX]
+  - group: { en: Concepts, de: Konzepte }
+    items:
+      - { en: Data Structures and Algorithms, de: Datenstrukturen und Algorithmen }
+      - { en: Data Processing, de: Datenverarbeitung }
+      - { en: "Networking (TCP/UDP, sockets)", de: "Netzwerke (TCP/UDP, Sockets)" }
+
+languages:
+  - name: { en: English, de: Englisch }
+    level: { en: Native, de: Muttersprache }
+  - name: { en: German, de: Deutsch }
+    level: C1
+  - name: { en: French, de: Französisch }
+    level: A2
