@@ -2,7 +2,7 @@
 schema: 1
 name: Hangman
 type: in-browser
-status: building
+status: live
 order: 40
 tags: [python]
 accent: pink

@@ -35,18 +35,19 @@ add the date when you finish one. If you change scope, change this file in the s
 3. [x] 2026-11-13 **Manifest loader** (`web/src/lib/projects.ts`): reads `projects/*/project.yaml`, validates
    with zod (mirror of the JSON schema), unit tests for valid and invalid manifests.
 4. [ ] **Homepage** (2026-11-13: hero, stat tiles, bento grid + filters, skills, contact links are live.
-   Still open: GitHub heatmap, Download CV button (needs item 7), contact form (item 8), "runs this week" tile (needs Supabase).)
+   Still open: GitHub heatmap, contact form (item 8), "runs this week" tile (needs Supabase).)
    Original scope:: hero from `cv.yaml` + stat tiles, bento project grid with filters, skills
    chips, footer with GitHub heatmap (GitHub API, cached 1 day), Download CV, credit line.
    - Accept: statically generated; Lighthouse performance ≥ 90 on mobile.
-5. [ ] **Project pages** (2026-11-13: basic page per project exists; tabs and README rendering still open) with tabs Overview (README from GitHub, sanitised, revalidated hourly),
+5. [x] 2026-11-13 **Project pages** (Results tab is a placeholder until Phase 3; README images are
+   not shown) with tabs Overview (README from GitHub, sanitised, revalidated hourly),
    Run, Results, How it works. `static` type renders MDX.
-6. [ ] **In-browser runner**: Pyodide in a Web Worker + xterm.js, working `input()`.
+6. [x] 2026-11-13 **In-browser runner** (tested in headless Chrome only; check Safari and Firefox): Pyodide in a Web Worker + xterm.js, working `input()`.
    Projects: `hangman`, `blackjack`, `coffee-machine` (manifests exist, pinned by commit SHA).
    Set their status to `live` once they run.
    - Accept: an interactive game is playable; the page stays responsive during a busy loop;
      a Stop button terminates the worker.
-7. [ ] **CV pipeline**: Typst template in `content/cv/`, GitHub Action builds `cv-en.pdf` and
+7. [x] 2026-11-13 **CV pipeline** (uses Typst's bundled serif font; a custom font is optional polish): Typst template in `content/cv/`, GitHub Action builds `cv-en.pdf` and
    `cv-de.pdf` from `cv.yaml` and publishes them to `web/public/cv/`.
    - Accept: editing `cv.yaml` and pushing updates both PDFs and the homepage.
 8. [ ] **Contact form**: server action, zod validation, honeypot + time trap, rate limit via

@@ -96,7 +96,9 @@ rule wins. To change a rule, change this file in the same commit and say why.
    in `projects/` cover every type). The folder name becomes the URL.
 2. `static`: nothing more needed (the page shows the repo README); optionally add an MDX
    write-up and name it in `static.content`.
-   `in-browser`: point `in_browser.source` at a repo path and a full commit SHA.
+   `in-browser`: point `in_browser.source` at a repo path and a full commit SHA, then run
+   `python scripts/vendor_inbrowser.py` and commit the copied `src/` folder. Standard library
+   only, terminal input/output only (no tkinter, turtle, network or files).
    `runner`: describe `inputs` and `demo.params`, then add `worker/runners/<slug>.py`.
    `bot-status`: set `bot.bot_slug`; the bot reports with `queue.bot_report`.
 3. Run `python scripts/validate_manifests.py`. Push. Nothing else needs editing.

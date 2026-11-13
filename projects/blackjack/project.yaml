@@ -2,7 +2,7 @@
 schema: 1
 name: Blackjack
 type: in-browser
-status: building
+status: live
 order: 41
 tags: [python]
 accent: indigo

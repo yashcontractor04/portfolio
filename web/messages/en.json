@@ -1,9 +1,96 @@
 {
-  "nav": { "projects": "Projects", "skills": "Skills", "contact": "Contact", "home": "Home", "language": "Language", "theme": "Colour theme", "themeMulti": "Multicolor", "themeMono": "Mono", "skip": "Skip to content" },
-  "hero": { "title": "Projects that actually run.", "explore": "Explore projects", "cv": "Download CV", "cvSoon": "CV download is coming soon" },
-  "stats": { "live": "projects live", "inProgress": "in progress", "building": "currently building" },
-  "projects": { "title": "Projects", "all": "All", "python": "Python", "bots": "Bots", "data": "Data", "web": "Web", "filter": "Filter projects", "empty": "No projects in this category yet.", "status": { "live": "live", "building": "building", "coming-soon": "coming soon" }, "type": { "static": "Write-up", "in-browser": "Runs in your browser", "runner": "Runs on demand", "bot-status": "Bot status" }, "back": "All projects", "repo": "View on GitHub", "stack": "Tech stack", "runSoon": "The live version of this project is being built. Check back soon.", "disclaimer": "This is a simulation for learning purposes. Not financial advice." },
-  "skills": { "title": "Skills" },
-  "footer": { "contact": "Contact", "contactText": "The quickest way to reach me is email.", "email": "Send an email", "credit": "Built with Next.js, Supabase and Python (AI-assisted)." },
-  "notFound": { "title": "Page not found", "home": "Back to the homepage" }
+  "nav": {
+    "projects": "Projects",
+    "skills": "Skills",
+    "contact": "Contact",
+    "home": "Home",
+    "language": "Language",
+    "theme": "Colour theme",
+    "themeMulti": "Multicolor",
+    "themeMono": "Mono",
+    "skip": "Skip to content"
+  },
+  "hero": {
+    "title": "Projects that actually run.",
+    "explore": "Explore projects",
+    "cv": "Download CV",
+    "cvSoon": "CV download is coming soon"
+  },
+  "stats": {
+    "live": "projects live",
+    "inProgress": "in progress",
+    "building": "currently building"
+  },
+  "projects": {
+    "title": "Projects",
+    "all": "All",
+    "python": "Python",
+    "bots": "Bots",
+    "data": "Data",
+    "web": "Web",
+    "filter": "Filter projects",
+    "empty": "No projects in this category yet.",
+    "status": {
+      "live": "live",
+      "building": "building",
+      "coming-soon": "coming soon"
+    },
+    "type": {
+      "static": "Write-up",
+      "in-browser": "Runs in your browser",
+      "runner": "Runs on demand",
+      "bot-status": "Bot status"
+    },
+    "back": "All projects",
+    "repo": "View on GitHub",
+    "stack": "Tech stack",
+    "runSoon": "The live version of this project is being built. Check back soon.",
+    "disclaimer": "This is a simulation for learning purposes. Not financial advice."
+  },
+  "skills": {
+    "title": "Skills"
+  },
+  "footer": {
+    "contact": "Contact",
+    "contactText": "The quickest way to reach me is email.",
+    "email": "Send an email",
+    "credit": "Built with Next.js, Supabase and Python (AI-assisted)."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "home": "Back to the homepage"
+  },
+  "tabs": {
+    "label": "Project sections",
+    "overview": "Overview",
+    "run": "Run",
+    "results": "Results",
+    "how": "How it works"
+  },
+  "run": {
+    "run": "Run",
+    "restart": "Restart",
+    "stop": "Stop",
+    "terminal": "Python terminal",
+    "hint": "This runs the original Python code in your browser. Nothing is sent to a server. The first start downloads the Python runtime (about 13 MB).",
+    "state": {
+      "idle": "ready",
+      "loading": "loading Python…",
+      "running": "running",
+      "waiting": "waiting for your input",
+      "done": "finished",
+      "error": "something went wrong",
+      "unsupported": "Your browser blocks the feature this terminal needs. Try reloading the page or a current Chrome, Firefox or Safari."
+    }
+  },
+  "how": {
+    "inBrowser": "The Python files are copied from my GitHub repo at a fixed commit and served by this site. When you press Run, your browser downloads Pyodide (CPython compiled to WebAssembly) and runs the program in a Web Worker, a separate thread, so the page stays responsive. The terminal is xterm.js. When the program calls input(), the worker sleeps on shared memory until you press Enter.",
+    "static": "This project runs on its own, outside this site. The overview shows its README from GitHub.",
+    "runner": "Runs go into a job queue in Postgres. A Python worker picks them up, runs them with a timeout and writes the result back; the page watches the job live.",
+    "bot": "The bot runs on a small server and writes a heartbeat to the database after every check. This page only reads it.",
+    "source": "Source at commit"
+  },
+  "results": {
+    "soon": "Run results will appear here once the runner system is live."
+  }
 }

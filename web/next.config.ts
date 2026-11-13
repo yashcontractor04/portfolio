@@ -10,7 +10,9 @@ const isDev = process.env.NODE_ENV !== "production";
 // Pyodide are added (connect-src / script-src), never with a wildcard.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  // 'wasm-unsafe-eval' lets the browser compile WebAssembly (Pyodide). It does not allow eval().
+  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${isDev ? " 'unsafe-eval'" : ""}`,
+  "worker-src 'self'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self'",
@@ -25,6 +27,12 @@ const securityHeaders = [
   { key: "Content-Security-Policy", value: csp },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
   { key: "X-Content-Type-Options", value: "nosniff" },
+  // Cross-origin isolation. Required for SharedArrayBuffer, which the in-browser
+  // Python terminal uses to make input() work. Site-wide, because moving between
+  // pages without a full reload keeps the first page's headers.
+  // Consequence: any cross-origin image/script must be CORS-enabled (crossorigin attribute).
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  { key: "Cross-Origin-Embedder-Policy", value: "require-corp" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), browsing-topics=()" },

@@ -65,7 +65,7 @@ bots/                Long-running bots (badminton monitor)                      
 supabase/migrations  Database schema, RLS, functions                                    built
 supabase/tests       SQL tests + run.sh (also run in CI)                                built
 content/cv.yaml      CV single source of truth (EN + DE)                                built
-content/cv/          Typst template for the PDF CV                                      planned
+content/cv/          Typst template for the PDF CV (built by .github/workflows/cv.yml)   built
 projects/<slug>/     One folder + project.yaml per project                              built (format)
 scripts/             Small build/CI scripts (manifest validation, runner sync)          partly built
 infra/               docker-compose, deploy scripts, backup workflow notes              planned
@@ -187,11 +187,17 @@ sequenceDiagram
 
 At build time Next.js reads all manifests and statically generates the project pages. A CI
 step upserts `runner` manifests into the `runners` table (planned: `scripts/sync-runners`).
-In-browser code is copied at build time from a **pinned commit SHA**, never fetched live.
+In-browser code is **vendored**: `scripts/vendor_inbrowser.py` copies the files at the pinned
+commit SHA into `projects/<slug>/src/`, so the code the site runs is reviewed in this repo and
+never fetched live. `web/scripts/prebuild.mjs` copies it, and the Pyodide runtime from
+`node_modules`, into `web/public/` before every build (self-hosted, no CDN).
 
-Planned for `input()` in Pyodide: the Web Worker blocks on `Atomics.wait` over a
-`SharedArrayBuffer` while the page collects the line from xterm.js. That needs cross-origin
-isolation headers (COOP/COEP), which will be set only on the Run pages. Verify in Phase 1.
+`input()` in Pyodide (**built**): the Web Worker (`web/public/py-worker.mjs`) blocks on
+`Atomics.wait` over a `SharedArrayBuffer` while the page collects the line from xterm.js.
+That needs cross-origin isolation, so COOP `same-origin` and COEP `require-corp` are sent on
+every page (site-wide, because client-side navigation keeps the first page's headers).
+Consequence: cross-origin images and scripts are blocked unless CORS-enabled; README images
+are therefore not rendered.
 
 ## 6. Auth
 

@@ -2,7 +2,7 @@
 schema: 1
 name: Coffee Machine (OOP)
 type: in-browser
-status: building
+status: live
 order: 42
 tags: [python]
 accent: amber

@@ -45,14 +45,14 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
               <a href="#projects" className="flex h-12 items-center gap-2 rounded-md bg-text px-6 font-semibold text-bg">
                 {t("hero.explore")} <Icon name="arrow" size={18} />
               </a>
-              {/* Enabled once the CV pipeline (roadmap item 7) publishes the PDFs. */}
-              <span
-                aria-disabled="true"
-                title={t("hero.cvSoon")}
-                className="flex h-12 cursor-not-allowed items-center rounded-md border border-line px-6 font-medium text-mute"
+              {/* Built from content/cv.yaml by .github/workflows/cv.yml */}
+              <a
+                href={`/cv/cv-${locale}.pdf`}
+                download={`Yash-Contractor-CV-${locale.toUpperCase()}.pdf`}
+                className="flex h-12 items-center rounded-md border border-line px-6 font-medium hover:border-line-strong"
               >
                 {t("hero.cv")}
-              </span>
+              </a>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">

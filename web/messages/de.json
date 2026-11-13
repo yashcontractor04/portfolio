@@ -1,9 +1,96 @@
 {
-  "nav": { "projects": "Projekte", "skills": "Skills", "contact": "Kontakt", "home": "Start", "language": "Sprache", "theme": "Farbschema", "themeMulti": "Mehrfarbig", "themeMono": "Mono", "skip": "Zum Inhalt springen" },
-  "hero": { "title": "Projekte, die wirklich laufen.", "explore": "Projekte ansehen", "cv": "Lebenslauf herunterladen", "cvSoon": "Der Lebenslauf-Download folgt in Kürze" },
-  "stats": { "live": "Projekte live", "inProgress": "in Arbeit", "building": "aktuell in Arbeit" },
-  "projects": { "title": "Projekte", "all": "Alle", "python": "Python", "bots": "Bots", "data": "Daten", "web": "Web", "filter": "Projekte filtern", "empty": "In dieser Kategorie gibt es noch keine Projekte.", "status": { "live": "live", "building": "in Arbeit", "coming-soon": "demnächst" }, "type": { "static": "Beschreibung", "in-browser": "Läuft im Browser", "runner": "Läuft auf Abruf", "bot-status": "Bot-Status" }, "back": "Alle Projekte", "repo": "Auf GitHub ansehen", "stack": "Tech-Stack", "runSoon": "Die Live-Version dieses Projekts ist in Arbeit. Schau bald wieder vorbei.", "disclaimer": "Dies ist eine Simulation zu Lernzwecken. Keine Anlageberatung." },
-  "skills": { "title": "Skills" },
-  "footer": { "contact": "Kontakt", "contactText": "Am schnellsten erreichst du mich per E-Mail.", "email": "E-Mail schreiben", "credit": "Gebaut mit Next.js, Supabase und Python (KI-unterstützt)." },
-  "notFound": { "title": "Seite nicht gefunden", "home": "Zurück zur Startseite" }
+  "nav": {
+    "projects": "Projekte",
+    "skills": "Skills",
+    "contact": "Kontakt",
+    "home": "Start",
+    "language": "Sprache",
+    "theme": "Farbschema",
+    "themeMulti": "Mehrfarbig",
+    "themeMono": "Mono",
+    "skip": "Zum Inhalt springen"
+  },
+  "hero": {
+    "title": "Projekte, die wirklich laufen.",
+    "explore": "Projekte ansehen",
+    "cv": "Lebenslauf herunterladen",
+    "cvSoon": "Der Lebenslauf-Download folgt in Kürze"
+  },
+  "stats": {
+    "live": "Projekte live",
+    "inProgress": "in Arbeit",
+    "building": "aktuell in Arbeit"
+  },
+  "projects": {
+    "title": "Projekte",
+    "all": "Alle",
+    "python": "Python",
+    "bots": "Bots",
+    "data": "Daten",
+    "web": "Web",
+    "filter": "Projekte filtern",
+    "empty": "In dieser Kategorie gibt es noch keine Projekte.",
+    "status": {
+      "live": "live",
+      "building": "in Arbeit",
+      "coming-soon": "demnächst"
+    },
+    "type": {
+      "static": "Beschreibung",
+      "in-browser": "Läuft im Browser",
+      "runner": "Läuft auf Abruf",
+      "bot-status": "Bot-Status"
+    },
+    "back": "Alle Projekte",
+    "repo": "Auf GitHub ansehen",
+    "stack": "Tech-Stack",
+    "runSoon": "Die Live-Version dieses Projekts ist in Arbeit. Schau bald wieder vorbei.",
+    "disclaimer": "Dies ist eine Simulation zu Lernzwecken. Keine Anlageberatung."
+  },
+  "skills": {
+    "title": "Skills"
+  },
+  "footer": {
+    "contact": "Kontakt",
+    "contactText": "Am schnellsten erreichst du mich per E-Mail.",
+    "email": "E-Mail schreiben",
+    "credit": "Gebaut mit Next.js, Supabase und Python (KI-unterstützt)."
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "home": "Zurück zur Startseite"
+  },
+  "tabs": {
+    "label": "Projektbereiche",
+    "overview": "Überblick",
+    "run": "Ausführen",
+    "results": "Ergebnisse",
+    "how": "So funktioniert's"
+  },
+  "run": {
+    "run": "Starten",
+    "restart": "Neu starten",
+    "stop": "Stopp",
+    "terminal": "Python-Terminal",
+    "hint": "Hier läuft der originale Python-Code in deinem Browser. Es wird nichts an einen Server gesendet. Beim ersten Start wird die Python-Laufzeit geladen (ca. 13 MB).",
+    "state": {
+      "idle": "bereit",
+      "loading": "Python wird geladen…",
+      "running": "läuft",
+      "waiting": "wartet auf deine Eingabe",
+      "done": "beendet",
+      "error": "etwas ist schiefgelaufen",
+      "unsupported": "Dein Browser blockiert eine Funktion, die dieses Terminal braucht. Lade die Seite neu oder nutze ein aktuelles Chrome, Firefox oder Safari."
+    }
+  },
+  "how": {
+    "inBrowser": "Die Python-Dateien werden aus meinem GitHub-Repo an einem festen Commit kopiert und von dieser Seite ausgeliefert. Beim Klick auf Starten lädt dein Browser Pyodide (CPython als WebAssembly) und führt das Programm in einem Web Worker aus, einem eigenen Thread, sodass die Seite flüssig bleibt. Das Terminal ist xterm.js. Ruft das Programm input() auf, schläft der Worker auf geteiltem Speicher, bis du Enter drückst.",
+    "static": "Dieses Projekt läuft eigenständig außerhalb dieser Seite. Der Überblick zeigt das README von GitHub.",
+    "runner": "Läufe landen in einer Job-Queue in Postgres. Ein Python-Worker holt sie ab, führt sie mit Timeout aus und schreibt das Ergebnis zurück; die Seite verfolgt den Job live.",
+    "bot": "Der Bot läuft auf einem kleinen Server und schreibt nach jeder Prüfung einen Heartbeat in die Datenbank. Diese Seite liest ihn nur.",
+    "source": "Quellcode am Commit"
+  },
+  "results": {
+    "soon": "Ergebnisse erscheinen hier, sobald das Runner-System live ist."
+  }
 }
