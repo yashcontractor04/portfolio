@@ -1,0 +1,66 @@
+/*
+ * Design tokens: the single place where colours, radii and fonts are defined.
+ * Direction "Ledger" (pure black, white type, big tabular numbers) with "Console"
+ * details (mono for data, amber as the mono theme's accent). See docs/CONVENTIONS.md.
+ * Components must use these variables, never raw hex values.
+ */
+:root {
+  /* surfaces, darkest to lightest */
+  --bg: #000000;
+  --panel: #0b0b0c;
+  --tile: #111113;
+  --line: #1f1f23;
+  --line-strong: #3a3a42;
+
+  /* text */
+  --text: #ffffff;
+  --mute: #a1a1aa; /* 8.6:1 on --tile */
+
+  /* reserved meanings: gain / loss only, never decoration */
+  --positive: #34d399;
+  --negative: #f87171;
+
+  /* macOS window chrome */
+  --light-close: #ff5f57;
+  --light-min: #febc2e;
+  --light-max: #28c840;
+
+  /* shape */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 18px;
+
+  /* type */
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+
+  /* focus ring */
+  --ring: #ffffff;
+}
+
+/* Theme "multicolor": each section/app has its own hue, used sparingly. */
+:root,
+[data-theme="multicolor"] {
+  --hue-blue: #5b8def;
+  --hue-indigo: #818cf8;
+  --hue-violet: #a78bfa;
+  --hue-pink: #f472b6;
+  --hue-orange: #f59e42;
+  --hue-amber: #f5b83d;
+  --hue-teal: #2dd4bf;
+  --hue-cyan: #38bdf8;
+  --accent: var(--hue-blue);
+}
+
+/* Theme "mono": black and white with one accent. Same tokens, one value. */
+[data-theme="mono"] {
+  --hue-blue: #f5b83d;
+  --hue-indigo: #f5b83d;
+  --hue-violet: #f5b83d;
+  --hue-pink: #f5b83d;
+  --hue-orange: #f5b83d;
+  --hue-amber: #f5b83d;
+  --hue-teal: #f5b83d;
+  --hue-cyan: #f5b83d;
+  --accent: #f5b83d;
+}

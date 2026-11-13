@@ -1,0 +1,9 @@
+{
+  "nav": { "projects": "Projekte", "skills": "Skills", "contact": "Kontakt", "home": "Start", "language": "Sprache", "theme": "Farbschema", "themeMulti": "Mehrfarbig", "themeMono": "Mono", "skip": "Zum Inhalt springen" },
+  "hero": { "title": "Projekte, die wirklich laufen.", "explore": "Projekte ansehen", "cv": "Lebenslauf herunterladen", "cvSoon": "Der Lebenslauf-Download folgt in Kürze" },
+  "stats": { "live": "Projekte live", "inProgress": "in Arbeit", "building": "aktuell in Arbeit" },
+  "projects": { "title": "Projekte", "all": "Alle", "python": "Python", "bots": "Bots", "data": "Daten", "web": "Web", "filter": "Projekte filtern", "empty": "In dieser Kategorie gibt es noch keine Projekte.", "status": { "live": "live", "building": "in Arbeit", "coming-soon": "demnächst" }, "type": { "static": "Beschreibung", "in-browser": "Läuft im Browser", "runner": "Läuft auf Abruf", "bot-status": "Bot-Status" }, "back": "Alle Projekte", "repo": "Auf GitHub ansehen", "stack": "Tech-Stack", "runSoon": "Die Live-Version dieses Projekts ist in Arbeit. Schau bald wieder vorbei.", "disclaimer": "Dies ist eine Simulation zu Lernzwecken. Keine Anlageberatung." },
+  "skills": { "title": "Skills" },
+  "footer": { "contact": "Kontakt", "contactText": "Am schnellsten erreichst du mich per E-Mail.", "email": "E-Mail schreiben", "credit": "Gebaut mit Next.js, Supabase und Python (KI-unterstützt)." },
+  "notFound": { "title": "Seite nicht gefunden", "home": "Zurück zur Startseite" }
+}

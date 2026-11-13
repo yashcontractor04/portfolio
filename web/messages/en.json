@@ -1,0 +1,9 @@
+{
+  "nav": { "projects": "Projects", "skills": "Skills", "contact": "Contact", "home": "Home", "language": "Language", "theme": "Colour theme", "themeMulti": "Multicolor", "themeMono": "Mono", "skip": "Skip to content" },
+  "hero": { "title": "Projects that actually run.", "explore": "Explore projects", "cv": "Download CV", "cvSoon": "CV download is coming soon" },
+  "stats": { "live": "projects live", "inProgress": "in progress", "building": "currently building" },
+  "projects": { "title": "Projects", "all": "All", "python": "Python", "bots": "Bots", "data": "Data", "web": "Web", "filter": "Filter projects", "empty": "No projects in this category yet.", "status": { "live": "live", "building": "building", "coming-soon": "coming soon" }, "type": { "static": "Write-up", "in-browser": "Runs in your browser", "runner": "Runs on demand", "bot-status": "Bot status" }, "back": "All projects", "repo": "View on GitHub", "stack": "Tech stack", "runSoon": "The live version of this project is being built. Check back soon.", "disclaimer": "This is a simulation for learning purposes. Not financial advice." },
+  "skills": { "title": "Skills" },
+  "footer": { "contact": "Contact", "contactText": "The quickest way to reach me is email.", "email": "Send an email", "credit": "Built with Next.js, Supabase and Python (AI-assisted)." },
+  "notFound": { "title": "Page not found", "home": "Back to the homepage" }
+}

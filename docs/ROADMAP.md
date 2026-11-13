@@ -16,7 +16,10 @@ add the date when you finish one. If you change scope, change this file in the s
 
 ## Phase 1: public site (target: live on a vercel.app URL)
 
-1. [ ] **Design tokens + base components.** Direction chosen 2026-11-13: "Ledger" base with
+1. [ ] **Design tokens + base components.** (2026-11-13: tokens, both themes, Window, MenuBar,
+   Dock, StatTile, bento tile, chips, cursor spotlight are built. Still open: Sparkline,
+   StatusDot as components, CommandPalette (cmdk), contrast audit.)
+   Original scope: Direction chosen 2026-11-13: "Ledger" base with
    "Console" details (see CONVENTIONS.md, Design system).
    - Tokens as CSS variables in `web/src/styles/tokens.css`; themes `multicolor` and `mono`
      switchable via `data-theme`; dark only.
@@ -24,16 +27,19 @@ add the date when you finish one. If you change scope, change this file in the s
      Sparkline, StatusDot, CommandPalette (cmdk), cursor spotlight.
    - Accept: keyboard reachable, visible focus ring, contrast ≥ 4.5:1 for text,
      `prefers-reduced-motion` disables spotlight and lift.
-2. [ ] **Next.js scaffold in `web/`**: App Router, TS strict, Tailwind, shadcn/ui, next-intl
+2. [x] 2026-11-13 **Next.js scaffold in `web/`** (shadcn/ui and Prettier not added yet; add shadcn
+   when the first form or dialog needs it): App Router, TS strict, Tailwind, next-intl
    with `/en` and `/de`, ESLint + Prettier, security headers (CSP, HSTS, frame-ancestors,
    Referrer-Policy, Permissions-Policy).
    - Accept: `npm run lint && npm run typecheck && npm run build` pass in CI.
-3. [ ] **Manifest loader** (`web/src/lib/projects.ts`): reads `projects/*/project.yaml`, validates
+3. [x] 2026-11-13 **Manifest loader** (`web/src/lib/projects.ts`): reads `projects/*/project.yaml`, validates
    with zod (mirror of the JSON schema), unit tests for valid and invalid manifests.
-4. [ ] **Homepage**: hero from `cv.yaml` + stat tiles, bento project grid with filters, skills
+4. [ ] **Homepage** (2026-11-13: hero, stat tiles, bento grid + filters, skills, contact links are live.
+   Still open: GitHub heatmap, Download CV button (needs item 7), contact form (item 8), "runs this week" tile (needs Supabase).)
+   Original scope:: hero from `cv.yaml` + stat tiles, bento project grid with filters, skills
    chips, footer with GitHub heatmap (GitHub API, cached 1 day), Download CV, credit line.
    - Accept: statically generated; Lighthouse performance ≥ 90 on mobile.
-5. [ ] **Project pages** with tabs Overview (README from GitHub, sanitised, revalidated hourly),
+5. [ ] **Project pages** (2026-11-13: basic page per project exists; tabs and README rendering still open) with tabs Overview (README from GitHub, sanitised, revalidated hourly),
    Run, Results, How it works. `static` type renders MDX.
 6. [ ] **In-browser runner**: Pyodide in a Web Worker + xterm.js, working `input()`.
    Projects: `hangman`, `blackjack`, `coffee-machine` (manifests exist, pinned by commit SHA).
@@ -88,6 +94,11 @@ add the date when you finish one. If you change scope, change this file in the s
 28. [ ] SEO, Open Graph images, custom domain, Resend domain verification.
 
 ## Known gaps to keep in mind
+
+- Unknown project URLs render the not-found page with `noindex` but HTTP status 200 (a side
+  effect of Cache Components streaming). Fix in Phase 4 with SEO work.
+- CSP allows inline scripts (`'unsafe-inline'`) because static pages cannot carry nonces.
+- Prettier is not set up yet; ESLint is.
 
 - A job that fails for a system reason still consumes one run of the user's quota.
 - `usage_daily` uses UTC days.

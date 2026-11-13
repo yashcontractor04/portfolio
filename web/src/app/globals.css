@@ -1,0 +1,92 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
+@import "../styles/tokens.css";
+
+/* Expose the tokens to Tailwind, so classes like bg-tile, text-mute, border-line exist. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-tile: var(--tile);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-text: var(--text);
+  --color-mute: var(--mute);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius-lg);
+}
+
+html {
+  color-scheme: dark; /* dark only: no light mode, no toggle */
+  background: var(--bg);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-feature-settings: "tnum"; /* tabular figures everywhere */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible keyboard focus on every interactive element. */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/*
+ * Signature interaction: a soft spotlight follows the cursor across cards, and
+ * the card lifts slightly. --mx / --my are set by components/Spotlight.tsx.
+ */
+.spot {
+  position: relative;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease;
+}
+.spot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 180ms ease;
+  background: radial-gradient(
+    340px circle at var(--mx, 50%) var(--my, 50%),
+    rgb(255 255 255 / 0.08),
+    transparent 60%
+  );
+}
+.spot:hover {
+  transform: translateY(-3px);
+  border-color: var(--line-strong);
+}
+.spot:hover::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .spot,
+  .spot::before {
+    transition: none;
+  }
+  .spot:hover {
+    transform: none;
+  }
+  .spot::before {
+    display: none;
+  }
+}

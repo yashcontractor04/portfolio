@@ -48,6 +48,12 @@ rule wins. To change a rule, change this file in the same commit and say why.
 
 ## Web (Next.js)
 
+- This is Next.js 16 with Cache Components. It differs from older tutorials (`proxy.ts`
+  instead of `middleware.ts`, no `dynamicParams`). Read `web/AGENTS.md` and the bundled docs in
+  `web/node_modules/next/dist/docs/` before using an API you are not sure about.
+- Fonts are self-hosted through `@fontsource-variable/*` (no requests to Google: GDPR).
+- Tests use Node's built-in runner: `npm test` runs `src/**/*.test.ts`.
+
 - App Router, TypeScript `strict`, no `any`. Server Components by default; add
   `"use client"` only where interaction needs it.
 - Public pages are statically generated. Anything per-user is fetched client-side or in

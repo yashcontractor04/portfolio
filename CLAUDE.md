@@ -25,5 +25,5 @@ Before you commit:
 ```bash
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres supabase/tests/run.sh
 python scripts/validate_manifests.py
-# once web/ exists: cd web && npm run lint && npm run typecheck && npm test
+cd web && npm run lint && npm test && npm run build && npm run typecheck
 ```

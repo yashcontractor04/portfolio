@@ -59,7 +59,7 @@ on it to attack from the internet except SSH (key-only, used by the deploy workf
 ## 2. Repository layout
 
 ```
-web/                 Next.js app (App Router, TypeScript strict, Tailwind, shadcn/ui)   planned
+web/                 Next.js 16 app (App Router, TypeScript strict, Tailwind 4, next-intl)  built (Phase 1 in progress)
 worker/              Python worker: queue loop + one module per runner, Dockerfile       planned
 bots/                Long-running bots (badminton monitor)                              planned
 supabase/migrations  Database schema, RLS, functions                                    built
@@ -239,5 +239,5 @@ Enable the role once by hand: `alter role app_worker login password '<long rando
 
 - Impressum: German law requires a real postal address for most sites. Options to discuss
   before Phase 2 ships (do not decide for him).
-- Phone is left out of `cv.yaml` on purpose (public repo). Email stays in; Yash to confirm he is fine with it being public.
+- Phone is left out of `cv.yaml` on purpose (public repo). Email stays in and is public (confirmed by Yash 2026-11-13).
 - Domain (GitHub Student Pack) and then Resend domain verification.
