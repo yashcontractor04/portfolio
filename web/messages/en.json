@@ -92,5 +92,116 @@
   },
   "results": {
     "soon": "Run results will appear here once the runner system is live."
+  },
+  "apps": {
+    "demo": "Demo",
+    "demoText": "You are looking at sample data. Nothing you change here is saved.",
+    "login": "Log in for your own private version",
+    "names": {
+      "workspace": "Workspace",
+      "board": "Board"
+    }
+  },
+  "auth": {
+    "title": {
+      "login": "Log in",
+      "signup": "Create account",
+      "reset": "Reset password",
+      "update": "Choose a new password"
+    },
+    "submit": {
+      "login": "Log in",
+      "signup": "Create account",
+      "reset": "Send reset link",
+      "update": "Save password"
+    },
+    "email": "Email",
+    "password": "Password",
+    "newPassword": "New password",
+    "passwordHint": "At least 10 characters.",
+    "invite": "Invite code",
+    "inviteOnly": "Registration is invite-only. You need a code from Yash.",
+    "toLogin": "Back to log in",
+    "toSignup": "I have an invite code",
+    "toReset": "Forgot password?",
+    "logout": "Log out",
+    "checkEmail": "Almost done. Check your inbox and click the confirmation link.",
+    "resetSent": "If an account exists for this address, a reset link is on its way.",
+    "unavailable": "Accounts are not available right now.",
+    "errors": {
+      "email": "Please enter a valid email address.",
+      "password": "The password must be at least 10 characters long.",
+      "invite": "An invite code has 20 letters and digits.",
+      "inviteRejected": "This invite code is not valid, already used or expired.",
+      "login": "Email or password is not correct.",
+      "unconfirmed": "Please confirm your email address first. Check your inbox.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "workspace": {
+    "loading": "Loading…",
+    "loadError": "Your notes could not be loaded. Please reload the page.",
+    "pages": "Pages",
+    "newPage": "New page",
+    "untitled": "Untitled",
+    "title": "Page title",
+    "delete": "Delete",
+    "confirmDelete": "Delete this page and all pages inside it?",
+    "addSubpage": "Add a page inside {title}",
+    "empty": "No pages yet. Create your first one.",
+    "save": {
+      "saving": "saving…",
+      "saved": "saved",
+      "error": "not saved",
+      "tooLarge": "page too large to save"
+    }
+  },
+  "board": {
+    "loading": "Loading…",
+    "loadError": "The board could not be loaded. Please reload the page.",
+    "saveError": "That change could not be saved.",
+    "board": "Board",
+    "newBoard": "New board",
+    "boardName": "Board name",
+    "template": "Template",
+    "templates": {
+      "uni": "Uni assignments",
+      "jobs": "Job applications",
+      "blank": "Blank"
+    },
+    "create": "Create",
+    "fields": "Fields",
+    "fieldName": "Field name",
+    "fieldType": "Field type",
+    "fieldTypes": {
+      "text": "text",
+      "number": "number",
+      "date": "date",
+      "url": "link",
+      "select": "choice"
+    },
+    "remove": "Remove",
+    "deleteBoard": "Delete board",
+    "confirmDeleteBoard": "Delete the board \"{name}\" with all its cards?",
+    "empty": "No boards yet. Create your first one.",
+    "addColumn": "Add column",
+    "newColumn": "New column",
+    "columnName": "Column name",
+    "columnMenu": "Options for {name}",
+    "color": "Colour",
+    "wipLimit": "WIP limit",
+    "overLimit": "Over the WIP limit",
+    "left": "Left",
+    "right": "Right",
+    "deleteColumn": "Delete column",
+    "columnNotEmpty": "Move or delete its cards first",
+    "addCard": "Add a card",
+    "addCardTo": "Add a card to {name}",
+    "editCard": "Edit {title}",
+    "cardTitle": "Title",
+    "description": "Description",
+    "save": "Save",
+    "cancel": "Cancel",
+    "deleteCard": "Delete card"
   }
 }

@@ -10,6 +10,9 @@ const paths: Record<string, ReactNode> = {
   grid: (<><rect x="3" y="3" width="8" height="8" rx="1.5" /><rect x="13" y="3" width="8" height="8" rx="1.5" /><rect x="3" y="13" width="8" height="8" rx="1.5" /><rect x="13" y="13" width="8" height="8" rx="1.5" /></>),
   spark: (<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.500 15.5L6 18" />),
   mail: (<><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></>),
+  board: (<><rect x="3" y="4" width="5" height="16" rx="1" /><rect x="10" y="4" width="5" height="10" rx="1" /><rect x="17" y="4" width="4" height="13" rx="1" /></>),
+  login: (<><path d="M10 17l5-5-5-5M15 12H3" /><path d="M14 3h5a2 2 0 012 2v14a2 2 0 01-2 2h-5" /></>),
+  logout: (<><path d="M16 17l5-5-5-5M21 12H9" /><path d="M10 3H5a2 2 0 00-2 2v14a2 2 0 002 2h5" /></>),
   arrow: (<path d="M5 12h14M13 6l6 6-6 6" />),
 };
 

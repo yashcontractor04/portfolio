@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { AuthProvider } from "@/components/AuthProvider";
 import { Dock } from "@/components/Dock";
 import { MenuBar } from "@/components/MenuBar";
 import { Spotlight } from "@/components/Spotlight";
@@ -35,6 +36,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
     <html lang={locale} data-theme="multicolor">
       <body className="min-h-dvh pb-28">
         <NextIntlClientProvider>
+          <AuthProvider>
           <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-14 focus:z-30 focus:bg-text focus:px-3 focus:py-2 focus:text-bg">
             {t("skip")}
           </a>
@@ -42,8 +44,9 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           <main id="main" className="mx-auto w-full max-w-[1680px] px-4 py-6 sm:px-6 lg:px-10">
             {children}
           </main>
-          <Dock locale={locale} />
+          <Dock />
           <Spotlight />
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

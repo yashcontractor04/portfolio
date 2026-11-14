@@ -92,5 +92,116 @@
   },
   "results": {
     "soon": "Ergebnisse erscheinen hier, sobald das Runner-System live ist."
+  },
+  "apps": {
+    "demo": "Demo",
+    "demoText": "Du siehst Beispieldaten. Änderungen werden hier nicht gespeichert.",
+    "login": "Für deine eigene private Version anmelden",
+    "names": {
+      "workspace": "Workspace",
+      "board": "Board"
+    }
+  },
+  "auth": {
+    "title": {
+      "login": "Anmelden",
+      "signup": "Konto erstellen",
+      "reset": "Passwort zurücksetzen",
+      "update": "Neues Passwort wählen"
+    },
+    "submit": {
+      "login": "Anmelden",
+      "signup": "Konto erstellen",
+      "reset": "Link senden",
+      "update": "Passwort speichern"
+    },
+    "email": "E-Mail",
+    "password": "Passwort",
+    "newPassword": "Neues Passwort",
+    "passwordHint": "Mindestens 10 Zeichen.",
+    "invite": "Einladungscode",
+    "inviteOnly": "Die Registrierung ist nur mit Einladung möglich. Du brauchst einen Code von Yash.",
+    "toLogin": "Zurück zur Anmeldung",
+    "toSignup": "Ich habe einen Einladungscode",
+    "toReset": "Passwort vergessen?",
+    "logout": "Abmelden",
+    "checkEmail": "Fast geschafft. Öffne dein Postfach und klicke auf den Bestätigungslink.",
+    "resetSent": "Falls es zu dieser Adresse ein Konto gibt, ist ein Link unterwegs.",
+    "unavailable": "Konten sind gerade nicht verfügbar.",
+    "errors": {
+      "email": "Bitte gib eine gültige E-Mail-Adresse ein.",
+      "password": "Das Passwort muss mindestens 10 Zeichen lang sein.",
+      "invite": "Ein Einladungscode hat 20 Buchstaben und Ziffern.",
+      "inviteRejected": "Dieser Einladungscode ist ungültig, bereits benutzt oder abgelaufen.",
+      "login": "E-Mail oder Passwort ist nicht korrekt.",
+      "unconfirmed": "Bitte bestätige zuerst deine E-Mail-Adresse. Schau in dein Postfach.",
+      "generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+    }
+  },
+  "workspace": {
+    "loading": "Lädt…",
+    "loadError": "Deine Notizen konnten nicht geladen werden. Bitte lade die Seite neu.",
+    "pages": "Seiten",
+    "newPage": "Neue Seite",
+    "untitled": "Ohne Titel",
+    "title": "Seitentitel",
+    "delete": "Löschen",
+    "confirmDelete": "Diese Seite und alle Unterseiten löschen?",
+    "addSubpage": "Unterseite in {title} anlegen",
+    "empty": "Noch keine Seiten. Lege deine erste an.",
+    "save": {
+      "saving": "speichert…",
+      "saved": "gespeichert",
+      "error": "nicht gespeichert",
+      "tooLarge": "Seite zu groß zum Speichern"
+    }
+  },
+  "board": {
+    "loading": "Lädt…",
+    "loadError": "Das Board konnte nicht geladen werden. Bitte lade die Seite neu.",
+    "saveError": "Die Änderung konnte nicht gespeichert werden.",
+    "board": "Board",
+    "newBoard": "Neues Board",
+    "boardName": "Name des Boards",
+    "template": "Vorlage",
+    "templates": {
+      "uni": "Uni-Abgaben",
+      "jobs": "Bewerbungen",
+      "blank": "Leer"
+    },
+    "create": "Erstellen",
+    "fields": "Felder",
+    "fieldName": "Feldname",
+    "fieldType": "Feldtyp",
+    "fieldTypes": {
+      "text": "Text",
+      "number": "Zahl",
+      "date": "Datum",
+      "url": "Link",
+      "select": "Auswahl"
+    },
+    "remove": "Entfernen",
+    "deleteBoard": "Board löschen",
+    "confirmDeleteBoard": "Das Board „{name}“ mit allen Karten löschen?",
+    "empty": "Noch keine Boards. Lege dein erstes an.",
+    "addColumn": "Spalte hinzufügen",
+    "newColumn": "Neue Spalte",
+    "columnName": "Spaltenname",
+    "columnMenu": "Optionen für {name}",
+    "color": "Farbe",
+    "wipLimit": "WIP-Limit",
+    "overLimit": "Über dem WIP-Limit",
+    "left": "Links",
+    "right": "Rechts",
+    "deleteColumn": "Spalte löschen",
+    "columnNotEmpty": "Verschiebe oder lösche zuerst die Karten",
+    "addCard": "Karte hinzufügen",
+    "addCardTo": "Karte zu {name} hinzufügen",
+    "editCard": "{title} bearbeiten",
+    "cardTitle": "Titel",
+    "description": "Beschreibung",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "deleteCard": "Karte löschen"
   }
 }

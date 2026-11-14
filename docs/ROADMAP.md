@@ -56,15 +56,23 @@ add the date when you finish one. If you change scope, change this file in the s
 
 ## Phase 2: accounts and private apps
 
-10. [ ] **Supabase project** (EU region) created, migrations applied, `app_worker` login set.
-11. [ ] **Auth**: sign up with invite code, verify email, log in, reset password, log out.
+10. [x] 2026-11-14 **Supabase project** (`app_worker` login still to be set, needed in Phase 3) (EU region) created, migrations applied, `app_worker` login set.
+11. [ ] **Auth** (2026-11-14: sign up with invite code, log in, log out, reset and update password are
+    built as client-side Supabase Auth calls; the code compiles and the forms validate, but the
+    flows were NOT tested against the live project from the build environment. Still open:
+    Yash's manual test, server-side rate limits via `check_rate_limit`, Resend as SMTP, redirect
+    of logged-out users away from nothing-to-see pages.) Original scope: sign up with invite code, verify email, log in, reset password, log out.
     Rate limits on all auth routes. Accept: signup without a valid code fails with a clear message.
 12. [ ] **Admin panel** (`/admin`, admin only): invites, users, quotas (`app_settings`,
     `profiles.daily_run_limit`), job queue + logs, bot status. Every action writes `audit_log`.
-13. [ ] **Demo/personal switch**: each app renders from sample data for guests and from the
+13. [x] 2026-11-14 **Demo/personal switch** (`web/src/apps/useStore.ts`): each app renders from sample data for guests and from the
     database after login, through one data-access interface per app.
-14. [ ] **Workspace**: BlockNote, nested pages, autosave (debounced), 1 MB document limit handled.
-15. [ ] **Board**: dnd-kit, optimistic updates, Realtime sync across tabs, columns/labels/fields
+14. [ ] **Workspace** (2026-11-14: built and browser-tested in demo mode; Supabase store untested live.
+    Still open: reorder/move pages, archive instead of delete.): BlockNote, nested pages, autosave (debounced), 1 MB document limit handled.
+15. [ ] **Board** (2026-11-14: built and browser-tested in demo mode: drag and drop, optimistic updates,
+    columns add/rename/colour/WIP/move/delete, custom fields, templates, card dialog. Realtime
+    code is written but untested live. Still open: labels UI, select-type fields, dragging
+    columns, the two-tab acceptance test.): dnd-kit, optimistic updates, Realtime sync across tabs, columns/labels/fields
     editable, WIP limits, templates (Uni assignments, Job applications, Blank).
     Accept: dragging in tab A moves the card in tab B within 2 s.
 16. [ ] **Focus**, **Habits**, **Stash** (title/favicon fetch must block private IP ranges: SSRF).

@@ -163,3 +163,29 @@ body {
 .markdown strong {
   color: var(--text);
 }
+
+/* BlockNote editor: match our tokens instead of its default dark theme. */
+.workspace-editor .bn-container[data-color-scheme] {
+  --bn-colors-editor-background: transparent;
+  --bn-colors-editor-text: var(--text);
+  --bn-colors-menu-background: var(--panel);
+  --bn-colors-menu-text: var(--text);
+  --bn-colors-tooltip-background: var(--tile);
+  --bn-colors-tooltip-text: var(--text);
+  --bn-colors-hovered-background: var(--tile);
+  --bn-colors-selected-background: var(--line);
+  --bn-colors-border: var(--line);
+  --bn-colors-side-menu: var(--mute);
+  --bn-font-family: var(--font-sans);
+}
+
+
+.workspace-editor .bn-editor {
+  background: transparent;
+  padding-inline: 0 1rem;
+}
+
+/* <details> dropdowns: hide the default triangle. */
+summary::-webkit-details-marker {
+  display: none;
+}

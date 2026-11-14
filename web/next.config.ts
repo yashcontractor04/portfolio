@@ -8,6 +8,14 @@ const isDev = process.env.NODE_ENV !== "production";
 // contain inline bootstrap scripts (nonces would force every page to be dynamic).
 // Everything else is locked to this site. Widen deliberately when Supabase and
 // Pyodide are added (connect-src / script-src), never with a wildcard.
+// The browser may talk to exactly one external host: our Supabase project
+// (https for the API, wss for Realtime). Derived from the env var, never a wildcard.
+let supabaseOrigin = "";
+try {
+  supabaseOrigin = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").origin;
+} catch {}
+const supabaseSources = supabaseOrigin ? ` ${supabaseOrigin} ${supabaseOrigin.replace(/^http/, "ws")}` : "";
+
 const csp = [
   "default-src 'self'",
   // 'wasm-unsafe-eval' lets the browser compile WebAssembly (Pyodide). It does not allow eval().
@@ -16,7 +24,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self'",
-  `connect-src 'self'${isDev ? " ws:" : ""}`,
+  `connect-src 'self'${supabaseSources}${isDev ? " ws:" : ""}`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

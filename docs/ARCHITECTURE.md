@@ -201,7 +201,12 @@ are therefore not rendered.
 
 ## 6. Auth
 
-- Supabase Auth, email + password, email verification, password reset. **planned**
+- Supabase Auth, email + password, email verification, password reset. **built, client-side**:
+  the browser calls Supabase Auth directly with the publishable key (`web/src/components/AuthForm.tsx`).
+  The session lives in the browser; `AuthProvider` exposes it via `useAuth()`. Public pages stay static.
+- Private apps (`web/src/apps/<name>/`) talk to Postgres straight from the browser through
+  supabase-js. RLS is the security boundary, not the UI. Each app has one store interface with a
+  `demo` implementation (guests) and a `supabase` implementation (logged in); `useStore` picks.
 - Signup passes the invite code as metadata; the database trigger validates and claims it.
 - Bootstrap the first admin once, in the Supabase SQL editor:
   ```sql
