@@ -194,7 +194,7 @@
     "left": "Links",
     "right": "Rechts",
     "deleteColumn": "Spalte löschen",
-    "columnNotEmpty": "Verschiebe oder lösche zuerst die Karten",
+    "columnNotEmpty": "Verschiebe oder lösche zuerst die Karten, um diese Spalte zu löschen.",
     "addCard": "Karte hinzufügen",
     "addCardTo": "Karte zu {name} hinzufügen",
     "editCard": "{title} bearbeiten",
@@ -202,6 +202,7 @@
     "description": "Beschreibung",
     "save": "Speichern",
     "cancel": "Abbrechen",
-    "deleteCard": "Karte löschen"
+    "deleteCard": "Karte löschen",
+    "addCardHint": "Mit Enter hinzufügen. Danach die Karte anklicken, um Details einzutragen."
   }
 }

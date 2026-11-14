@@ -71,6 +71,16 @@ export function Workspace() {
   useEffect(() => {
     if (!store) return;
     let cancelled = false;
+    // The store changes on login/logout: drop the previous store's pages and any
+    // unsaved change, because their ids do not exist in the new store.
+    if (timer.current) clearTimeout(timer.current);
+    pending.current = null;
+    /* eslint-disable react-hooks/set-state-in-effect -- reset on store change */
+    setPages([]);
+    setCurrent(null);
+    setFailed(false);
+    setSave("idle");
+    /* eslint-enable react-hooks/set-state-in-effect */
     (async () => {
       try {
         const list = (await store.list()).sort(byPosition);

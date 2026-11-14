@@ -194,7 +194,7 @@
     "left": "Left",
     "right": "Right",
     "deleteColumn": "Delete column",
-    "columnNotEmpty": "Move or delete its cards first",
+    "columnNotEmpty": "Move or delete its cards first to delete this column.",
     "addCard": "Add a card",
     "addCardTo": "Add a card to {name}",
     "editCard": "Edit {title}",
@@ -202,6 +202,7 @@
     "description": "Description",
     "save": "Save",
     "cancel": "Cancel",
-    "deleteCard": "Delete card"
+    "deleteCard": "Delete card",
+    "addCardHint": "Press Enter to add. Click the card afterwards to add details."
   }
 }

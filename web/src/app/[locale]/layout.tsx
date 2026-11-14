@@ -3,6 +3,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { AuthProvider } from "@/components/AuthProvider";
+import { DismissMenus } from "@/components/DismissMenus";
 import { Dock } from "@/components/Dock";
 import { MenuBar } from "@/components/MenuBar";
 import { Spotlight } from "@/components/Spotlight";
@@ -46,6 +47,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           </main>
           <Dock />
           <Spotlight />
+            <DismissMenus />
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

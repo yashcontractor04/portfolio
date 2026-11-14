@@ -77,6 +77,15 @@ export function Board() {
   useEffect(() => {
     if (!store) return;
     let cancelled = false;
+    // The store changes when someone logs in or out. Forget everything from the
+    // previous store first: its ids (e.g. demo ids) mean nothing to the new one.
+    /* eslint-disable react-hooks/set-state-in-effect -- reset on store change */
+    setActiveId(null);
+    setData(null);
+    setBoards([]);
+    setEditing(null);
+    setError(null);
+    /* eslint-enable react-hooks/set-state-in-effect */
     store
       .listBoards()
       .then((list) => {
@@ -404,9 +413,10 @@ function ColumnView(props: {
               <button type="button" className={`${button} flex-1`} disabled={props.isFirst} onClick={() => props.onMove(-1)}>← {t("left")}</button>
               <button type="button" className={`${button} flex-1`} disabled={props.isLast} onClick={() => props.onMove(1)}>{t("right")} →</button>
             </div>
-            <button type="button" className={`${button} hover:text-negative`} disabled={cards.length > 0} title={cards.length > 0 ? t("columnNotEmpty") : undefined} onClick={props.onDelete}>
+            <button type="button" className={`${button} hover:text-negative`} disabled={cards.length > 0} onClick={props.onDelete}>
               {t("deleteColumn")}
             </button>
+            {cards.length > 0 ? <p className="text-xs text-mute">{t("columnNotEmpty")}</p> : null}
           </div>
         </details>
       </div>
@@ -425,7 +435,7 @@ function ColumnView(props: {
           if (title) props.onAddCard(title);
         }}
       >
-        <input name="title" maxLength={300} placeholder={`+ ${t("addCard")}`} aria-label={t("addCardTo", { name: column.name })} className={`${input} w-full`} />
+        <input name="title" maxLength={300} placeholder={`+ ${t("addCard")}`} title={t("addCardHint")} aria-label={t("addCardTo", { name: column.name })} className={`${input} w-full`} />
       </form>
     </section>
   );
