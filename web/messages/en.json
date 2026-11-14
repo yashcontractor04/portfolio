@@ -203,6 +203,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "deleteCard": "Delete card",
-    "addCardHint": "Press Enter to add. Click the card afterwards to add details."
+    "addCardHint": "Press Enter to add. Click the card afterwards to add details.",
+    "undo": "Undo",
+    "undoHint": "Undo the last change (⌘Z or Ctrl+Z)"
   }
 }

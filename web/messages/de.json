@@ -203,6 +203,8 @@
     "save": "Speichern",
     "cancel": "Abbrechen",
     "deleteCard": "Karte löschen",
-    "addCardHint": "Mit Enter hinzufügen. Danach die Karte anklicken, um Details einzutragen."
+    "addCardHint": "Mit Enter hinzufügen. Danach die Karte anklicken, um Details einzutragen.",
+    "undo": "Rückgängig",
+    "undoHint": "Letzte Änderung rückgängig machen (⌘Z oder Strg+Z)"
   }
 }

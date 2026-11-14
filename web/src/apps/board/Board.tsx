@@ -40,6 +40,22 @@ export function Board() {
   const [editing, setEditing] = useState<Card | null>(null);
   const [error, setError] = useState<string | null>(null);
   const draggingRef = useRef(false);
+  // Undo: every change pushes a function that reverses it. Cmd/Ctrl+Z runs the newest one.
+  const undoStack = useRef<Array<() => void>>([]);
+  const [undoCount, setUndoCount] = useState(0);
+  const pushUndo = useCallback((revert: () => void) => {
+    undoStack.current = [...undoStack.current.slice(-29), revert]; // keep the last 30
+    setUndoCount(undoStack.current.length);
+  }, []);
+  const undo = useCallback(() => {
+    const revert = undoStack.current.pop();
+    setUndoCount(undoStack.current.length);
+    revert?.();
+  }, []);
+  const clearUndo = useCallback(() => {
+    undoStack.current = [];
+    setUndoCount(0);
+  }, []);
 
   const sensors = useSensors(
     // A small movement threshold so a plain click still opens the card.
@@ -85,6 +101,7 @@ export function Board() {
     setBoards([]);
     setEditing(null);
     setError(null);
+    clearUndo();
     /* eslint-enable react-hooks/set-state-in-effect */
     store
       .listBoards()
@@ -98,7 +115,22 @@ export function Board() {
     return () => {
       cancelled = true;
     };
-  }, [store, t]);
+  }, [store, t, clearUndo]);
+
+  // Cmd+Z (Mac) / Ctrl+Z undoes the last board change. While typing in a text
+  // field the browser's own undo applies instead, so we leave those keys alone.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() !== "z" || !(event.metaKey || event.ctrlKey) || event.shiftKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable=true]")) return;
+      if (undoStack.current.length === 0) return;
+      event.preventDefault();
+      undo();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [undo]);
 
   // Load the active board and keep it in sync with other tabs (Realtime).
   useEffect(() => {
@@ -132,6 +164,7 @@ export function Board() {
       const board = await store.createBoard(name, template, generateKeyBetween(null, null) + Date.now().toString(36));
       await applyTemplate(store, board.id, template);
       setBoards((list) => [...list, board]);
+      clearUndo();
       setActiveId(board.id);
     } catch {
       setError(t("saveError"));
@@ -173,10 +206,13 @@ export function Board() {
     }
     // A fractional index between the two neighbours: only this one row changes.
     const position = generateKeyBetween(siblings[index - 1]?.position ?? null, siblings[index]?.position ?? null);
-    void mutate(
-      (d) => ({ ...d, cards: d.cards.map((c) => (c.id === card.id ? { ...c, column_id: targetColumn, position } : c)) }),
-      () => store.updateCard(card.id, { column_id: targetColumn, position }),
-    );
+    const move = (to: Pick<Card, "column_id" | "position">) =>
+      mutate(
+        (d) => ({ ...d, cards: d.cards.map((c) => (c.id === card.id ? { ...c, ...to } : c)) }),
+        () => store.updateCard(card.id, to),
+      );
+    void move({ column_id: targetColumn, position });
+    pushUndo(() => void move({ column_id: card.column_id, position: card.position }));
   }
 
   function addColumn() {
@@ -192,39 +228,70 @@ export function Board() {
     const at = index + direction;
     if (at < 0 || at > others.length) return;
     const position = generateKeyBetween(others[at - 1]?.position ?? null, others[at]?.position ?? null);
-    void mutate(
-      (d) => ({ ...d, columns: d.columns.map((c) => (c.id === column.id ? { ...c, position } : c)) }),
-      () => store.updateColumn(column.id, { position }),
-    );
+    const place = (to: string) =>
+      mutate(
+        (d) => ({ ...d, columns: d.columns.map((c) => (c.id === column.id ? { ...c, position: to } : c)) }),
+        () => store.updateColumn(column.id, { position: to }),
+      );
+    void place(position);
+    pushUndo(() => void place(column.position));
   }
 
   function patchColumn(column: Column, patch: Partial<Pick<Column, "name" | "color" | "wip_limit">>) {
     if (!store) return;
-    void mutate(
-      (d) => ({ ...d, columns: d.columns.map((c) => (c.id === column.id ? { ...c, ...patch } : c)) }),
-      () => store.updateColumn(column.id, patch),
-    );
+    const apply = (values: Partial<Pick<Column, "name" | "color" | "wip_limit">>) =>
+      mutate(
+        (d) => ({ ...d, columns: d.columns.map((c) => (c.id === column.id ? { ...c, ...values } : c)) }),
+        () => store.updateColumn(column.id, values),
+      );
+    // Remember the old value of exactly the properties that are about to change.
+    const previous = Object.fromEntries(Object.keys(patch).map((key) => [key, column[key as keyof typeof patch]]));
+    if (Object.entries(patch).every(([key, value]) => column[key as keyof typeof patch] === value)) return;
+    void apply(patch);
+    pushUndo(() => void apply(previous));
   }
 
   function addCard(column: Column, title: string) {
     if (!data || !store) return;
     const position = generateKeyBetween(cardsIn(column.id).at(-1)?.position ?? null, null);
-    void mutate(null, () => store.addCard(data.board.id, column.id, title.slice(0, 300), position), true);
+    void mutate(
+      null,
+      async () => {
+        const created = await store.addCard(data.board.id, column.id, title.slice(0, 300), position);
+        pushUndo(() => void mutate((d) => ({ ...d, cards: d.cards.filter((c) => c.id !== created.id) }), () => store.deleteCard(created.id)));
+      },
+      true,
+    );
   }
 
   function saveCard(card: Card, patch: Pick<Card, "title" | "description" | "field_values">) {
     if (!store) return;
     setEditing(null);
-    void mutate(
-      (d) => ({ ...d, cards: d.cards.map((c) => (c.id === card.id ? { ...c, ...patch } : c)) }),
-      () => store.updateCard(card.id, patch),
-    );
+    const apply = (values: Pick<Card, "title" | "description" | "field_values">) =>
+      mutate(
+        (d) => ({ ...d, cards: d.cards.map((c) => (c.id === card.id ? { ...c, ...values } : c)) }),
+        () => store.updateCard(card.id, values),
+      );
+    void apply(patch);
+    pushUndo(() => void apply({ title: card.title, description: card.description, field_values: card.field_values }));
   }
 
   function deleteCard(card: Card) {
     if (!store) return;
     setEditing(null);
     void mutate((d) => ({ ...d, cards: d.cards.filter((c) => c.id !== card.id) }), () => store.deleteCard(card.id));
+    // Undo re-creates the card (it gets a new id) with the same content and place.
+    pushUndo(
+      () =>
+        void mutate(
+          null,
+          async () => {
+            const restored = await store.addCard(card.board_id, card.column_id, card.title, card.position);
+            await store.updateCard(restored.id, { description: card.description, field_values: card.field_values });
+          },
+          true,
+        ),
+    );
   }
 
   function addField(form: FormData) {
@@ -244,7 +311,14 @@ export function Board() {
         {boards.length > 0 ? (
           <label className="flex items-center gap-2 text-sm text-mute">
             {t("board")}
-            <select value={activeId ?? ""} onChange={(event) => setActiveId(event.target.value)} className={input}>
+            <select
+              value={activeId ?? ""}
+              onChange={(event) => {
+                clearUndo();
+                setActiveId(event.target.value);
+              }}
+              className={input}
+            >
               {boards.map((b) => (
                 <option key={b.id} value={b.id}>{b.name}</option>
               ))}
@@ -287,7 +361,10 @@ export function Board() {
                 </form>
               </div>
             </details>
-            <button type="button" onClick={deleteBoard} className={`${button} ml-auto hover:text-negative`}>{t("deleteBoard")}</button>
+            <button type="button" onClick={undo} disabled={undoCount === 0} title={t("undoHint")} className={`${button} ml-auto`}>
+              ↶ {t("undo")}
+            </button>
+            <button type="button" onClick={deleteBoard} className={`${button} hover:text-negative`}>{t("deleteBoard")}</button>
           </>
         ) : null}
       </div>
