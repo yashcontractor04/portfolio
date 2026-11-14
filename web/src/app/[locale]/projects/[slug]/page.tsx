@@ -12,7 +12,7 @@ import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { pick } from "@/lib/localized";
 import { loadProjects, REPO_ROOT } from "@/lib/projects";
-import { loadReadme } from "@/lib/readme";
+import { loadReadme, sourceUrl } from "@/lib/readme";
 
 // One static page per project per language. A new manifest = a new page, no code change.
 export function generateStaticParams() {
@@ -33,6 +33,7 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/proje
   const t = await getTranslations({ locale, namespace: "projects" });
   const tt = await getTranslations({ locale });
   const readme = await loadReadme(project);
+  const github = sourceUrl(project);
 
   // Source files of an in-browser project (vendored into projects/<slug>/src).
   const srcDir = path.join(REPO_ROOT, "projects", project.slug, "src");
@@ -94,7 +95,7 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/proje
         ) : null}
         {project.in_browser ? (
           <p className="font-mono text-xs text-mute">
-            {tt("how.source")} {project.in_browser.source.ref.slice(0, 7)} · {project.in_browser.source.path}
+            {tt("how.source")} {project.in_browser.source.ref.slice(0, 7)}
           </p>
         ) : null}
       </div>
@@ -117,8 +118,8 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/proje
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-xs text-mute">
               <span style={{ color: "var(--accent)" }}>{t(`type.${project.type}`)}</span>
               <span>{t(`status.${project.status}`)}</span>
-              {project.repo ? (
-                <a href={project.repo} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-text">
+              {github ? (
+                <a href={github} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-text">
                   {t("repo")}
                 </a>
               ) : null}

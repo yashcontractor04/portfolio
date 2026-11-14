@@ -9,6 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { cacheLife } from "next/cache";
 import { REPO_ROOT, type Project } from "./projects";
+import { tidyReadme } from "./tidy";
 
 const MAX_BYTES = 200_000;
 
@@ -29,8 +30,24 @@ async function fetchReadme(owner: string, repo: string, ref: string, file: strin
 
 export async function loadReadme(project: Project): Promise<string | null> {
   const vendored = path.join(REPO_ROOT, "projects", project.slug, "src", "README.md");
-  if (fs.existsSync(vendored)) return fs.readFileSync(vendored, "utf8");
+  if (fs.existsSync(vendored)) return tidyReadme(fs.readFileSync(vendored, "utf8"));
   if (!project.repo) return null;
   const [owner, repo] = project.repo.replace("https://github.com/", "").split("/");
-  return fetchReadme(owner, repo, project.readme?.ref ?? "HEAD", project.readme?.path ?? "README.md");
+  const text = await fetchReadme(owner, repo, project.readme?.ref ?? "HEAD", project.readme?.path ?? "README.md");
+  return text === null ? null : tidyReadme(text);
+}
+
+/**
+ * GitHub link for a project: straight to its folder when it lives inside a
+ * bigger repo, otherwise the repo itself.
+ */
+export function sourceUrl(project: Project): string | null {
+  const encode = (p: string) => p.split("/").filter(Boolean).map(encodeURIComponent).join("/");
+  if (project.in_browser) {
+    const { repo, ref, path: dir } = project.in_browser.source;
+    return `${repo}/tree/${ref}/${encode(dir)}`;
+  }
+  if (!project.repo) return null;
+  const dir = path.posix.dirname(project.readme?.path ?? "README.md");
+  return dir === "." ? project.repo : `${project.repo}/tree/${encodeURIComponent(project.readme?.ref ?? "HEAD")}/${encode(dir)}`;
 }
