@@ -5,7 +5,6 @@ invite-only area with personal productivity apps. Built in phases; see the roadm
 
 | Read this | For |
 |---|---|
-| [docs/WALKTHROUGH.md](docs/WALKTHROUGH.md) | the whole project explained from scratch, with diagrams |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | diagrams, data flow, key decisions |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | what is done and what comes next |
 | [docs/CONVENTIONS.md](docs/CONVENTIONS.md) | code, database, security and design rules |

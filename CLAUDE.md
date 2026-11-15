@@ -8,9 +8,6 @@ Read these three files before changing anything, and follow them:
 3. `docs/ROADMAP.md`: what to build next, in order, with acceptance criteria. Tick items off
    and update it in the same commit as the work.
 
-`docs/WALKTHROUGH.md` is Yash's learning guide to the whole project. When you build or change
-something he should be able to explain, update that file too, in the same plain style.
-
 How to work with Yash:
 
 - He is a CS student and this site is his talking point with recruiters. He must understand
