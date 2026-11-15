@@ -64,7 +64,6 @@
     "label": "Projektbereiche",
     "overview": "Überblick",
     "run": "Ausführen",
-    "results": "Ergebnisse",
     "how": "So funktioniert's"
   },
   "run": {
@@ -89,9 +88,6 @@
     "runner": "Läufe landen in einer Job-Queue in Postgres. Ein Python-Worker holt sie ab, führt sie mit Timeout aus und schreibt das Ergebnis zurück; die Seite verfolgt den Job live.",
     "bot": "Der Bot läuft auf einem kleinen Server und schreibt nach jeder Prüfung einen Heartbeat in die Datenbank. Diese Seite liest ihn nur.",
     "source": "Quellcode am Commit"
-  },
-  "results": {
-    "soon": "Ergebnisse erscheinen hier, sobald das Runner-System live ist."
   },
   "apps": {
     "demo": "Demo",
@@ -206,5 +202,22 @@
     "addCardHint": "Mit Enter hinzufügen. Danach die Karte anklicken, um Details einzutragen.",
     "undo": "Rückgängig",
     "undoHint": "Letzte Änderung rückgängig machen (⌘Z oder Strg+Z)"
+  },
+  "demoRun": {
+    "run": "Demo starten",
+    "again": "Nochmal starten",
+    "chart": "Ergebnisdiagramm",
+    "hint": "Das startet einen echten Job mit festen Demo-Eingaben. Er landet in einer Postgres-Queue, ein Python-Worker holt ihn ab, und diese Seite zeigt das Ergebnis, sobald er fertig ist. Demo-Ergebnisse werden nicht gespeichert.",
+    "phase": {
+      "idle": "bereit",
+      "queued": "in der Warteschlange, wartet auf einen Worker",
+      "running": "läuft auf dem Worker",
+      "succeeded": "fertig",
+      "failed": "fehlgeschlagen",
+      "rate_limited": "Zu viele Demo-Läufe aus deinem Netzwerk. Bitte versuche es in ein paar Minuten erneut.",
+      "busy": "Gerade laufen viele Demo-Läufe. Bitte versuche es gleich noch einmal.",
+      "unavailable": "Der Runner ist gerade nicht verfügbar.",
+      "slow": "Noch hat kein Worker den Job abgeholt. Der Worker ist eventuell offline; bitte versuche es später erneut."
+    }
   }
 }

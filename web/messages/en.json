@@ -64,7 +64,6 @@
     "label": "Project sections",
     "overview": "Overview",
     "run": "Run",
-    "results": "Results",
     "how": "How it works"
   },
   "run": {
@@ -89,9 +88,6 @@
     "runner": "Runs go into a job queue in Postgres. A Python worker picks them up, runs them with a timeout and writes the result back; the page watches the job live.",
     "bot": "The bot runs on a small server and writes a heartbeat to the database after every check. This page only reads it.",
     "source": "Source at commit"
-  },
-  "results": {
-    "soon": "Run results will appear here once the runner system is live."
   },
   "apps": {
     "demo": "Demo",
@@ -206,5 +202,22 @@
     "addCardHint": "Press Enter to add. Click the card afterwards to add details.",
     "undo": "Undo",
     "undoHint": "Undo the last change (⌘Z or Ctrl+Z)"
+  },
+  "demoRun": {
+    "run": "Run demo",
+    "again": "Run again",
+    "chart": "Result chart",
+    "hint": "This starts a real job with fixed demo inputs. It goes into a Postgres queue, a Python worker picks it up, and this page shows the result when it is done. Demo results are not stored.",
+    "phase": {
+      "idle": "ready",
+      "queued": "in the queue, waiting for a worker",
+      "running": "running on the worker",
+      "succeeded": "finished",
+      "failed": "failed",
+      "rate_limited": "Too many demo runs from your network. Please try again in a few minutes.",
+      "busy": "Many demo runs are in progress. Please try again in a moment.",
+      "unavailable": "The runner is not available right now.",
+      "slow": "No worker has picked this up yet. The worker may be offline; please try again later."
+    }
   }
 }

@@ -6,7 +6,7 @@ add the date when you finish one. If you change scope, change this file in the s
 ## Done
 
 - [x] 2026-11-13 Database schema for all phases, with RLS, quota and queue functions
-      (`supabase/migrations`). 84 SQL tests pass (`supabase/tests/run.sh`).
+      (`supabase/migrations`). 87 SQL tests pass (`supabase/tests/run.sh`).
 - [x] 2026-11-13 Project manifest format (`projects/project.schema.json`) + validator.
 - [x] 2026-11-13 `content/cv.yaml` (EN + DE) from Yash's German CV.
 - [x] 2026-11-13 CI: SQL tests + manifest validation on every push.
@@ -81,18 +81,29 @@ add the date when you finish one. If you change scope, change this file in the s
 
 ## Phase 3: runner system
 
-18. [ ] **Worker** (`worker/`): loop over `queue.claim_job`, pydantic validation, per-job timeout
-    in a subprocess, heartbeat thread, logs, retries; Dockerfile (non-root user, read-only
-    filesystem) + `infra/docker-compose.yml`.
-    Accept: kill the worker mid-job and the job is re-queued and finishes on restart.
-19. [ ] **Stock simulator v1** as runner `stock-sim`: fixed allocation, periodic rebalancing,
-    benchmark, results as summary + series + table. Prices cached in `price_bars`.
-    Decide the free data source with Yash (check its terms for redistribution).
-20. [ ] **Run UI**: form generated from the manifest, live status via Realtime, results page
-    with charts, quota display, "not financial advice" note, schedules, bring-your-own-key.
-21. [ ] **Demo run** end to end for guests, rate-limited per IP.
-22. [ ] **`scripts/sync-runners`** in the deploy workflow.
+18. [x] 2026-11-15 **Worker** (`worker/`): loop over `queue.claim_job`, pydantic validation, per-job
+    timeout in a child process, heartbeat, logs, retries; Dockerfile (non-root, read-only
+    filesystem) + `infra/docker-compose.yml`. Tested end to end against a local Postgres with the
+    `app_worker` role. NOT yet tested: the Docker image build, and a run against Supabase.
+    Still open: the "kill the worker mid-job, job is re-queued" acceptance test on real infra.
+19. [ ] **Stock simulator v1** as runner `stock-sim`. **Yash implements this himself. Do not write it
+    for him unless he asks.** The skeleton with validated `Params` is in
+    `worker/worker/runners/stock_sim.py`; its docstring lists the steps. Results go back as
+    summary + series + table (see `worker/worker/contract.py`). Prices should be cached in
+    `price_bars`. Open decision with Yash: the free data source (check its terms first).
+    When it works: `status: live` in the manifest, `python scripts/sync_runners.py`, apply the SQL.
+20. [ ] **Run UI for logged-in users**: form generated from the manifest (`runner.inputs`), call
+    `enqueue_job`, live status via Realtime on `jobs`, results page with charts, quota display
+    (`my_quota`), schedules (`create_schedule`), bring-your-own-key (server route that encrypts
+    with `API_KEY_ENC_KEY_V1`; worker decrypts via `queue.get_job_api_key`). Also the **Runs** app.
+    None of this UI exists yet; all database functions for it exist and are tested.
+21. [x] 2026-11-15 **Demo run** for guests (`web/src/app/api/demo/route.ts`, `DemoRun.tsx`), rate-limited
+    per IP, with the reference runner `monte-carlo-pi`. UI verified with real worker output;
+    the route itself was NOT tested against Supabase from the build environment.
+22. [x] 2026-11-15 **`scripts/sync_runners.py`** generates `supabase/seed/runners.sql`; CI checks it is
+    up to date. Applying it is manual (SQL editor). Automating that in a deploy workflow is open.
 23. [ ] **Oracle VM**: deploy via GitHub Actions + SSH, auto-restart, firewall closed inbound.
+    Until then the worker runs on Yash's Mac with Docker; demo runs only work while it is up.
 24. [ ] **Badminton monitor** status page, bot reports through `queue.bot_report`.
 25. [ ] **Backups**: weekly `pg_dump` GitHub Action, encrypted artifact; keep-alive workflow.
 
@@ -102,7 +113,17 @@ add the date when you finish one. If you change scope, change this file in the s
 27. [ ] Optional end-to-end encryption for Workspace (`workspace_keys`, `content_cipher`).
 28. [ ] SEO, Open Graph images, custom domain, Resend domain verification.
 
+## Suggested order for whoever continues
+
+1. Yash: stock simulator (item 19). 2. Run UI for logged-in users (20). 3. Oracle VM (23).
+4. Admin panel (12) and auth hardening (11). 5. ⌘K palette, GitHub heatmap, contact form (1, 4, 8).
+6. Focus, Habits, Stash (16). 7. GDPR pages (17) before inviting anyone else. 8. Phase 4.
+
 ## Known gaps to keep in mind
+
+- Migration `20261115000001_demo_api.sql` and `supabase/seed/runners.sql` must be applied by hand
+  in the Supabase SQL editor (there is no automated migration deploy yet).
+- `npm audit` reports 8 moderate findings in web dependencies; not yet reviewed.
 
 - Unknown project URLs render the not-found page with `noindex` but HTTP status 200 (a side
   effect of Cache Components streaming). Fix in Phase 4 with SEO work.

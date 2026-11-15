@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../project.schema.json
+schema: 1
+name: Monte Carlo Pi
+type: runner
+status: live
+order: 15
+tags: [python, data]
+accent: cyan
+summary:
+  en: Estimates pi by throwing random points at a square. Each run is a real job in my Postgres queue, picked up by a Python worker.
+  de: Schätzt Pi, indem zufällige Punkte auf ein Quadrat geworfen werden. Jeder Lauf ist ein echter Job in meiner Postgres-Queue, den ein Python-Worker abholt.
+stack: [Python, Postgres, Docker, pydantic]
+
+runner:
+  timeout_seconds: 30
+  max_attempts: 1
+  inputs:
+    - name: samples
+      type: integer
+      label: { en: Number of points, de: Anzahl Punkte }
+      min: 1000
+      max: 5000000
+      default: 1000000
+    - name: seed
+      type: integer
+      label: { en: Random seed, de: Zufalls-Seed }
+      help: { en: "The same seed always gives the same result", de: "Derselbe Seed liefert immer dasselbe Ergebnis" }
+      min: 0
+      max: 1000000
+      default: 42
+  demo:
+    params:
+      samples: 1000000
+      seed: 42

@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import fs from "node:fs";
 import path from "node:path";
+import { DemoRun } from "@/components/DemoRun";
 import { Icon } from "@/components/Icons";
 import { Markdown } from "@/components/Markdown";
 import { PyTerminal } from "@/components/PyTerminal";
@@ -65,11 +66,11 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/proje
   }
   if (project.type === "runner") {
     tabs.push({
-      key: "results",
-      label: tt("tabs.results"),
+      key: "run",
+      label: tt("tabs.run"),
       content: (
         <div className="flex flex-col gap-4">
-          <p className="text-mute">{tt("results.soon")}</p>
+          {project.status === "live" ? <DemoRun slug={project.slug} /> : <p className="text-mute">{t("runSoon")}</p>}
           {project.runner?.disclaimer === "not-financial-advice" ? (
             <p className="rounded-md border border-line bg-tile p-4 text-sm text-mute">{t("disclaimer")}</p>
           ) : null}

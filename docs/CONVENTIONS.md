@@ -85,7 +85,8 @@ rule wins. To change a rule, change this file in the same commit and say why.
 ## Python (worker, bots)
 
 - Python 3.12+, type hints everywhere, `ruff` for lint and format, `pytest` for tests.
-- One module per runner in `worker/runners/<slug>.py` exposing a pydantic `Params` model and
+- One module per runner in `worker/worker/runners/<name>.py`, registered in
+  `worker/worker/runners/__init__.py` under the project slug, exposing a pydantic `Params` model and
   `run(params, ctx) -> Result`. The worker never trusts params from the database.
 - The worker talks to the database only through `queue.*` functions and the cache tables.
 - Containers run as a non-root user, expose no ports, and restart automatically.
@@ -99,7 +100,10 @@ rule wins. To change a rule, change this file in the same commit and say why.
    `in-browser`: point `in_browser.source` at a repo path and a full commit SHA, then run
    `python scripts/vendor_inbrowser.py` and commit the copied `src/` folder. Standard library
    only, terminal input/output only (no tkinter, turtle, network or files).
-   `runner`: describe `inputs` and `demo.params`, then add `worker/runners/<slug>.py`.
+   `runner`: describe `inputs` and `demo.params`, add the runner module and register it
+   (copy `monte_carlo_pi.py`), then run `python scripts/sync_runners.py` and apply
+   `supabase/seed/runners.sql` in the Supabase SQL editor. A runner is only enabled when its
+   manifest says `status: live`.
    `bot-status`: set `bot.bot_slug`; the bot reports with `queue.bot_report`.
 3. Run `python scripts/validate_manifests.py`. Push. Nothing else needs editing.
 

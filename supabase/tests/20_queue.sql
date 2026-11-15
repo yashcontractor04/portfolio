@@ -123,6 +123,17 @@ update public.jobs set created_at = now() - interval '2 hours' where id = :'demo
 select queue.purge();
 select t.is((select count(*)::int from public.jobs where kind = 'demo'), 0, 'demo runs are purged within the hour');
 
+-- demo wrappers in public: server only
+select t.login('00000000-0000-0000-0000-00000000000a');
+select t.throws($$select public.enqueue_demo('stock-sim', 'x')$$, 'permission denied', 'users cannot start demo runs directly');
+select t.guest();
+select t.throws($$select public.get_demo(gen_random_uuid(), 'x')$$, 'permission denied', 'guests cannot read demo runs directly');
+select t.server();
+set local role service_role;
+select public.enqueue_demo('stock-sim', 'h2') as demo2 \gset
+select t.is(public.get_demo(:'demo2', 'h2') ->> 'status', 'queued', 'the server can start and read a demo run');
+select t.server();
+
 -- ------------------------------------------------------------- rate limit ---
 select t.is(public.check_rate_limit('contact', 'ip-hmac', 2, 3600), true,  'rate limit: 1st hit allowed');
 select t.is(public.check_rate_limit('contact', 'ip-hmac', 2, 3600), true,  'rate limit: 2nd hit allowed');

@@ -18,12 +18,15 @@ How to work with Yash:
 - Take security seriously on every change (checklist in CONVENTIONS.md). Never commit secrets.
 - Do not add `Co-Authored-By` trailers, "Generated with ..." lines or session links to commits
   or pull requests.
+- Yash writes the stock simulator (`worker/worker/runners/stock_sim.py`) himself. Help when he
+  asks; do not implement it for him.
 - Legal choices (Impressum address, privacy wording) are his to make; lay out options.
 
 Before you commit:
 
 ```bash
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres supabase/tests/run.sh
-python scripts/validate_manifests.py
+python scripts/validate_manifests.py && python scripts/sync_runners.py --check
+cd worker && ruff check . && ruff format --check . && pytest -q && cd ..
 cd web && npm run lint && npm test && npm run build && npm run typecheck
 ```

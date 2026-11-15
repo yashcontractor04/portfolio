@@ -47,6 +47,25 @@ jobs:
           python-version: "3.12"
       - run: pip install pyyaml==6.0.2 jsonschema==4.23.0
       - run: python scripts/validate_manifests.py
+      - run: python scripts/sync_runners.py --check
+
+  worker:
+    name: Worker (lint, tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: pytest -q
 
   web:
     name: Web (lint, types, tests, build)

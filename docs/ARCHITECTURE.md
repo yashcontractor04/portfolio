@@ -60,15 +60,15 @@ on it to attack from the internet except SSH (key-only, used by the deploy workf
 
 ```
 web/                 Next.js 16 app (App Router, TypeScript strict, Tailwind 4, next-intl)  built (Phase 1 in progress)
-worker/              Python worker: queue loop + one module per runner, Dockerfile       planned
+worker/              Python worker: queue loop + one module per runner, Dockerfile       built
 bots/                Long-running bots (badminton monitor)                              planned
 supabase/migrations  Database schema, RLS, functions                                    built
 supabase/tests       SQL tests + run.sh (also run in CI)                                built
 content/cv.yaml      CV single source of truth (EN + DE)                                built
 content/cv/          Typst template for the PDF CV (built by .github/workflows/cv.yml)   built
 projects/<slug>/     One folder + project.yaml per project                              built (format)
-scripts/             Small build/CI scripts (manifest validation, runner sync)          partly built
-infra/               docker-compose, deploy scripts, backup workflow notes              planned
+scripts/             Build/CI scripts: validate manifests, vendor code, sync runners     built
+infra/               docker-compose for the worker (deploy + backup scripts planned)    partly built
 docs/                This file, ROADMAP.md, CONVENTIONS.md
 ```
 
@@ -162,6 +162,10 @@ sequenceDiagram
 - **Failure handling.** Retryable errors go back to the queue with backoff (30 s, 60 s, ...).
   `reap_stale()` re-queues jobs whose worker stopped sending heartbeats for 90 s.
   `heartbeat()` returning false tells a worker its job was cancelled or reaped.
+- **Worker internals** (`worker/worker/`): `main.py` is the loop, `execute.py` runs each job in a
+  spawned child process (hard timeout, CPU/memory limits, killed on cancel), `contract.py`
+  defines `Params` in and `Result` out, `runners/__init__.py` maps slug to module.
+  `monte-carlo-pi` is the reference runner; `stock-sim` is a skeleton Yash implements.
 - **Demo runs** (guests): the Next.js server rate-limits by IP (HMAC of the IP, never the raw
   IP), calls `queue.enqueue_demo()` with fixed params and a random token, and the browser
   polls a server route with that token. Demo jobs are invisible to all users and deleted
@@ -186,7 +190,8 @@ sequenceDiagram
 | `bot-status` | read-only status from `bot_status` / `bot_heartbeats` | bot |
 
 At build time Next.js reads all manifests and statically generates the project pages. A CI
-step upserts `runner` manifests into the `runners` table (planned: `scripts/sync-runners`).
+step keeps the `runners` table in line with the manifests: `scripts/sync_runners.py` generates
+`supabase/seed/runners.sql` (CI fails if it is stale); applying it is manual for now.
 In-browser code is **vendored**: `scripts/vendor_inbrowser.py` copies the files at the pinned
 commit SHA into `projects/<slug>/src/`, so the code the site runs is reviewed in this repo and
 never fetched live. `web/scripts/prebuild.mjs` copies it, and the Pyodide runtime from
