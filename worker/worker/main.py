@@ -124,7 +124,10 @@ class Worker:
                 backoff = 1.0
             except psycopg.OperationalError as exc:
                 # Database unreachable: drop the connection and retry with backoff (max 60s).
-                log.warning("database connection lost (%s); retrying in %.0fs", type(exc).__name__, backoff)
+                # The driver's message names the host and user but never the password.
+                lines = str(exc).strip().splitlines()
+                reason = lines[-1][:300] if lines else type(exc).__name__
+                log.warning("database connection failed: %s; retrying in %.0fs", reason, backoff)
                 if self.conn is not None:
                     self.conn.close()
                 self.conn = None
