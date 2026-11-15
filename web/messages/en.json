@@ -8,7 +8,8 @@
     "theme": "Colour theme",
     "themeMulti": "Multicolor",
     "themeMono": "Mono",
-    "skip": "Skip to content"
+    "skip": "Skip to content",
+    "search": "Search"
   },
   "hero": {
     "title": "Projects that actually run.",
@@ -52,7 +53,7 @@
   },
   "footer": {
     "contact": "Contact",
-    "contactText": "The quickest way to reach me is email.",
+    "contactText": "Write me a message, or use one of the links below.",
     "email": "Send an email",
     "credit": "Built with Next.js, Supabase and Python (AI-assisted)."
   },
@@ -218,6 +219,30 @@
       "busy": "Many demo runs are in progress. Please try again in a moment.",
       "unavailable": "The runner is not available right now.",
       "slow": "No worker has picked this up yet. The worker may be offline; please try again later."
+    }
+  },
+  "palette": {
+    "label": "Command palette",
+    "placeholder": "Search projects, apps and pages…",
+    "empty": "Nothing found.",
+    "project": "project",
+    "app": "app",
+    "apps": "Apps",
+    "pages": "Pages",
+    "actions": "Actions"
+  },
+  "contact": {
+    "name": "Name",
+    "email": "Your email",
+    "message": "Message",
+    "send": "Send message",
+    "privacy": "Your message is sent to me by email and not stored on this site.",
+    "state": {
+      "sending": "sending…",
+      "sent": "Thanks, your message is on its way.",
+      "invalid": "Please check your entries. The message needs at least 10 characters.",
+      "rate_limited": "Too many messages for now. Please try again later or use the email link.",
+      "unavailable": "The form is not available right now. Please use the email link below."
     }
   }
 }

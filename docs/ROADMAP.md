@@ -17,8 +17,8 @@ add the date when you finish one. If you change scope, change this file in the s
 ## Phase 1: public site (target: live on a vercel.app URL)
 
 1. [ ] **Design tokens + base components.** (2026-11-13: tokens, both themes, Window, MenuBar,
-   Dock, StatTile, bento tile, chips, cursor spotlight are built. Still open: Sparkline,
-   StatusDot as components, CommandPalette (cmdk), contrast audit.)
+   Dock, StatTile, bento tile, chips, cursor spotlight are built. CommandPalette (cmdk) added 2026-11-15. Still open:
+   Sparkline and StatusDot as components, contrast audit.)
    Original scope: Direction chosen 2026-11-13: "Ledger" base with
    "Console" details (see CONVENTIONS.md, Design system).
    - Tokens as CSS variables in `web/src/styles/tokens.css`; themes `multicolor` and `mono`
@@ -35,7 +35,7 @@ add the date when you finish one. If you change scope, change this file in the s
 3. [x] 2026-11-13 **Manifest loader** (`web/src/lib/projects.ts`): reads `projects/*/project.yaml`, validates
    with zod (mirror of the JSON schema), unit tests for valid and invalid manifests.
 4. [ ] **Homepage** (2026-11-13: hero, stat tiles, bento grid + filters, skills, contact links are live.
-   Still open: GitHub heatmap, contact form (item 8), "runs this week" tile (needs Supabase).)
+   Still open: GitHub heatmap (item 8), "runs this week" tile (needs Supabase).)
    Original scope:: hero from `cv.yaml` + stat tiles, bento project grid with filters, skills
    chips, footer with GitHub heatmap (GitHub API, cached 1 day), Download CV, credit line.
    - Accept: statically generated; Lighthouse performance ≥ 90 on mobile.
@@ -50,7 +50,9 @@ add the date when you finish one. If you change scope, change this file in the s
 7. [x] 2026-11-13 **CV pipeline** (uses Typst's bundled serif font; a custom font is optional polish): Typst template in `content/cv/`, GitHub Action builds `cv-en.pdf` and
    `cv-de.pdf` from `cv.yaml` and publishes them to `web/public/cv/`.
    - Accept: editing `cv.yaml` and pushing updates both PDFs and the homepage.
-8. [ ] **Contact form**: server action, zod validation, honeypot + time trap, rate limit via
+8. [x] 2026-11-15 **Contact form** (`web/src/app/api/contact/route.ts`; honeypot, time trap, rate limit,
+   Resend REST API). Form and fallback tested in a browser; the actual sending was NOT tested
+   (needs `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `IP_HASH_SECRET` in Vercel). Original scope:: server action, zod validation, honeypot + time trap, rate limit via
    `check_rate_limit`, sends through Resend to Yash. Needs Supabase + Resend env vars.
 9. [ ] **Deploy** to Vercel (root directory `web/`), env vars set in Vercel, never in git.
 
@@ -116,7 +118,7 @@ add the date when you finish one. If you change scope, change this file in the s
 ## Suggested order for whoever continues
 
 1. Yash: stock simulator (item 19). 2. Run UI for logged-in users (20). 3. Oracle VM (23).
-4. Admin panel (12) and auth hardening (11). 5. ⌘K palette, GitHub heatmap, contact form (1, 4, 8).
+4. Admin panel (12) and auth hardening (11). 5. GitHub heatmap (4).
 6. Focus, Habits, Stash (16). 7. GDPR pages (17) before inviting anyone else. 8. Phase 4.
 
 ## Known gaps to keep in mind

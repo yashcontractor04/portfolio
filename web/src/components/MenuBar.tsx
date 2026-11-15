@@ -42,6 +42,14 @@ export function MenuBar({ name }: { name: string }) {
         <div className="flex items-center gap-1 font-mono text-xs">
           <button
             type="button"
+            onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
+            aria-label={t("search")}
+            className="flex h-9 items-center gap-2 rounded-sm border border-line px-2.5 text-mute hover:text-text"
+          >
+            <span className="hidden sm:inline">{t("search")}</span> ⌘K
+          </button>
+          <button
+            type="button"
             onClick={() => setTheme(theme === "mono" ? "multicolor" : "mono")}
             aria-label={`${t("theme")}: ${theme === "mono" ? t("themeMono") : t("themeMulti")}`}
             className="flex h-9 items-center gap-2 rounded-sm px-2 text-mute hover:text-text"

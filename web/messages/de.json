@@ -8,7 +8,8 @@
     "theme": "Farbschema",
     "themeMulti": "Mehrfarbig",
     "themeMono": "Mono",
-    "skip": "Zum Inhalt springen"
+    "skip": "Zum Inhalt springen",
+    "search": "Suche"
   },
   "hero": {
     "title": "Projekte, die wirklich laufen.",
@@ -52,7 +53,7 @@
   },
   "footer": {
     "contact": "Kontakt",
-    "contactText": "Am schnellsten erreichst du mich per E-Mail.",
+    "contactText": "Schreib mir eine Nachricht oder nutze einen der Links unten.",
     "email": "E-Mail schreiben",
     "credit": "Gebaut mit Next.js, Supabase und Python (KI-unterstützt)."
   },
@@ -218,6 +219,30 @@
       "busy": "Gerade laufen viele Demo-Läufe. Bitte versuche es gleich noch einmal.",
       "unavailable": "Der Runner ist gerade nicht verfügbar.",
       "slow": "Noch hat kein Worker den Job abgeholt. Der Worker ist eventuell offline; bitte versuche es später erneut."
+    }
+  },
+  "palette": {
+    "label": "Befehlspalette",
+    "placeholder": "Projekte, Apps und Seiten durchsuchen…",
+    "empty": "Nichts gefunden.",
+    "project": "Projekt",
+    "app": "App",
+    "apps": "Apps",
+    "pages": "Seiten",
+    "actions": "Aktionen"
+  },
+  "contact": {
+    "name": "Name",
+    "email": "Deine E-Mail",
+    "message": "Nachricht",
+    "send": "Nachricht senden",
+    "privacy": "Deine Nachricht wird mir per E-Mail zugestellt und nicht auf dieser Seite gespeichert.",
+    "state": {
+      "sending": "sendet…",
+      "sent": "Danke, deine Nachricht ist unterwegs.",
+      "invalid": "Bitte prüfe deine Angaben. Die Nachricht braucht mindestens 10 Zeichen.",
+      "rate_limited": "Gerade zu viele Nachrichten. Bitte versuche es später erneut oder nutze den E-Mail-Link.",
+      "unavailable": "Das Formular ist gerade nicht verfügbar. Bitte nutze den E-Mail-Link unten."
     }
   }
 }

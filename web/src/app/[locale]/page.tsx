@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { ContactForm } from "@/components/ContactForm";
 import { Icon } from "@/components/Icons";
 import { ProjectGrid, type ProjectCard } from "@/components/ProjectGrid";
 import { StatTile } from "@/components/StatTile";
@@ -93,6 +94,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         <div className="flex flex-col gap-3">
           <h2 className="text-3xl font-semibold tracking-tight">{t("footer.contact")}</h2>
           <p className="text-mute">{t("footer.contactText")}</p>
+          <ContactForm />
           <div className="flex flex-wrap gap-3">
             <a href={`mailto:${cv.person.email}`} className="flex h-12 items-center gap-2 rounded-md border border-line px-5 hover:border-line-strong">
               <Icon name="mail" size={18} /> {t("footer.email")}

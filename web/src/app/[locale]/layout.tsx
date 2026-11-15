@@ -3,6 +3,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { AuthProvider } from "@/components/AuthProvider";
+import { CommandPalette } from "@/components/CommandPalette";
 import { DismissMenus } from "@/components/DismissMenus";
 import { Dock } from "@/components/Dock";
 import { MenuBar } from "@/components/MenuBar";
@@ -10,6 +11,7 @@ import { Spotlight } from "@/components/Spotlight";
 import { routing } from "@/i18n/routing";
 import { loadCv } from "@/lib/cv";
 import { pick } from "@/lib/localized";
+import { loadProjects } from "@/lib/projects";
 import "../globals.css";
 
 // Build one static copy of every page per language.
@@ -48,6 +50,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           <Dock />
           <Spotlight />
             <DismissMenus />
+            <CommandPalette projects={loadProjects().map((p) => ({ slug: p.slug, name: p.name }))} />
           </AuthProvider>
         </NextIntlClientProvider>
       </body>
