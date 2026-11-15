@@ -3,6 +3,42 @@
 Work top to bottom. An item is done only when its acceptance criteria pass. Tick the box and
 add the date when you finish one. If you change scope, change this file in the same commit.
 
+## Where we left off (2026-11-15)
+
+**Live and confirmed by Yash on the real site:** homepage (EN/DE), project pages, the three
+in-browser games, CV download, login with invite code, Workspace, Board (including two-tab sync
+and undo), ⌘K palette, contact form (email arrives).
+
+**Running but worth one more check:** the worker connects to Supabase from Docker on Yash's Mac.
+Yash reported the demo-run setup as done; confirm once that Monte Carlo Pi → Run demo reaches
+"finished" on the live site.
+
+**Current setup, so nobody has to rediscover it:**
+- Vercel project `portfolio`, root directory `web/`, auto-deploys from `main`. No custom domain yet.
+- Vercel env vars set: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`,
+  `SUPABASE_SECRET_KEY`, `IP_HASH_SECRET`, `RESEND_API_KEY`, `CONTACT_TO_EMAIL`.
+- Supabase project ref `gxcqkezblanqpdvxevmo` (Frankfurt). All four migrations and
+  `supabase/seed/runners.sql` are applied by hand. `app_worker` has a login. Yash's account is admin.
+- Worker: `docker compose -f infra/docker-compose.yml up -d` on Yash's Mac, settings in the
+  git-ignored `infra/.env`. Demo runs only work while it is running.
+- Email: Resend without a domain, so mail only reaches Yash's own address. Signup confirmation
+  mails use Supabase's built-in sender (also only Yash's address).
+
+**Next up, in order:**
+1. Yash writes the stock simulator (item 19). Open decision: the price data source.
+2. Run UI for logged-in users and the Runs app (item 20).
+3. Oracle VM for the worker (item 23).
+4. GitHub contribution heatmap on the homepage (item 4; needs a read-only `GITHUB_TOKEN` in Vercel).
+5. Before inviting anyone else: privacy policy + Impressum (item 17), server-side rate limits on
+   login/signup (item 11), admin panel for invites (item 12), review `npm audit` findings.
+6. Focus, Habits, Stash (item 16); board labels and select fields (item 15).
+7. Domain, then Resend domain verification so mail reaches other people (item 28).
+8. Phase 4.
+
+**Small things noticed, not yet done:** test the games in Safari and Firefox; Yash to proofread
+both CV PDFs; undo on the Board does not cover deleting a column or board, and there is no redo;
+unknown project URLs return status 200 with the not-found page.
+
 ## Done
 
 - [x] 2026-11-13 Database schema for all phases, with RLS, quota and queue functions
@@ -51,30 +87,28 @@ add the date when you finish one. If you change scope, change this file in the s
    `cv-de.pdf` from `cv.yaml` and publishes them to `web/public/cv/`.
    - Accept: editing `cv.yaml` and pushing updates both PDFs and the homepage.
 8. [x] 2026-11-15 **Contact form** (`web/src/app/api/contact/route.ts`; honeypot, time trap, rate limit,
-   Resend REST API). Form and fallback tested in a browser; the actual sending was NOT tested
-   (needs `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `IP_HASH_SECRET` in Vercel). Original scope:: server action, zod validation, honeypot + time trap, rate limit via
+   Resend REST API). Yash confirmed on the live site that the email arrives. Original scope:: server action, zod validation, honeypot + time trap, rate limit via
    `check_rate_limit`, sends through Resend to Yash. Needs Supabase + Resend env vars.
-9. [ ] **Deploy** to Vercel (root directory `web/`), env vars set in Vercel, never in git.
+9. [x] 2026-11-13 **Deploy** to Vercel (root directory `web/`), env vars set in Vercel, never in git.
 
 ## Phase 2: accounts and private apps
 
-10. [x] 2026-11-14 **Supabase project** (`app_worker` login still to be set, needed in Phase 3) (EU region) created, migrations applied, `app_worker` login set.
+10. [x] 2026-11-14 **Supabase project** (`app_worker` login set 2026-11-15) (EU region) created, migrations applied, `app_worker` login set.
 11. [ ] **Auth** (2026-11-14: sign up with invite code, log in, log out, reset and update password are
-    built as client-side Supabase Auth calls; the code compiles and the forms validate, but the
-    flows were NOT tested against the live project from the build environment. Still open:
-    Yash's manual test, server-side rate limits via `check_rate_limit`, Resend as SMTP, redirect
+    built as client-side Supabase Auth calls; Yash tested sign up, confirm, log in and log out on the live site. Still open:
+    server-side rate limits via `check_rate_limit`, Resend as SMTP, redirect
     of logged-out users away from nothing-to-see pages.) Original scope: sign up with invite code, verify email, log in, reset password, log out.
     Rate limits on all auth routes. Accept: signup without a valid code fails with a clear message.
 12. [ ] **Admin panel** (`/admin`, admin only): invites, users, quotas (`app_settings`,
     `profiles.daily_run_limit`), job queue + logs, bot status. Every action writes `audit_log`.
 13. [x] 2026-11-14 **Demo/personal switch** (`web/src/apps/useStore.ts`): each app renders from sample data for guests and from the
     database after login, through one data-access interface per app.
-14. [ ] **Workspace** (2026-11-14: built and browser-tested in demo mode; Supabase store untested live.
+14. [x] 2026-11-14 **Workspace** (confirmed by Yash on the live site: save, reload, nested delete.
     Still open: reorder/move pages, archive instead of delete.): BlockNote, nested pages, autosave (debounced), 1 MB document limit handled.
-15. [ ] **Board** (2026-11-14: built and browser-tested in demo mode: drag and drop, optimistic updates,
-    columns add/rename/colour/WIP/move/delete, custom fields, templates, card dialog. Realtime
-    code is written but untested live. Still open: labels UI, select-type fields, dragging
-    columns, the two-tab acceptance test.): dnd-kit, optimistic updates, Realtime sync across tabs, columns/labels/fields
+15. [ ] **Board** (2026-11-14: confirmed by Yash on the live site incl. two-tab sync; undo added
+    2026-11-14. Built: drag and drop, optimistic updates,
+    columns add/rename/colour/WIP/move/delete, custom fields, templates, card dialog. Still open: labels UI,
+    select-type fields, dragging columns, undo for column/board deletion, redo.): dnd-kit, optimistic updates, Realtime sync across tabs, columns/labels/fields
     editable, WIP limits, templates (Uni assignments, Job applications, Blank).
     Accept: dragging in tab A moves the card in tab B within 2 s.
 16. [ ] **Focus**, **Habits**, **Stash** (title/favicon fetch must block private IP ranges: SSRF).
@@ -86,7 +120,7 @@ add the date when you finish one. If you change scope, change this file in the s
 18. [x] 2026-11-15 **Worker** (`worker/`): loop over `queue.claim_job`, pydantic validation, per-job
     timeout in a child process, heartbeat, logs, retries; Dockerfile (non-root, read-only
     filesystem) + `infra/docker-compose.yml`. Tested end to end against a local Postgres with the
-    `app_worker` role. NOT yet tested: the Docker image build, and a run against Supabase.
+    `app_worker` role. 2026-11-15: the Docker image builds and connects to Supabase on Yash's Mac.
     Still open: the "kill the worker mid-job, job is re-queued" acceptance test on real infra.
 19. [ ] **Stock simulator v1** as runner `stock-sim`. **Yash implements this himself. Do not write it
     for him unless he asks.** The skeleton with validated `Params` is in
@@ -114,12 +148,6 @@ add the date when you finish one. If you change scope, change this file in the s
 26. [ ] Flight tracker runner.
 27. [ ] Optional end-to-end encryption for Workspace (`workspace_keys`, `content_cipher`).
 28. [ ] SEO, Open Graph images, custom domain, Resend domain verification.
-
-## Suggested order for whoever continues
-
-1. Yash: stock simulator (item 19). 2. Run UI for logged-in users (20). 3. Oracle VM (23).
-4. Admin panel (12) and auth hardening (11). 5. GitHub heatmap (4).
-6. Focus, Habits, Stash (16). 7. GDPR pages (17) before inviting anyone else. 8. Phase 4.
 
 ## Known gaps to keep in mind
 
