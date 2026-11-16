@@ -35,6 +35,8 @@ Yash reported the demo-run setup as done; confirm once that Monte Carlo Pi → R
 7. Domain, then Resend domain verification so mail reaches other people (item 28).
 8. Phase 4.
 
+**In progress alongside (2026-11-16):** the News app (item 29, Phase 5), on branch `news-app`.
+
 **Small things noticed, not yet done:** test the games in Safari and Firefox; Yash to proofread
 both CV PDFs; undo on the Board does not cover deleting a column or board, and there is no redo;
 unknown project URLs return status 200 with the not-found page.
@@ -148,6 +150,51 @@ unknown project URLs return status 200 with the not-found page.
 26. [ ] Flight tracker runner.
 27. [ ] Optional end-to-end encryption for Workspace (`workspace_keys`, `content_cipher`).
 28. [ ] SEO, Open Graph images, custom domain, Resend domain verification.
+
+## Phase 5: News app
+
+29. [ ] **News** (private app, logged-in users only; design in ARCHITECTURE.md section 7).
+    A short, finite, per-user feed of the most relevant news of the last hours as reel-style
+    cards. Built in small commits; tick the steps as they land.
+    - [x] 2026-11-16 a. Plan agreed with Yash; this item and the architecture notes.
+    - [ ] b. Migration: `news_*` tables, role `app_news`, `news.*` functions, RLS, purge; SQL
+      tests in `supabase/tests/30_news.sql`.
+    - [ ] c. Pipeline without LLM (`news/`): source config, fetch (RSS/Atom, Google News RSS,
+      Hacker News), canonical URLs, de-duplication, tests.
+    - [ ] d. Provider interface + Gemini client, ranking, summaries, rate-limit handling.
+      Blocked on Yash reading the Gemini API terms (ARCHITECTURE.md section 10).
+    - [ ] e. `.github/workflows/news.yml`: schedule every 15 minutes + manual trigger.
+    - [ ] f. App shell: registry entry with `auth: "required"`, hidden from dock and palette for
+      guests, feed UI with empty, error and "limited" states.
+    - [ ] g. Settings panel (topics, free text, N) and feedback (read, thumbs).
+    - [ ] h. Images: hotlinked `og:image` with gradient fallback; CSP `img-src` and COEP
+      `credentialless`; check the in-browser games in Safari and Firefox.
+    - [ ] i. Accessibility + Lighthouse check, docs, add the tables to data export (item 17).
+
+    Scope decisions (2026-11-16): sources are free only (RSS/Atom, Google News RSS, Hacker
+    News API) and live in `news/config/sources.yaml`. Gemini free tier, no billing account;
+    models and caps in `news/config/llm.yaml`. Summaries in English only. Topics: preset chips
+    plus a free-text field; presets: AI & CS jobs; Germany/Berlin & student life; Markets &
+    investing; Geopolitics (mainly US); Local politics (Germany, India). Feedback (read, thumbs)
+    is stored only. No guest demo. No GIFs. Second GitHub secret is `NEWS_DATABASE_URL` (role
+    `app_news`), not the Supabase secret key. Feed window: 6 hours, widened to 24 when fewer
+    than N items match. Settings changes apply at the next run.
+
+    Out of scope for v1: learning from feedback, push or email notifications, other languages,
+    native mobile, paid APIs, a custom domain.
+
+    Accept:
+    - The pipeline runs on schedule and on manual trigger, is idempotent, and a failed run does
+      not corrupt data.
+    - A new article from a monitored feed appears in a matching user's feed within about 30
+      minutes of publication under normal conditions.
+    - Two users with different topics get different feeds. RLS tests prove one user cannot read
+      another's prefs or feed.
+    - Guests and logged-out visitors cannot see or open the app.
+    - The feed ends with "All caught up". Read and thumb state persists across reloads.
+    - Gemini failures or rate limits degrade gracefully and are visible in the UI.
+    - Lint, typecheck, tests, SQL tests and build all pass. Lighthouse and keyboard
+      accessibility are not worse than the other apps.
 
 ## Known gaps to keep in mind
 

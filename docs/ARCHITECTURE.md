@@ -62,6 +62,7 @@ on it to attack from the internet except SSH (key-only, used by the deploy workf
 web/                 Next.js 16 app (App Router, TypeScript strict, Tailwind 4, next-intl)  built (Phase 1 in progress)
 worker/              Python worker: queue loop + one module per runner, Dockerfile       built
 bots/                Long-running bots (badminton monitor)                              planned
+news/                News pipeline (Python, run by a scheduled GitHub Action)           planned
 supabase/migrations  Database schema, RLS, functions                                    built
 supabase/tests       SQL tests + run.sh (also run in CI)                                built
 content/cv.yaml      CV single source of truth (EN + DE)                                built
@@ -110,6 +111,8 @@ erDiagram
 | Secrets | `user_api_keys` | owner sees provider + last 4 chars; ciphertext unreadable |
 | Shared cache | `price_bars`, `external_cache` | nobody; worker only |
 | Public | `runners`, `bot_status`, `bot_heartbeats` | everyone, read-only |
+| News (planned) | `news_articles`, `news_topics`, `news_runs` | logged-in users, read-only; written by the pipeline only |
+| News, per user (planned) | `news_prefs`, `news_feed_items`, `news_feedback` | owner only: prefs and feedback read/write, feed items read-only |
 
 ### Security rules baked into the schema (all covered by tests)
 
@@ -220,7 +223,76 @@ are therefore not rendered.
   ```
 - Admin panel pages run on the server, check `is_admin()` first, then use the secret key.
 
-## 7. Hosting and free-tier limits (checked November 2026)
+## 7. News app (planned, roadmap item 29)
+
+A short, finite, per-user feed of recent news shown as reel-style cards. Logged-in users only.
+
+```mermaid
+flowchart LR
+  subgraph GHA[GitHub Actions, cron every 15 min]
+    F[1 fetch feeds] --> D[2 dedupe] --> R[3 rank per user] --> S[4 summarise winners] --> W[5 write feed] --> P[6 purge]
+  end
+  SRC[RSS/Atom, Google News RSS, Hacker News API] --> F
+  R -- "headlines + interests" --> LLM[Gemini free tier]
+  S -- "article text, in memory only" --> LLM
+  GHA -- "role app_news, news.* functions only" --> DB[(Postgres)]
+  B[Browser] -- "user JWT, RLS" --> DB
+  B -. "hotlinked og:image, no cookies, no referrer" .-> PUB[Publisher image hosts]
+```
+
+- **Where it runs.** `news/` is a Python package run by `.github/workflows/news.yml` (schedule +
+  manual trigger). It is the fourth place that runs code and has exactly one job. It connects as
+  the database role `app_news`, which can only call `news.*` functions (same idea as `app_worker`
+  and `queue.*`). The Supabase secret key is not used and never enters GitHub.
+- **Two layers.** A shared pool (`news_articles`: metadata, link, one generated summary) and a
+  per-user layer (`news_feed_items`: rank, "why this matters to you"). An article is fetched,
+  deduplicated and summarised at most once, however many users see it.
+- **Rank first, summarise second.** Each user's candidates are ranked on headline + snippet in
+  one batched LLM call, which also returns the "why it matters" note for the top N. Only the
+  union of all users' top-N articles is then summarised (one batched call). Per run that is
+  `users + 1` requests at most, and zero when no new article arrived.
+- **Free-tier budget.** Limits read from Yash's AI Studio rate-limit page on 2026-11-16, for
+  both `gemini-3.5-flash-lite` (default) and `gemini-3.1-flash-lite` (fallback): 15 requests/min,
+  250,000 input tokens/min, 500 requests/day. The pipeline stops at 70 % of the daily limit (350),
+  counted in the database (`news_llm_usage`). 96 runs/day x 2 requests = 192 for one user. With
+  three or more users the worst case exceeds 350, so the pipeline lowers the effective N and
+  then skips ranking runs rather than failing. On HTTP 429: back off, then the fallback model,
+  then record the run as `limited`; the UI shows "limited, showing older items".
+- **N is capped twice.** The user picks 5 to 20 (default 10); the pipeline clamps it to
+  `max_n` in `news/config/llm.yaml`, so the budget, not the UI, has the last word.
+- **Config, not code.** `news/config/sources.yaml` (presets, feeds, Google News queries, Hacker
+  News settings) and `news/config/llm.yaml` (model names, caps, batch sizes). The pipeline
+  upserts the presets into `news_topics` on every run, so there is no manual seed step.
+- **Idempotent.** Unique key on the hash of the canonical URL, upserts everywhere, each stage in
+  its own transaction, and a workflow `concurrency` group so two runs never overlap. A failed
+  run leaves earlier stages committed and is simply repeated by the next one.
+- **No article text is stored.** The body is fetched and extracted in memory for summarising
+  only, robots.txt is respected, and paywalled or blocked pages fall back to headline + snippet.
+  Rows are purged after 3 days (feedback is kept for later learning).
+- **Untrusted input.** Article text and the user's free-text interests are data, never
+  instructions: they go into clearly delimited blocks of the prompt, the model's answer must
+  validate against a strict pydantic schema or it is dropped, and the UI renders summaries as
+  plain text nodes.
+- **Browser side.** No new API routes. The app reads feed items and writes prefs and feedback
+  through supabase-js under RLS, check constraints and row caps, like Board. The registry entry
+  is marked `auth: "required"`: hidden from the dock and the palette for guests, and the page
+  shell is static, holds no data and redirects guests to login. Articles are readable by the
+  `authenticated` role only, so the database is the gate (see section 6).
+- **Images.** `og:image` URLs are hotlinked, never downloaded or stored. To make that possible
+  the site moves from COEP `require-corp` to `credentialless` (cross-origin images load without
+  cookies; cross-origin isolation for the Pyodide terminal stays) and `img-src` widens to
+  `https:`. Images use `referrerpolicy="no-referrer"`. Trade-offs: the reader's IP reaches the
+  publisher's image host, and browsers without `credentialless` support lose `input()` in the
+  in-browser games (to be verified in Safari before this ships). Fallback when there is no image
+  or it fails to load: a generated gradient plus the topic icon.
+- **Known limits.** GitHub cron can start 5 to 30 minutes late, so "in the feed within 30
+  minutes" is a normal-conditions target. GitHub disables scheduled workflows after 60 days
+  without repository activity; re-enable under Actions > News pipeline > Enable workflow. The
+  repository is public, so are the workflow logs: the pipeline logs counts and ids, never
+  interests or prefs. Google News RSS links are opaque redirects; when one cannot be resolved the
+  card has no image and the summary is based on headline + snippet.
+
+## 8. Hosting and free-tier limits (checked November 2026)
 
 | Service | Limit that matters | How we stay inside |
 |---|---|---|
@@ -228,7 +300,8 @@ are therefore not rendered.
 | Supabase Free | 500 MB database, 2 projects, pauses after 7 days idle | row caps, purge job, worker polling keeps it awake, plus a daily keep-alive GitHub Action |
 | Oracle Always Free | Ampere A1: 2 OCPU + 12 GB total (halved in 2026) | one VM at or below that size |
 | Resend Free | 100 emails/day, 3,000/month, sending to others needs a verified domain | signup rate limit; until the domain exists only the owner's address works |
-| GitHub Actions | free for public repos | repo is public |
+| GitHub Actions | free for public repos; cron may run late; schedules are disabled after 60 days without repo activity | repo is public; the news run is idempotent, so a late or skipped run only delays the feed |
+| Gemini API free tier (planned) | 15 requests/min, 250k input tokens/min, 500 requests/day per Flash-Lite model, no billing account | batched calls, stop at 70 % per day, fallback model, visible 'limited' state |
 
 Fallback if Oracle capacity or policy changes: the worker is one `docker compose up` with
 environment variables. Any €4/month VPS runs it unchanged (ask Yash before spending).
@@ -237,7 +310,7 @@ Worker database connection: Supabase's direct host is IPv6-only on the free plan
 **session pooler** connection string (IPv4, port 5432) with user `app_worker.<project-ref>`.
 Enable the role once by hand: `alter role app_worker login password '<long random>';`
 
-## 8. Key decisions
+## 9. Key decisions
 
 | Decision | Why | Trade-off |
 |---|---|---|
@@ -250,10 +323,18 @@ Enable the role once by hand: `alter role app_worker login password '<long rando
 | Typst for the CV | fast, simple template, runs in CI in seconds | less common than LaTeX |
 | BlockNote for Workspace | Notion-style editor out of the box | less low-level control than Tiptap |
 | No tracking, no cookies beyond auth | GDPR: no consent banner needed | no visitor analytics by default |
+| News pipeline on GitHub Actions cron (planned) | free, no server to keep alive, secrets stay in GitHub | start times are not exact |
+| Rank on headlines, summarise only top-N articles (planned) | fits the free LLM tier; each article summarised once for all users | ranking sees less text than the summary does |
+| LLM behind a provider interface (planned) | model or vendor can be swapped in config | one more small abstraction |
+| COEP `credentialless` instead of `require-corp` (planned) | lets hotlinked news images load while keeping cross-origin isolation | not supported in every browser |
 
-## 9. Open items that need Yash
+## 10. Open items that need Yash
 
 - Impressum: German law requires a real postal address for most sites. Options to discuss
   before Phase 2 ships (do not decide for him).
 - Phone is left out of `cv.yaml` on purpose (public repo). Email stays in and is public (confirmed by Yash 2026-11-13).
 - Domain (GitHub Student Pack) and then Resend domain verification.
+- News app: read the Gemini API terms (ai.google.dev/gemini-api/terms) before the LLM step is
+  switched on: whether the unpaid tier may be used for an app offered to users in the EEA, and
+  how Google may use free-tier prompts (the free-text interests are sent to it). The privacy
+  policy (item 17) must mention Gemini and the hotlinked images.
