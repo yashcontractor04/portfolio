@@ -65,7 +65,8 @@
     "label": "Project sections",
     "overview": "Overview",
     "run": "Run",
-    "how": "How it works"
+    "how": "How it works",
+    "dashboard": "Dashboard"
   },
   "run": {
     "run": "Run",
@@ -88,7 +89,8 @@
     "static": "This project runs on its own, outside this site. The overview shows its README from GitHub.",
     "runner": "Runs go into a job queue in Postgres. A Python worker picks them up, runs them with a timeout and writes the result back; the page watches the job live.",
     "bot": "The bot runs on a small server and writes a heartbeat to the database after every check. This page only reads it.",
-    "source": "Source at commit"
+    "source": "Source at commit",
+    "simulator": "The simulator is its own Python backend (FastAPI, Postgres, a worker) in a separate repo. It runs on a small server with no open ports. A run from this page goes into the site's job queue; the site's worker forwards it to the simulator over a private network and sends the result back. The dashboard reads a small snapshot that the simulator publishes once a day."
   },
   "apps": {
     "demo": "Demo",
@@ -219,7 +221,8 @@
       "busy": "Many demo runs are in progress. Please try again in a moment.",
       "unavailable": "The runner is not available right now.",
       "slow": "No worker has picked this up yet. The worker may be offline; please try again later."
-    }
+    },
+    "mockHint": "Sample run. The simulator's backend is still being built, so this shows a fixed example result in the exact shape the real one will have. No job is started."
   },
   "palette": {
     "label": "Command palette",
@@ -244,5 +247,55 @@
       "rate_limited": "Too many messages for now. Please try again later or use the email link.",
       "unavailable": "The form is not available right now. Please use the email link below."
     }
+  },
+  "sim": {
+    "sample": "SAMPLE DATA · the simulator is still being built",
+    "intro": "Three model portfolios, picked by the simulator's rules and started with {amount} each on {start}. They are not changed by hand and are valued after every trading day, next to simply buying the S&P 500 ({benchmark}).",
+    "choose": "Choose a model portfolio",
+    "risk": {
+      "low": "Low risk",
+      "medium": "Medium risk",
+      "high": "High risk"
+    },
+    "performance": "Performance",
+    "performanceSummary": "Line chart. The portfolio is now worth {value}, {change} since the start. {benchmark}: {benchmarkChange}.",
+    "stats": {
+      "day": "Last trading day",
+      "volatility": "Volatility per year",
+      "drawdown": "Largest fall",
+      "sharpe": "Sharpe ratio"
+    },
+    "allocation": "Allocation",
+    "columns": {
+      "ticker": "Ticker",
+      "name": "Name",
+      "sector": "Sector",
+      "weight": "Weight"
+    },
+    "role": {
+      "core": "core",
+      "satellite": "pick"
+    },
+    "severity": {
+      "info": "note",
+      "warning": "warning"
+    },
+    "outlook": "Range of outcomes, next {years} years",
+    "outlookSummary": "Fan chart. After {years} years, 5 of 100 simulated paths end below {low}, the middle path ends at {mid}, and 5 of 100 end above {high}.",
+    "outlookNote": "Not a forecast. {paths} possible futures were built by reshuffling this portfolio's past daily returns. The bands show where most of them ended. This cannot show events that never happened in the data, and in a crash stocks tend to fall together more than their history suggests.",
+    "fan": {
+      "median": "middle path",
+      "middle": "50 of 100 paths",
+      "wide": "90 of 100 paths",
+      "today": "today",
+      "years": "{years} years",
+      "low": "Worst 5% end below",
+      "mid": "Middle path",
+      "high": "Best 5% end above"
+    },
+    "updated": "Prices as of {date} · {value}",
+    "disclaimer": "This is a simulation for learning purposes. No real money is invested. Past performance says little about the future. Not financial advice.",
+    "empty": "The model portfolios have not started yet. The first numbers appear here once the simulator publishes its first daily snapshot.",
+    "emptyHint": "What will be shown: performance against the S&P 500, the allocation, and a range of possible outcomes for a low, a medium and a high risk portfolio."
   }
 }

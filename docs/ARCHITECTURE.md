@@ -25,6 +25,7 @@ flowchart LR
   subgraph VM[Oracle Always Free ARM VM, Docker]
     WK[Python worker]
     BOT[Bots]
+    SIM[Stock simulator<br/>own repo, own Postgres]
   end
   GH[GitHub API]
   MAIL[Resend]
@@ -41,6 +42,8 @@ flowchart LR
   WK -- "outbound only, role app_worker" --> DB
   BOT -- "outbound only" --> DB
   WK --> EXT
+  WK -. "private Docker network (planned)" .-> SIM
+  SIM -. "daily snapshot, outbound only (planned)" .-> DB
   CI -- "CV PDFs, tests, deploys" --> Vercel
   CI -- "ssh deploy" --> VM
 ```
@@ -108,8 +111,8 @@ erDiagram
 | Apps | `workspace_*`, `board*`, `focus_*`, `habit*`, `stash_bookmarks` | owner only, full read/write |
 | Runner | `jobs`, `job_results`, `job_logs`, `usage_daily`, `schedules` | owner read-only; writes only through functions |
 | Secrets | `user_api_keys` | owner sees provider + last 4 chars; ciphertext unreadable |
-| Shared cache | `price_bars`, `external_cache` | nobody; worker only |
-| Public | `runners`, `bot_status`, `bot_heartbeats` | everyone, read-only |
+| Shared cache | `external_cache` | nobody; worker only |
+| Public | `runners`, `bot_status`, `bot_heartbeats`, `sim_snapshots` | everyone, read-only |
 
 ### Security rules baked into the schema (all covered by tests)
 
@@ -124,7 +127,7 @@ erDiagram
    cannot select `user_api_keys.ciphertext`.
 6. **Invite-only signup is enforced by a trigger on `auth.users`**, so no API path skips it.
    Codes are stored as SHA-256 hashes.
-7. **Least-privilege worker.** `app_worker` has no table access except the price cache. A
+7. **Least-privilege worker.** `app_worker` has no table access except the generic cache (`external_cache`). A
    leaked worker password cannot read notes.
 8. **Size and row caps** on every user-writable column and table protect the 500 MB database.
 
@@ -165,7 +168,7 @@ sequenceDiagram
 - **Worker internals** (`worker/worker/`): `main.py` is the loop, `execute.py` runs each job in a
   spawned child process (hard timeout, CPU/memory limits, killed on cancel), `contract.py`
   defines `Params` in and `Result` out, `runners/__init__.py` maps slug to module.
-  `monte-carlo-pi` is the reference runner; `stock-sim` is a skeleton Yash implements.
+  `monte-carlo-pi` is the reference runner; `stock-sim` is an adapter skeleton (section 4a).
 - **Demo runs** (guests): the Next.js server rate-limits by IP (HMAC of the IP, never the raw
   IP), calls `queue.enqueue_demo()` with fixed params and a random token, and the browser
   polls a server route with that token. Demo jobs are invisible to all users and deleted
@@ -173,9 +176,58 @@ sequenceDiagram
 - **Bring your own key.** The key is encrypted in the Next.js server with AES-256-GCM
   (`API_KEY_ENC_KEY_V1`, 32 random bytes, held by web and worker only). The worker can fetch
   the ciphertext only for a job it currently holds (`queue.get_job_api_key`).
-- **Shared cache.** `price_bars` stores daily prices once per ticker for all users.
+- **Shared cache.** `external_cache` is a generic key -> JSON cache with an expiry for runners
+  that call outside APIs. (`price_bars` was dropped on 2026-11-16: prices now live in the stock
+  simulator's own database, see section 4a.)
 - **Scheduling.** The worker calls `queue.enqueue_due_schedules()` once a minute. Scheduled
   runs pass through the same quota check.
+
+## 4a. Stock simulator (separate repo)
+
+The simulator is **not** in this repo. It is its own Python backend (FastAPI, a worker, its own
+Postgres) at `github.com/yashcontractor04/stock-simulator`, written by Yash. Its architecture and
+API contract are in that repo (`docs/02-architecture.md`, `docs/openapi.yaml`). This repo holds
+only what the website needs:
+
+| Piece | Where | Status |
+|---|---|---|
+| Inputs and manifest (`dashboard: sim-snapshot`) | `projects/stock-sim/project.yaml` | built |
+| Dashboard tab: three model portfolios, performance vs. SPY, allocation, range of outcomes | `web/src/components/sim/`, `web/src/lib/sim/` | built, on sample data |
+| Demo run on the Run tab | `DemoRun` with a `mock` result | built, on sample data |
+| Public snapshot table + the one function that may write it | `supabase/migrations/20261116000001_sim_snapshots.sql` | built, tested; applied by hand |
+| Adapter that forwards a job to the simulator | `worker/worker/runners/stock_sim.py` | **skeleton**, Yash writes it |
+| Compose settings that put the worker on the private network | `infra/docker-compose.sim.yml` | written, not in use |
+
+```mermaid
+flowchart LR
+  B[Browser] --> WEB[Next.js on Vercel]
+  WEB -- "enqueue_job / enqueue_demo" --> Q[(jobs in Supabase)]
+  WEB -- "read, cached for hours" --> S[(sim_snapshots in Supabase)]
+  subgraph VM[VM, no inbound ports]
+    WK[portfolio worker<br/>stock_sim.py adapter] -- "HTTP on sim-net" --> API[simulator api]
+    SW[simulator worker]
+  end
+  WK -- "claim job, write result" --> Q
+  SW -- "sim.publish_snapshot() once a day" --> S
+```
+
+Two paths, both keep the VM free of inbound ports:
+
+- **Runs** (planned). Unchanged on the website side: quota, IP rate limit and demo tokens all
+  stay in the existing queue. The worker's `stock-sim` runner sends the job to the simulator's
+  internal API over a private Docker network (`sim-net`), polls for the result and maps it to the
+  `Result` contract.
+- **Dashboard** (built on sample data). The simulator publishes one small JSON document per day
+  through `sim.publish_snapshot()`. Its database role `sim_publisher` can call that function and
+  nothing else: it cannot read any table. The website reads the newest row with the publishable
+  key, validates it with zod (`web/src/lib/sim/schema.ts`) and caches it. A visitor looking at the
+  dashboard never causes work on the VM, and the page keeps working when the VM is off.
+
+**Mock or live: one switch.** The server-side env var `SIM_DATA` (`web/src/lib/sim/snapshot.ts`):
+unset or `mock` shows sample data, clearly labelled as such on the page; `live` reads
+`sim_snapshots` and sends demo runs through the real queue. The sample data is generated from
+the examples in the simulator's `openapi.yaml` by `web/scripts/gen-sim-mock.mjs`, so the pages
+are built against the real shapes. Re-run that script when the contract's examples change.
 
 ## 5. Project system
 
@@ -249,6 +301,8 @@ Enable the role once by hand: `alter role app_worker login password '<long rando
 | App-level AES-GCM for API keys | portable, easy to explain, key never in the DB | key rotation is manual (`key_version`) |
 | Typst for the CV | fast, simple template, runs in CI in seconds | less common than LaTeX |
 | BlockNote for Workspace | Notion-style editor out of the box | less low-level control than Tiptap |
+| Stock simulator in its own repo with its own Postgres | 25 million price rows do not fit Supabase's 500 MB; Yash builds and measures that backend himself | two repos and a contract to keep in sync |
+| Dashboard reads a pushed daily snapshot | no inbound ports on the VM; the site works while the VM is off | numbers are up to one day old |
 | No tracking, no cookies beyond auth | GDPR: no consent banner needed | no visitor analytics by default |
 
 ## 9. Open items that need Yash

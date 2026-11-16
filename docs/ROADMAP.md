@@ -24,8 +24,16 @@ Yash reported the demo-run setup as done; confirm once that Monte Carlo Pi → R
 - Email: Resend without a domain, so mail only reaches Yash's own address. Signup confirmation
   mails use Supabase's built-in sender (also only Yash's address).
 
+**Stock simulator, new setup (2026-11-16):** the simulator moved to its own repo,
+`github.com/yashcontractor04/stock-simulator` (own Postgres, own API, written by Yash). In this
+repo: its frontend is built on sample data (Dashboard tab + demo run), the snapshot table
+migration is written, and `stock_sim.py` is an adapter skeleton. See ARCHITECTURE.md section 4a.
+**Yash still has to apply** `supabase/migrations/20261116000001_sim_snapshots.sql` and the new
+`supabase/seed/runners.sql` in the SQL editor. The worker does not need a rebuild for any of this
+until the adapter is written.
+
 **Next up, in order:**
-1. Yash writes the stock simulator (item 19). Open decision: the price data source.
+1. Yash builds the simulator in its own repo, then writes the adapter here (item 19).
 2. Run UI for logged-in users and the Runs app (item 20).
 3. Oracle VM for the worker (item 23).
 4. GitHub contribution heatmap on the homepage (item 4; needs a read-only `GITHUB_TOKEN` in Vercel).
@@ -122,12 +130,28 @@ unknown project URLs return status 200 with the not-found page.
     filesystem) + `infra/docker-compose.yml`. Tested end to end against a local Postgres with the
     `app_worker` role. 2026-11-15: the Docker image builds and connects to Supabase on Yash's Mac.
     Still open: the "kill the worker mid-job, job is re-queued" acceptance test on real infra.
-19. [ ] **Stock simulator v1** as runner `stock-sim`. **Yash implements this himself. Do not write it
-    for him unless he asks.** The skeleton with validated `Params` is in
-    `worker/worker/runners/stock_sim.py`; its docstring lists the steps. Results go back as
-    summary + series + table (see `worker/worker/contract.py`). Prices should be cached in
-    `price_bars`. Open decision with Yash: the free data source (check its terms first).
-    When it works: `status: live` in the manifest, `python scripts/sync_runners.py`, apply the SQL.
+19. [ ] **Stock simulator: connect the separate backend.** The simulator itself is built in
+    `github.com/yashcontractor04/stock-simulator` and follows that repo's `docs/07-roadmap.md`.
+    **Yash writes the adapter himself. Do not write it for him unless he asks.**
+    - [x] 2026-11-16 Manifest with the new inputs (capital, risk level, time span, industries,
+      themes), `dashboard: sim-snapshot`, repo link.
+    - [x] 2026-11-16 Dashboard tab and demo run on sample data generated from the simulator's
+      `openapi.yaml` (`web/scripts/gen-sim-mock.mjs`); EN + DE; switch `SIM_DATA`.
+    - [x] 2026-11-16 Migration `sim_snapshots` + `sim.publish_snapshot()` + role `sim_publisher`,
+      with tests. `price_bars` dropped. Not applied to the real project yet (Yash, by hand).
+    - [ ] Yash: set a login password for `sim_publisher` when the simulator is ready to publish
+      (`alter role sim_publisher login password '<long random>';`).
+    - [ ] Yash: write the adapter in `worker/worker/runners/stock_sim.py` (steps in its
+      docstring; simulator roadmap milestone M5) with tests using a fake HTTP transport.
+    - [ ] Yash: on the VM, `docker network create sim-net`, start the worker with
+      `infra/docker-compose.sim.yml`, set `SIM_API_URL` and `SIM_SERVICE_TOKEN` in `infra/.env`.
+    - [ ] Go live: `status: live` in the manifest, `python scripts/sync_runners.py`, apply the
+      SQL, set `SIM_DATA=live` in Vercel and redeploy.
+    - Accept: the dashboard shows the simulator's real snapshot with yesterday's date; a guest
+      demo run reaches "finished" with a real result; with the simulator stopped, a run fails
+      with a clear message and the dashboard still loads.
+    - Later, not planned in detail: admin pages that send "admin command" jobs through the
+      same queue; warning texts translated by code instead of shown in English.
 20. [ ] **Run UI for logged-in users**: form generated from the manifest (`runner.inputs`), call
     `enqueue_job`, live status via Realtime on `jobs`, results page with charts, quota display
     (`my_quota`), schedules (`create_schedule`), bring-your-own-key (server route that encrypts
@@ -151,8 +175,10 @@ unknown project URLs return status 200 with the not-found page.
 
 ## Known gaps to keep in mind
 
-- Migration `20261115000001_demo_api.sql` and `supabase/seed/runners.sql` must be applied by hand
-  in the Supabase SQL editor (there is no automated migration deploy yet).
+- Migrations and `supabase/seed/runners.sql` must be applied by hand in the Supabase SQL editor
+  (there is no automated migration deploy yet). Waiting: `20261116000001_sim_snapshots.sql`.
+- The stock simulator pages show sample data (labelled on the page) until `SIM_DATA=live`.
+- Simulator warnings on the dashboard are shown in English in the German version too.
 - `npm audit` reports 8 moderate findings in web dependencies; not yet reviewed.
 
 - Unknown project URLs render the not-found page with `noindex` but HTTP status 200 (a side

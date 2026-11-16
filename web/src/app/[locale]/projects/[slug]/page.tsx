@@ -7,6 +7,7 @@ import { DemoRun } from "@/components/DemoRun";
 import { Icon } from "@/components/Icons";
 import { Markdown } from "@/components/Markdown";
 import { PyTerminal } from "@/components/PyTerminal";
+import { SimDashboard } from "@/components/sim/SimDashboard";
 import { Tabs, type Tab } from "@/components/Tabs";
 import { Window } from "@/components/Window";
 import { Link } from "@/i18n/navigation";
@@ -14,6 +15,7 @@ import { routing } from "@/i18n/routing";
 import { pick } from "@/lib/localized";
 import { loadProjects, REPO_ROOT } from "@/lib/projects";
 import { loadReadme, sourceUrl } from "@/lib/readme";
+import { loadSimSnapshot, mockDemoResult } from "@/lib/sim/snapshot";
 
 // One static page per project per language. A new manifest = a new page, no code change.
 export function generateStaticParams() {
@@ -43,15 +45,37 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/proje
       ? fs.readdirSync(srcDir).filter((f) => /\.(py|txt|json|csv)$/.test(f))
       : [];
 
-  const howKey = { "in-browser": "inBrowser", static: "static", runner: "runner", "bot-status": "bot" }[project.type];
+  // The stock simulator has its own backend; its pages run on sample data until SIM_DATA=live.
+  const sim = project.dashboard === "sim-snapshot" ? await loadSimSnapshot() : null;
+  const mockDemo = sim ? mockDemoResult() : undefined;
 
-  const tabs: Tab[] = [
+  const howKey = sim
+    ? "simulator"
+    : { "in-browser": "inBrowser", static: "static", runner: "runner", "bot-status": "bot" }[project.type];
+
+  const tabs: Tab[] = [];
+  if (sim) {
+    tabs.push({
+      key: "dashboard",
+      label: tt("tabs.dashboard"),
+      content: sim.snapshot ? (
+        <SimDashboard snapshot={sim.snapshot} sample={sim.mode === "mock"} />
+      ) : (
+        <div className="flex max-w-3xl flex-col gap-3">
+          <p>{tt("sim.empty")}</p>
+          <p className="text-sm text-mute">{tt("sim.emptyHint")}</p>
+          <p className="rounded-md border border-line bg-tile p-4 text-sm text-mute">{tt("sim.disclaimer")}</p>
+        </div>
+      ),
+    });
+  }
+  tabs.push(
     {
       key: "overview",
       label: tt("tabs.overview"),
       content: readme ? <Markdown source={readme} /> : <p className="text-mute">{pick(project.summary, locale)}</p>,
     },
-  ];
+  );
   if (project.in_browser && files.length > 0) {
     tabs.push({
       key: "run",
@@ -70,7 +94,11 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/proje
       label: tt("tabs.run"),
       content: (
         <div className="flex flex-col gap-4">
-          {project.status === "live" ? <DemoRun slug={project.slug} /> : <p className="text-mute">{t("runSoon")}</p>}
+          {project.status === "live" || mockDemo ? (
+            <DemoRun slug={project.slug} mock={mockDemo} />
+          ) : (
+            <p className="text-mute">{t("runSoon")}</p>
+          )}
           {project.runner?.disclaimer === "not-financial-advice" ? (
             <p className="rounded-md border border-line bg-tile p-4 text-sm text-mute">{t("disclaimer")}</p>
           ) : null}

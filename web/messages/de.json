@@ -65,7 +65,8 @@
     "label": "Projektbereiche",
     "overview": "Überblick",
     "run": "Ausführen",
-    "how": "So funktioniert's"
+    "how": "So funktioniert's",
+    "dashboard": "Dashboard"
   },
   "run": {
     "run": "Starten",
@@ -88,7 +89,8 @@
     "static": "Dieses Projekt läuft eigenständig außerhalb dieser Seite. Der Überblick zeigt das README von GitHub.",
     "runner": "Läufe landen in einer Job-Queue in Postgres. Ein Python-Worker holt sie ab, führt sie mit Timeout aus und schreibt das Ergebnis zurück; die Seite verfolgt den Job live.",
     "bot": "Der Bot läuft auf einem kleinen Server und schreibt nach jeder Prüfung einen Heartbeat in die Datenbank. Diese Seite liest ihn nur.",
-    "source": "Quellcode am Commit"
+    "source": "Quellcode am Commit",
+    "simulator": "Der Simulator ist ein eigenes Python-Backend (FastAPI, Postgres, ein Worker) in einem separaten Repo. Er läuft auf einem kleinen Server ohne offene Ports. Ein Lauf von dieser Seite geht in die Job-Queue der Website; deren Worker reicht ihn über ein privates Netzwerk an den Simulator weiter und schickt das Ergebnis zurück. Das Dashboard liest einen kleinen Snapshot, den der Simulator einmal täglich veröffentlicht."
   },
   "apps": {
     "demo": "Demo",
@@ -219,7 +221,8 @@
       "busy": "Gerade laufen viele Demo-Läufe. Bitte versuche es gleich noch einmal.",
       "unavailable": "Der Runner ist gerade nicht verfügbar.",
       "slow": "Noch hat kein Worker den Job abgeholt. Der Worker ist eventuell offline; bitte versuche es später erneut."
-    }
+    },
+    "mockHint": "Beispiellauf. Das Backend des Simulators ist noch in Arbeit, deshalb zeigt dies ein festes Beispielergebnis in genau der Form, die das echte haben wird. Es wird kein Job gestartet."
   },
   "palette": {
     "label": "Befehlspalette",
@@ -244,5 +247,55 @@
       "rate_limited": "Gerade zu viele Nachrichten. Bitte versuche es später erneut oder nutze den E-Mail-Link.",
       "unavailable": "Das Formular ist gerade nicht verfügbar. Bitte nutze den E-Mail-Link unten."
     }
+  },
+  "sim": {
+    "sample": "BEISPIELDATEN · der Simulator ist noch in Arbeit",
+    "intro": "Drei Musterportfolios, nach den Regeln des Simulators ausgewählt und am {start} mit je {amount} gestartet. Sie werden nicht von Hand verändert und nach jedem Handelstag neu bewertet, im Vergleich zum einfachen Kauf des S&P 500 ({benchmark}).",
+    "choose": "Musterportfolio auswählen",
+    "risk": {
+      "low": "Niedriges Risiko",
+      "medium": "Mittleres Risiko",
+      "high": "Hohes Risiko"
+    },
+    "performance": "Wertentwicklung",
+    "performanceSummary": "Liniendiagramm. Das Portfolio ist jetzt {value} wert, {change} seit dem Start. {benchmark}: {benchmarkChange}.",
+    "stats": {
+      "day": "Letzter Handelstag",
+      "volatility": "Volatilität pro Jahr",
+      "drawdown": "Größter Rückgang",
+      "sharpe": "Sharpe-Ratio"
+    },
+    "allocation": "Aufteilung",
+    "columns": {
+      "ticker": "Ticker",
+      "name": "Name",
+      "sector": "Sektor",
+      "weight": "Gewicht"
+    },
+    "role": {
+      "core": "Kern",
+      "satellite": "Auswahl"
+    },
+    "severity": {
+      "info": "Hinweis",
+      "warning": "Warnung"
+    },
+    "outlook": "Bandbreite möglicher Ergebnisse, nächste {years} Jahre",
+    "outlookSummary": "Fächerdiagramm. Nach {years} Jahren enden 5 von 100 simulierten Verläufen unter {low}, der mittlere Verlauf endet bei {mid}, und 5 von 100 enden über {high}.",
+    "outlookNote": "Keine Prognose. {paths} mögliche Verläufe wurden gebildet, indem die bisherigen Tagesrenditen dieses Portfolios neu gemischt wurden. Die Bänder zeigen, wo die meisten davon enden. Ereignisse, die in den Daten nie vorkamen, kann das nicht zeigen, und in einem Crash fallen Aktien stärker gemeinsam, als ihre Vergangenheit vermuten lässt.",
+    "fan": {
+      "median": "mittlerer Verlauf",
+      "middle": "50 von 100 Verläufen",
+      "wide": "90 von 100 Verläufen",
+      "today": "heute",
+      "years": "{years} Jahre",
+      "low": "Schlechteste 5 % enden unter",
+      "mid": "Mittlerer Verlauf",
+      "high": "Beste 5 % enden über"
+    },
+    "updated": "Kurse vom {date} · {value}",
+    "disclaimer": "Dies ist eine Simulation zu Lernzwecken. Es wird kein echtes Geld angelegt. Die bisherige Wertentwicklung sagt wenig über die Zukunft aus. Keine Anlageberatung.",
+    "empty": "Die Musterportfolios sind noch nicht gestartet. Die ersten Zahlen erscheinen hier, sobald der Simulator seinen ersten täglichen Snapshot veröffentlicht.",
+    "emptyHint": "Gezeigt wird dann: die Wertentwicklung gegenüber dem S&P 500, die Aufteilung und eine Bandbreite möglicher Ergebnisse für je ein Portfolio mit niedrigem, mittlerem und hohem Risiko."
   }
 }

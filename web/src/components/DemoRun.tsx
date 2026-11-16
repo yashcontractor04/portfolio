@@ -6,7 +6,7 @@ import { LineChart, type ChartSeries } from "./LineChart";
 import { StatTile } from "./StatTile";
 
 type Table = { title: string; columns: string[]; rows: (string | number | null)[][] };
-type Result = { summary: Record<string, string | number>; series: ChartSeries[]; tables: Table[] };
+export type DemoResult = { summary: Record<string, string | number>; series: ChartSeries[]; tables: Table[] };
 type Phase = "idle" | "queued" | "running" | "succeeded" | "failed" | "rate_limited" | "busy" | "unavailable" | "slow";
 
 const POLL_MS = 1500;
@@ -16,11 +16,14 @@ const MAX_POLLS = 60; // about 90 seconds
  * "Run demo" for a runner project. Starts a job through /api/demo and polls
  * until the worker has finished it. The result is shown here and nowhere else:
  * the server deletes demo runs within the hour.
+ *
+ * With `mock`, no job is started: the given sample result is shown after a short
+ * pause. Used while a runner's backend is still being built (see lib/sim).
  */
-export function DemoRun({ slug }: { slug: string }) {
+export function DemoRun({ slug, mock }: { slug: string; mock?: DemoResult }) {
   const t = useTranslations("demoRun");
   const [phase, setPhase] = useState<Phase>("idle");
-  const [result, setResult] = useState<Result | null>(null);
+  const [result, setResult] = useState<DemoResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => void (timer.current && clearTimeout(timer.current)), []);
@@ -30,6 +33,16 @@ export function DemoRun({ slug }: { slug: string }) {
     setResult(null);
     setError(null);
     setPhase("queued");
+    if (mock) {
+      timer.current = setTimeout(() => {
+        setPhase("running");
+        timer.current = setTimeout(() => {
+          setResult(mock);
+          setPhase("succeeded");
+        }, 900);
+      }, 500);
+      return;
+    }
     try {
       const response = await fetch("/api/demo", {
         method: "POST",
@@ -81,7 +94,7 @@ export function DemoRun({ slug }: { slug: string }) {
           {phase === "failed" && error ? `: ${error}` : ""}
         </span>
       </div>
-      <p className="max-w-3xl text-sm text-mute">{t("hint")}</p>
+      <p className="max-w-3xl text-sm text-mute">{t(mock ? "mockHint" : "hint")}</p>
 
       {result ? (
         <div className="flex flex-col gap-6">

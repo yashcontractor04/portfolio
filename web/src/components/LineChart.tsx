@@ -17,7 +17,8 @@ export function LineChart({ series, label }: { series: ChartSeries[]; label: str
   const H = 300;
   const sx = (x: number) => ((x - x0) / (x1 - x0 || 1)) * W;
   const sy = (y: number) => H - ((y - y0) / (y1 - y0)) * H;
-  const format = (n: number) => (Math.abs(n) >= 1000 ? n.toLocaleString("en", { maximumFractionDigits: 0 }) : n.toFixed(4));
+  const format = (n: number) =>
+    Math.abs(n) >= 1000 ? n.toLocaleString("en", { maximumFractionDigits: 0 }) : Number.isInteger(n) ? String(n) : n.toFixed(Math.abs(n) >= 10 ? 1 : 4);
 
   return (
     <figure className="flex flex-col gap-2">

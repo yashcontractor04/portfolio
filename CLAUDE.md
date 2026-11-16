@@ -18,8 +18,16 @@ How to work with Yash:
 - Take security seriously on every change (checklist in CONVENTIONS.md). Never commit secrets.
 - Do not add `Co-Authored-By` trailers, "Generated with ..." lines or session links to commits
   or pull requests.
-- Yash writes the stock simulator (`worker/worker/runners/stock_sim.py`) himself. Help when he
-  asks; do not implement it for him.
+- The stock simulator is a separate repo (`github.com/yashcontractor04/stock-simulator`) that
+  Yash writes himself. Never put simulator code in this repo. Here only its website side
+  lives: the pages in `web/src/components/sim/` and `web/src/lib/sim/` (yours to change), the
+  snapshot table, and the adapter `worker/worker/runners/stock_sim.py`, which Yash also writes
+  himself. Help when he asks; do not implement the adapter for him. See ARCHITECTURE.md 4a.
+- The simulator pages must match the simulator's API contract (`docs/openapi.yaml` in that
+  repo). If the contract changes, re-run `web/scripts/gen-sim-mock.mjs` and update
+  `web/src/lib/sim/schema.ts` in the same commit.
+- The worker runs on Yash's machine. Do not stop, restart or rebuild it; say when a change
+  needs a rebuild. Migrations are applied by Yash by hand: list exactly what to run.
 - Legal choices (Impressum address, privacy wording) are his to make; lay out options.
 
 Before you commit:

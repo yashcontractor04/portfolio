@@ -89,6 +89,9 @@ rule wins. To change a rule, change this file in the same commit and say why.
   `worker/worker/runners/__init__.py` under the project slug, exposing a pydantic `Params` model and
   `run(params, ctx) -> Result`. The worker never trusts params from the database.
 - The worker talks to the database only through `queue.*` functions and the cache tables.
+- A runner whose real work happens in another service (the stock simulator) is an adapter:
+  it forwards the job over the private network and maps the answer to `Result`. No business
+  logic, no secrets or internal addresses in errors or logs.
 - Containers run as a non-root user, expose no ports, and restart automatically.
 
 ## How to add a project
