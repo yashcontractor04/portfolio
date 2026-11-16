@@ -173,6 +173,8 @@ unknown project URLs return status 200 with the not-found page.
       guard) so summaries are not snippet-only; turn thinking off; one real Gemini call to
       confirm the request format and model names.
     - [ ] e. `.github/workflows/news.yml`: schedule every 15 minutes + manual trigger.
+      2026-11-16: file written, never run. It does nothing until the secret
+      `NEWS_DATABASE_URL` exists, and schedules only run once it is on `main`.
     - [ ] f. App shell: registry entry with `auth: "required"`, hidden from dock and palette for
       guests, feed UI with empty, error and "limited" states.
     - [ ] g. Settings panel (topics, free text, N) and feedback (read, thumbs).
