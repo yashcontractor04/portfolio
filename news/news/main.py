@@ -3,8 +3,9 @@
     python -m news --dry-run     fetch and print counts; no database, no secrets needed
     python -m news               full run; needs NEWS_DATABASE_URL
 
-Stages (ranking and summaries, steps 3 and 4, come with the LLM step):
-    1 fetch -> 2 de-duplicate + store -> 5 purge
+Stages:
+    1 fetch -> 2 de-duplicate + store -> 3 rank per user -> 4 summarise winners -> 5 purge
+Ranking and summaries need GEMINI_API_KEY; without it the run only stores articles.
 Every stage can be repeated safely, so a late, doubled or half-finished run does no harm.
 Logs are public (public repo): counts and source names only, never user data.
 """
@@ -17,7 +18,9 @@ import os
 
 from .config import load_sources
 from .db import NewsDb
+from .feeds import build_feeds
 from .fetch import fetch_all
+from .llm import Budget, GeminiProvider, load_llm_config
 
 log = logging.getLogger("news")
 
@@ -44,6 +47,7 @@ def main(argv: list[str] | None = None) -> int:
         log.error("NEWS_DATABASE_URL is not set")
         return 2
     db = NewsDb(database_url)
+    last_run = db.last_ok_run()
     run_id = db.start_run()
     counts = {"fetched": stats.fetched, "new_articles": 0}
     try:
@@ -51,9 +55,22 @@ def main(argv: list[str] | None = None) -> int:
             [{"slug": t.slug, "label": t.label, "position": i} for i, t in enumerate(config.topics)]
         )
         counts["new_articles"] = db.upsert_articles([a.as_row() for a in articles])
+        status, note = "ok", None
+        api_key = os.environ.get("GEMINI_API_KEY")
+        if api_key:
+            llm = load_llm_config()
+            budget = Budget(GeminiProvider(api_key), llm, db.reserve_llm_request)
+            result = build_feeds(db, budget, llm, last_run)
+            counts.update(ranked_users=result["ranked_users"], summarised=result["summarised"])
+            counts["llm_requests"] = budget.requests
+            if result["limited"]:
+                status, note = "limited", "LLM limit reached, showing older items"
+        else:
+            log.info("GEMINI_API_KEY is not set: articles stored, no ranking")
         db.purge()
-        note = f"{len(stats.failed)} of {stats.sources} sources failed" if stats.failed else None
-        db.finish_run(run_id, "ok", counts, note)
+        if stats.failed and not note:
+            note = f"{len(stats.failed)} of {stats.sources} sources failed"
+        db.finish_run(run_id, status, counts, note)
         log.info("stored %d new articles", counts["new_articles"])
         return 0
     except Exception as error:

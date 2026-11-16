@@ -168,8 +168,8 @@ unknown project URLs return status 200 with the not-found page.
     - [ ] d. Provider interface + Gemini client, ranking, summaries, rate-limit handling.
       2026-11-16: built and unit-tested with a fake provider: `config/llm.yaml`, `news/llm.py`
       (provider interface, Gemini over HTTPS, budget + 429 fallback), `news/rank.py` (prompts
-      with a data block, strict output schemas). Still open: wire ranking and summaries into
-      `main.py` and `db.py`; fetch article bodies in memory (robots.txt, private-address
+      with a data block, strict output schemas). Wired into the run (`news/feeds.py`, 22 tests, fakes
+      only; never run against a real database or Gemini). Still open: fetch article bodies in memory (robots.txt, private-address
       guard) so summaries are not snippet-only; turn thinking off; one real Gemini call to
       confirm the request format and model names.
     - [ ] e. `.github/workflows/news.yml`: schedule every 15 minutes + manual trigger.
