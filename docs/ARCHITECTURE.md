@@ -45,13 +45,14 @@ flowchart LR
   CI -- "ssh deploy" --> VM
 ```
 
-Three places run code, and each has exactly one job:
+Four places run code, and each has exactly one job:
 
 | Where | Runs | Talks to the database as |
 |---|---|---|
 | Browser | UI, and Python projects via Pyodide | the logged-in user (RLS decides what they see) |
 | Vercel | Page rendering, contact form, signup, API-key encryption, demo runs | `service_role` (bypasses RLS, never leaves the server) |
 | Worker VM | Runner jobs and bots | `app_worker` (can only call `queue.*` functions) |
+| GitHub Actions (planned) | News pipeline, every 15 minutes | `app_news` (can only call `news.*` functions) |
 
 The VM exposes **no public ports**. It only makes outbound connections, so there is nothing
 on it to attack from the internet except SSH (key-only, used by the deploy workflow).
@@ -129,7 +130,9 @@ erDiagram
    Codes are stored as SHA-256 hashes.
 7. **Least-privilege worker.** `app_worker` has no table access except the price cache. A
    leaked worker password cannot read notes.
-8. **Size and row caps** on every user-writable column and table protect the 500 MB database.
+8. **Least-privilege news pipeline.** `app_news` has no table access at all; it reads and
+   writes only through the `news.*` functions.
+9. **Size and row caps** on every user-writable column and table protect the 500 MB database.
 
 Honest limit: RLS protects users from each other. The site operator (service key, database
 owner) can technically read stored notes. That is why the notes table is shaped for optional
@@ -241,9 +244,13 @@ flowchart LR
 ```
 
 - **Where it runs.** `news/` is a Python package run by `.github/workflows/news.yml` (schedule +
-  manual trigger). It is the fourth place that runs code and has exactly one job. It connects as
+  manual trigger). It connects as
   the database role `app_news`, which can only call `news.*` functions (same idea as `app_worker`
   and `queue.*`). The Supabase secret key is not used and never enters GitHub.
+- **Who gets it.** `profiles.news_enabled` (default off; users cannot change it themselves).
+  The pipeline builds feeds only for enabled accounts and the shared tables are readable only
+  by them. Today that is Yash alone: the Gemini unpaid tier may not serve an app offered to
+  other EEA users, and every enabled account costs requests.
 - **Two layers.** A shared pool (`news_articles`: metadata, link, one generated summary) and a
   per-user layer (`news_feed_items`: rank, "why this matters to you"). An article is fetched,
   deduplicated and summarised at most once, however many users see it.

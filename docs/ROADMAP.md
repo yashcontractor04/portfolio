@@ -157,8 +157,9 @@ unknown project URLs return status 200 with the not-found page.
     A short, finite, per-user feed of the most relevant news of the last hours as reel-style
     cards. Built in small commits; tick the steps as they land.
     - [x] 2026-11-16 a. Plan agreed with Yash; this item and the architecture notes.
-    - [ ] b. Migration: `news_*` tables, role `app_news`, `news.*` functions, RLS, purge; SQL
-      tests in `supabase/tests/30_news.sql`.
+    - [x] 2026-11-16 b. Migration `20261116000001_news.sql`: `news_*` tables, role `app_news`,
+      `news.*` functions, `public.news_feed()`, RLS, purge; 52 SQL tests in
+      `supabase/tests/30_news.sql`. Not yet applied to the real project (manual, see Known gaps).
     - [ ] c. Pipeline without LLM (`news/`): source config, fetch (RSS/Atom, Google News RSS,
       Hacker News), canonical URLs, de-duplication, tests.
     - [ ] d. Provider interface + Gemini client, ranking, summaries, rate-limit handling.
@@ -179,6 +180,10 @@ unknown project URLs return status 200 with the not-found page.
     is stored only. No guest demo. No GIFs. Second GitHub secret is `NEWS_DATABASE_URL` (role
     `app_news`), not the Supabase secret key. Feed window: 6 hours, widened to 24 when fewer
     than N items match. Settings changes apply at the next run.
+    Single-user for now (2026-11-16): Yash read the Gemini API terms; the unpaid tier may not
+    be used for an app offered to other users in the EEA. News is therefore switched on per
+    account with `profiles.news_enabled` (default off, server-only) and only Yash's account
+    gets it. Before enabling anyone else: paid tier or another provider (ask Yash).
 
     Out of scope for v1: learning from feedback, push or email notifications, other languages,
     native mobile, paid APIs, a custom domain.
@@ -200,6 +205,9 @@ unknown project URLs return status 200 with the not-found page.
 
 - Migration `20261115000001_demo_api.sql` and `supabase/seed/runners.sql` must be applied by hand
   in the Supabase SQL editor (there is no automated migration deploy yet).
+- Migration `20261116000001_news.sql` must also be applied by hand. After it:
+  `alter role app_news login password '<long random>';` and
+  `update public.profiles set news_enabled = true where id = '<Yash's user id>';`
 - `npm audit` reports 8 moderate findings in web dependencies; not yet reviewed.
 
 - Unknown project URLs render the not-found page with `noindex` but HTTP status 200 (a side
