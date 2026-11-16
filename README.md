@@ -51,9 +51,9 @@ What I did:
 
 - The idea and the scope: what the site is for, which apps it has, what it should feel like.
 - The decisions. For each bigger choice (stack, design direction, security model, budget of
-  €0) I was given options with their trade-offs and picked one. They are written down in
+  €0) I reviewed options with their trade-offs and picked one. They are written down in
   [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), each with what I gave up.
-- The content: my CV, the project texts, and the Python projects that run on the site.
+- The content: my CV, the project texts, and all of the Python projects that run on the site.
 - Setting it up and running it: the accounts, applying the database migrations by hand,
   running the worker, testing each feature in the browser.
 - Reading the code afterwards until I can explain how it works. That is still in progress.
