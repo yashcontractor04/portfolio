@@ -4,7 +4,7 @@ insert into public.runners
   (slug, enabled, demo_enabled, demo_params, timeout_seconds, max_attempts, key_provider, manifest_hash)
 values
   ('monte-carlo-pi', true, true, '{"samples": 1000000, "seed": 42}'::jsonb, 30, 1, null, 'a5c33a4f3e2731e7'),
-  ('stock-sim', false, false, '{"benchmark": "SPY", "initial_capital": 10000, "rebalance": "quarterly", "start_date": "2019-01-01", "tickers": ["AAPL", "MSFT", "NVDA"], "weights": [40, 40, 20]}'::jsonb, 120, 2, null, '17986c88bf11b60b')
+  ('stock-sim', false, false, '{"capital": 10000, "industries": ["healthcare", "technology"], "risk_level": "medium", "themes": [], "time_span_years": 10}'::jsonb, 120, 2, null, 'a27666aa2b458fc6')
 on conflict (slug) do update set
   enabled = excluded.enabled, demo_enabled = excluded.demo_enabled, demo_params = excluded.demo_params,
   timeout_seconds = excluded.timeout_seconds, max_attempts = excluded.max_attempts,

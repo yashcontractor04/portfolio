@@ -36,6 +36,10 @@
       "enum": ["blue", "indigo", "violet", "pink", "orange", "amber", "teal", "cyan"],
       "description": "Accent hue token for the multicolor theme. Green and red are reserved for gains/losses."
     },
+    "dashboard": {
+      "enum": ["sim-snapshot"],
+      "description": "Adds a Dashboard tab fed by a public snapshot table. sim-snapshot = the stock simulator's daily model portfolios (public.sim_snapshots)."
+    },
     "how_it_works": { "type": "string", "pattern": "^[a-z0-9._-]+\\.mdx?$", "description": "File in this folder with the architecture note." },
     "static": {
       "type": "object",

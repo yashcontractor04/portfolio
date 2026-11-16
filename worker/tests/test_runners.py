@@ -32,14 +32,21 @@ def test_pi_rejects_out_of_range_inputs():
 
 
 def test_stock_sim_params_validation():
-    ok = stock_sim.Params(tickers=["aapl", "MSFT"], weights=[60, 40], start_date="2019-01-01")
-    assert ok.tickers == ["AAPL", "MSFT"]
-    with pytest.raises(ValidationError, match="add up to 100"):
-        stock_sim.Params(tickers=["AAPL", "MSFT"], weights=[60, 30], start_date="2019-01-01")
-    with pytest.raises(ValidationError, match="one weight per ticker"):
-        stock_sim.Params(tickers=["AAPL"], weights=[50, 50], start_date="2019-01-01")
+    ok = stock_sim.Params(capital=5000, risk_level="low", time_span_years=5, industries=[" Healthcare "])
+    assert ok.industries == ["healthcare"] and ok.themes == []
+    assert stock_sim.Params().risk_level == "medium"  # every field has a default
     with pytest.raises(ValidationError):
-        stock_sim.Params(tickers=["AAPL; drop table"], weights=[100], start_date="2019-01-01")
+        stock_sim.Params(risk_level="extreme")
+    with pytest.raises(ValidationError):
+        stock_sim.Params(time_span_years=50)
+    with pytest.raises(ValidationError):
+        stock_sim.Params(capital=1)
+    with pytest.raises(ValidationError, match="only once"):
+        stock_sim.Params(themes=["ai", "ai"])
+    with pytest.raises(ValidationError):
+        stock_sim.Params(industries=["health; drop table"])
+    with pytest.raises(ValidationError):
+        stock_sim.Params(tickers=["AAPL"])  # the old inputs are gone
 
 
 def test_every_runner_has_the_contract():
@@ -75,7 +82,7 @@ def test_execute_invalid_params_is_a_clean_error():
 
 def test_execute_unknown_runner_and_unimplemented_runner():
     assert "no runner" in _run("nope", {})[0].error
-    outcome, _ = _run("stock-sim", {"tickers": ["AAPL"], "weights": [100], "start_date": "2019-01-01"})
+    outcome, _ = _run("stock-sim", {"capital": 10000, "risk_level": "medium", "time_span_years": 10})
     assert not outcome.ok and "not implemented" in outcome.error
 
 

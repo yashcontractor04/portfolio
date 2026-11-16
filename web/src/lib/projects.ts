@@ -50,6 +50,7 @@ export const manifestSchema = z
     readme: z.strictObject({ path: z.string().default("README.md"), ref: z.string().default("HEAD") }).optional(),
     stack: z.array(z.string().max(30)).max(12).default([]),
     accent: z.enum(ACCENTS).default("blue"),
+    dashboard: z.enum(["sim-snapshot"]).optional(),
     how_it_works: z.string().regex(/^[a-z0-9._-]+\.mdx?$/).optional(),
     static: z.strictObject({ content: z.string().regex(/^[a-z0-9._-]+\.mdx?$/) }).optional(),
     in_browser: z

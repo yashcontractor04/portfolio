@@ -8,66 +8,66 @@ order: 10
 tags: [python, data]
 accent: teal
 summary:
-  en: Backtest a portfolio allocation on historical daily prices, with periodic rebalancing, and compare it against a benchmark.
-  de: Backtest einer Portfolio-Allokation auf historischen Tageskursen mit regelmäßigem Rebalancing und Vergleich mit einer Benchmark.
-stack: [Python, pandas, Postgres, Docker]
+  en: Give it an amount, a risk level and a time span. It picks US stocks and ETFs with simple rules, weights them, and shows how that portfolio would have done against the S&P 500.
+  de: Betrag, Risikostufe und Zeitraum eingeben. Der Simulator wählt US-Aktien und ETFs nach einfachen Regeln, gewichtet sie und zeigt, wie das Portfolio gegenüber dem S&P 500 abgeschnitten hätte.
+repo: https://github.com/yashcontractor04/stock-simulator
+stack: [Python, FastAPI, Postgres, pandas, Docker]
+# Shows the "Dashboard" tab with the three live model portfolios (daily snapshot).
+dashboard: sim-snapshot
 
+# The simulator is its own backend in its own repo. The runner in this repo
+# (worker/worker/runners/stock_sim.py) is only an adapter that forwards the job.
+# These inputs mirror SimulationParams in the simulator's docs/openapi.yaml.
 runner:
   timeout_seconds: 120
   max_attempts: 2
   disclaimer: not-financial-advice
   inputs:
-    - name: tickers
-      type: string_list
-      label: { en: Tickers, de: Ticker }
-      help: { en: "Up to 10 symbols, e.g. AAPL, MSFT", de: "Bis zu 10 Symbole, z. B. AAPL, MSFT" }
-      min_items: 1
-      max_items: 10
-      max_length: 12
-      pattern: "^[A-Z0-9.\\-]{1,12}$"
-      default: [AAPL, MSFT, NVDA]
-    - name: weights
-      type: number_list
-      label: { en: "Weights (%)", de: "Gewichtung (%)" }
-      help: { en: "One per ticker, must add up to 100", de: "Eine pro Ticker, Summe muss 100 ergeben" }
-      min: 0
-      max: 100
-      min_items: 1
-      max_items: 10
-      default: [40, 40, 20]
-    - name: start_date
-      type: date
-      label: { en: Start date, de: Startdatum }
-      min_date: "2005-01-01"
-      max_date: today
-      default: "2019-01-01"
-    - name: initial_capital
+    - name: capital
       type: number
-      label: { en: "Initial capital (EUR)", de: "Startkapital (EUR)" }
+      label: { en: "Capital (USD)", de: "Kapital (USD)" }
       min: 100
       max: 10000000
       default: 10000
-    - name: rebalance
+    - name: risk_level
       type: select
-      label: { en: Rebalancing, de: Rebalancing }
-      default: quarterly
+      label: { en: Risk level, de: Risikostufe }
+      default: medium
       options:
-        - { value: never, label: { en: Never, de: Nie } }
-        - { value: monthly, label: { en: Monthly, de: Monatlich } }
-        - { value: quarterly, label: { en: Quarterly, de: Vierteljährlich } }
-        - { value: yearly, label: { en: Yearly, de: Jährlich } }
-    - name: benchmark
-      type: string
-      label: { en: Benchmark ticker, de: Benchmark-Ticker }
+        - { value: low, label: { en: Low, de: Niedrig } }
+        - { value: medium, label: { en: Medium, de: Mittel } }
+        - { value: high, label: { en: High, de: Hoch } }
+    - name: time_span_years
+      type: integer
+      label: { en: "Time span (years)", de: "Zeitraum (Jahre)" }
+      help: { en: "How far the backtest looks back, 1 to 20 years", de: "Wie weit der Backtest zurückschaut, 1 bis 20 Jahre" }
+      min: 1
+      max: 20
+      default: 10
+    - name: industries
+      type: string_list
+      label: { en: Industries, de: Branchen }
+      help: { en: "Optional, up to 5, e.g. healthcare, technology, defense", de: "Optional, bis zu 5, z. B. healthcare, technology, defense" }
       required: false
-      max_length: 12
-      pattern: "^[A-Z0-9.\\-]{1,12}$"
-      default: SPY
+      min_items: 0
+      max_items: 5
+      max_length: 40
+      pattern: "^[a-z0-9-]{1,40}$"
+      default: []
+    - name: themes
+      type: string_list
+      label: { en: Themes, de: Themen }
+      help: { en: "Optional, up to 3, e.g. ai", de: "Optional, bis zu 3, z. B. ai" }
+      required: false
+      min_items: 0
+      max_items: 3
+      max_length: 40
+      pattern: "^[a-z0-9-]{1,40}$"
+      default: []
   demo:
     params:
-      tickers: [AAPL, MSFT, NVDA]
-      weights: [40, 40, 20]
-      start_date: "2019-01-01"
-      initial_capital: 10000
-      rebalance: quarterly
-      benchmark: SPY
+      capital: 10000
+      risk_level: medium
+      time_span_years: 10
+      industries: [healthcare, technology]
+      themes: []

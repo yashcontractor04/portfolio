@@ -1,78 +1,86 @@
-"""Stock allocation simulator: SKELETON for Yash to implement.
+"""Stock allocation simulator: ADAPTER SKELETON for Yash to implement.
+
+The simulator itself is NOT in this repo. It is its own backend:
+    https://github.com/yashcontractor04/stock-simulator
+This file only forwards a job to it and translates the answer. It should stay
+thin: no finance, no pandas, no database.
 
 What already works around this file:
   - the website builds the input form from projects/stock-sim/project.yaml
   - `Params` below validates those inputs again inside the worker
   - whatever `run` returns is stored and drawn by the website (see contract.Result)
 
-What you implement: `run`. Suggested first version
-  1. load daily closing prices for params.tickers (+ benchmark) from start_date
-     (read the `price_bars` table first; fetch and insert only what is missing,
-     so a ticker is downloaded once and shared by all users)
-  2. buy the allocation on the first day with params.initial_capital
-  3. on each rebalance date, reset the holdings to the target weights
-  4. return summary (final value, total return, CAGR, max drawdown), a series for
-     the portfolio and one for the benchmark, and a table of yearly returns
+What you implement: `run`. The contract you talk to is docs/openapi.yaml in the
+simulator repo; the mapping table is in its docs/04-api.md.
 
-Raise RunnerError("message") for problems the user can fix (unknown ticker),
-and RunnerError("...", retryable=True) when the data provider is temporarily down.
+  1. Read two settings from the environment (fail with a clear RunnerError if
+     one is missing):
+       SIM_API_URL        e.g. http://sim-api:8000  (private Docker network)
+       SIM_SERVICE_TOKEN  the bearer token
+  2. POST {SIM_API_URL}/v1/simulations with params.model_dump() as JSON.
+     Send `Idempotency-Key: <ctx.job_id>`, so a retried portfolio job does not
+     start a second simulation. Expect 202 (new) or 200 (already exists).
+  3. Poll GET /v1/simulations/{id} until status is succeeded, failed or
+     cancelled. Wait as long as the `Retry-After` header says (1-2 s). Stop
+     before the runner timeout (120 s, see the manifest) and then DELETE the
+     simulation so it does not keep running for nobody.
+  4. Map the simulator's result to `Result` (limits are in contract.py):
+       summary  8 numbers: final value, total return, CAGR, volatility, Sharpe,
+                max drawdown, benchmark final value, benchmark CAGR
+       series   "Portfolio" and "<benchmark> (benchmark)", x = months since
+                the start, y = value. The simulator already sends at most 400
+                points per line, the limit here is 2000.
+       tables   allocation, yearly returns, outlook percentiles, warnings
+                (at most 4 tables, 500 rows, 12 columns each)
+  5. Map errors:
+       status failed            -> RunnerError(error.message, retryable=error.retryable)
+       HTTP 429 or 503          -> RunnerError(..., retryable=True)
+       HTTP 422                 -> RunnerError(detail)  (the user can fix it)
+       connection error/timeout -> RunnerError("The simulator is not reachable.", retryable=True)
+     Never put the token or the internal URL into an error message or a log line.
+
+Tests to write next to it (worker/tests): use httpx.MockTransport to fake the
+simulator, so the tests need no network.
 
 When it works: set `status: live` in projects/stock-sim/project.yaml, run
-`python scripts/sync_runners.py`, and apply the printed SQL.
+`python scripts/sync_runners.py`, apply the printed SQL, and rebuild the worker
+with the extra compose file infra/docker-compose.sim.yml.
 """
 
 from __future__ import annotations
 
-import datetime as dt
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from ..contract import Context, Result
 
-Ticker = str
+_ID = r"^[a-z0-9-]{1,40}$"
 
 
 class Params(BaseModel):
-    """Mirrors runner.inputs in projects/stock-sim/project.yaml. Keep them in sync."""
+    """Mirrors runner.inputs in projects/stock-sim/project.yaml and
+    SimulationParams in the simulator's docs/openapi.yaml. Keep all three in sync."""
 
     model_config = ConfigDict(extra="forbid")
-    tickers: list[Ticker] = Field(min_length=1, max_length=10)
-    weights: list[float] = Field(min_length=1, max_length=10)
-    start_date: dt.date
-    initial_capital: float = Field(default=10_000, ge=100, le=10_000_000)
-    rebalance: Literal["never", "monthly", "quarterly", "yearly"] = "quarterly"
-    benchmark: Ticker | None = "SPY"
+    capital: float = Field(default=10_000, ge=100, le=10_000_000)
+    risk_level: Literal["low", "medium", "high"] = "medium"
+    time_span_years: int = Field(default=10, ge=1, le=20)
+    industries: list[str] = Field(default_factory=list, max_length=5)
+    themes: list[str] = Field(default_factory=list, max_length=3)
 
-    @field_validator("tickers")
+    @field_validator("industries", "themes")
     @classmethod
-    def _tickers(cls, value: list[str]) -> list[str]:
+    def _ids(cls, value: list[str]) -> list[str]:
         import re
 
-        cleaned = [t.strip().upper() for t in value]
-        if any(not re.fullmatch(r"[A-Z0-9.\-]{1,12}", t) for t in cleaned):
-            raise ValueError("tickers may only contain letters, digits, dots and dashes")
+        cleaned = [v.strip().lower() for v in value]
+        if any(not re.fullmatch(_ID, v) for v in cleaned):
+            raise ValueError("ids may only contain lowercase letters, digits and dashes")
         if len(set(cleaned)) != len(cleaned):
-            raise ValueError("each ticker may appear only once")
+            raise ValueError("each id may appear only once")
         return cleaned
-
-    @field_validator("start_date")
-    @classmethod
-    def _start(cls, value: dt.date) -> dt.date:
-        if not dt.date(2005, 1, 1) <= value <= dt.date.today():
-            raise ValueError("start_date must be between 2005-01-01 and today")
-        return value
-
-    @model_validator(mode="after")
-    def _weights(self) -> Params:
-        if len(self.weights) != len(self.tickers):
-            raise ValueError("give exactly one weight per ticker")
-        if any(w < 0 or w > 100 for w in self.weights):
-            raise ValueError("each weight must be between 0 and 100")
-        if abs(sum(self.weights) - 100) > 0.01:
-            raise ValueError("weights must add up to 100")
-        return self
 
 
 def run(params: Params, ctx: Context) -> Result:
-    raise NotImplementedError("The stock simulator is not implemented yet.")
+    raise NotImplementedError("The stock simulator adapter is not implemented yet.")

@@ -47,7 +47,7 @@ select t.is(
   (select coalesce(string_agg(distinct table_name, ',' order by table_name), '')
      from information_schema.role_table_grants
     where grantee = 'anon' and table_schema = 'public'),
-  'bot_heartbeats,bot_status,runners', 'guests can only reach the three public tables');
+  'bot_heartbeats,bot_status,runners,sim_snapshots', 'guests can only reach the four public tables');
 select t.is(
   (select count(*)::int from information_schema.role_table_grants
     where grantee = 'anon' and table_schema = 'public' and privilege_type <> 'SELECT'),

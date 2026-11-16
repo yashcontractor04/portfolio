@@ -1,0 +1,23 @@
+# Extra settings that connect the worker to the stock simulator. NOT used yet.
+#
+# Use it only once the simulator runs on the same machine and the adapter in
+# worker/worker/runners/stock_sim.py is written (simulator roadmap, milestone M5):
+#
+#   docker network create sim-net          # once; the simulator's compose file joins it too
+#   docker compose -f infra/docker-compose.yml -f infra/docker-compose.sim.yml up --build -d
+#
+# and add to infra/.env:
+#   SIM_API_URL=http://sim-api:8000
+#   SIM_SERVICE_TOKEN=<same value as in the simulator's .env>
+#
+# The worker still publishes no ports. sim-net is a private network between
+# containers on this machine; nothing on it is reachable from outside.
+services:
+  worker:
+    networks:
+      - default
+      - sim-net
+
+networks:
+  sim-net:
+    external: true
