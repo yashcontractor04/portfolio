@@ -28,5 +28,6 @@ Before you commit:
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres supabase/tests/run.sh
 python scripts/validate_manifests.py && python scripts/sync_runners.py --check
 cd worker && ruff check . && ruff format --check . && pytest -q && cd ..
+cd news && ruff check . && ruff format --check . && pytest -q && cd ..
 cd web && npm run lint && npm test && npm run build && npm run typecheck
 ```

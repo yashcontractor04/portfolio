@@ -63,7 +63,7 @@ on it to attack from the internet except SSH (key-only, used by the deploy workf
 web/                 Next.js 16 app (App Router, TypeScript strict, Tailwind 4, next-intl)  built (Phase 1 in progress)
 worker/              Python worker: queue loop + one module per runner, Dockerfile       built
 bots/                Long-running bots (badminton monitor)                              planned
-news/                News pipeline (Python, run by a scheduled GitHub Action)           planned
+news/                News pipeline (Python, run by a scheduled GitHub Action)           partly built (fetch + store; no LLM, no workflow yet)
 supabase/migrations  Database schema, RLS, functions                                    built
 supabase/tests       SQL tests + run.sh (also run in CI)                                built
 content/cv.yaml      CV single source of truth (EN + DE)                                built

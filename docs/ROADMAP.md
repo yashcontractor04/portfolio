@@ -160,8 +160,11 @@ unknown project URLs return status 200 with the not-found page.
     - [x] 2026-11-16 b. Migration `20261116000001_news.sql`: `news_*` tables, role `app_news`,
       `news.*` functions, `public.news_feed()`, RLS, purge; 52 SQL tests in
       `supabase/tests/30_news.sql`. Not yet applied to the real project (manual, see Known gaps).
-    - [ ] c. Pipeline without LLM (`news/`): source config, fetch (RSS/Atom, Google News RSS,
-      Hacker News), canonical URLs, de-duplication, tests.
+    - [x] 2026-11-16 c. Pipeline without LLM (`news/`): `config/sources.yaml`, fetch (RSS/Atom,
+      Google News RSS, Hacker News), canonical URLs, de-duplication, 8 tests with fake HTTP.
+      `python -m news --dry-run` fetches without a database. NOT yet run against the real
+      feeds or a real database: the feed URLs in the config are unverified; run the dry run
+      once and fix or remove every source it reports as failed.
     - [ ] d. Provider interface + Gemini client, ranking, summaries, rate-limit handling.
       Blocked on Yash reading the Gemini API terms (ARCHITECTURE.md section 10).
     - [ ] e. `.github/workflows/news.yml`: schedule every 15 minutes + manual trigger.
