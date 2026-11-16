@@ -166,7 +166,12 @@ unknown project URLs return status 200 with the not-found page.
       feeds or a real database: the feed URLs in the config are unverified; run the dry run
       once and fix or remove every source it reports as failed.
     - [ ] d. Provider interface + Gemini client, ranking, summaries, rate-limit handling.
-      Blocked on Yash reading the Gemini API terms (ARCHITECTURE.md section 10).
+      2026-11-16: built and unit-tested with a fake provider: `config/llm.yaml`, `news/llm.py`
+      (provider interface, Gemini over HTTPS, budget + 429 fallback), `news/rank.py` (prompts
+      with a data block, strict output schemas). Still open: wire ranking and summaries into
+      `main.py` and `db.py`; fetch article bodies in memory (robots.txt, private-address
+      guard) so summaries are not snippet-only; turn thinking off; one real Gemini call to
+      confirm the request format and model names.
     - [ ] e. `.github/workflows/news.yml`: schedule every 15 minutes + manual trigger.
     - [ ] f. App shell: registry entry with `auth: "required"`, hidden from dock and palette for
       guests, feed UI with empty, error and "limited" states.

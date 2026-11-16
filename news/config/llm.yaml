@@ -1,0 +1,14 @@
+# LLM settings for the News pipeline. Free tier only; no billing account.
+# Limits read from the AI Studio rate-limit page on 2026-11-16 (both models):
+#   15 requests/min, 250,000 input tokens/min, 500 requests/day.
+provider: gemini
+model: gemini-3.5-flash-lite
+fallback_model: gemini-3.1-flash-lite
+daily_cap: 350            # 70 % of 500 requests/day, counted per model in the database
+per_run_cap: 6            # hard stop for a single run
+max_n: 10                 # budget cap on N, whatever the user picked (5-20)
+candidates_per_user: 40   # headlines sent to one ranking request
+summaries_per_request: 5
+window_hours: 6           # widened to wide_window_hours when fewer than N candidates
+wide_window_hours: 24
+retry_wait_seconds: 20    # wait once after HTTP 429, then try the fallback model
