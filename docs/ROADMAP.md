@@ -166,15 +166,16 @@ unknown project URLs return status 200 with the not-found page.
       fetched 633 articles from 40 sources; all feed URLs work. Google News answered errors
       when its searches arrived together, so they now run one at a time with a 1 s pause and
       one retry after 8 s (both in `sources.yaml`). Not yet run against a real database.
-    - [ ] d. Provider interface + Gemini client, ranking, summaries, rate-limit handling.
-      2026-11-16: built and unit-tested with a fake provider: `config/llm.yaml`, `news/llm.py`
-      (provider interface, Gemini over HTTPS, budget + 429 fallback), `news/rank.py` (prompts
-      with a data block, strict output schemas). Wired into the run (`news/feeds.py`, 22 tests, fakes
-      only; never run against a real database or Gemini). Still open: fetch article bodies in memory (robots.txt, private-address
-      guard) so summaries are not snippet-only; turn thinking off.
-      2026-11-17: first real run by Yash against Supabase and Gemini: 663 fetched, 1 user
-      ranked, 10 feed items, 5 summaries, 2 requests on `gemini-3.5-flash-lite`. Request
-      format and model name confirmed.
+    - [x] 2026-11-17 d. Provider interface + Gemini client, ranking, summaries, rate-limit
+      handling: `config/llm.yaml`, `news/llm.py`, `news/rank.py`, `news/feeds.py`,
+      `news/article.py`. Confirmed by a real run (2026-11-17: 1 user ranked, 10 feed items,
+      5 summaries, 2 requests on `gemini-3.5-flash-lite`). Tuned after Yash's review: ranking
+      follows the priority order in the free-text interests and sees 150 headlines; "why" is
+      2-5 keywords; summaries are about 500 words from the article page read in memory
+      (robots.txt, public addresses only, never stored), 5 per request, 2 requests per run;
+      each item is validated on its own; only articles in a user's current top N are
+      summarised (migration `20261117000001_news_summaries.sql`). Thinking is left at the
+      model default: how to switch it off for 3.5 Flash-Lite is not verified.
     - [ ] e. `.github/workflows/news.yml`: schedule every 15 minutes + manual trigger.
       2026-11-16: file written, never run. It does nothing until the secret
       `NEWS_DATABASE_URL` exists, and schedules only run once it is on `main`.
@@ -219,7 +220,8 @@ unknown project URLs return status 200 with the not-found page.
 - Migration `20261115000001_demo_api.sql` and `supabase/seed/runners.sql` must be applied by hand
   in the Supabase SQL editor (there is no automated migration deploy yet).
 - Migration `20261116000001_news.sql` was applied by hand on 2026-11-17 (Yash). For a fresh
-  project it must be applied the same way. After it:
+  project it must be applied the same way. `20261117000001_news_summaries.sql` must also be
+  applied by hand. After it:
   `alter role app_news login password '<long random>';` and
   `update public.profiles set news_enabled = true where id = '<Yash's user id>';`
 - `npm audit` reports 8 moderate findings in web dependencies; not yet reviewed.

@@ -1,17 +1,21 @@
 """Steps 3 and 4 glued to the database: rank per user, then summarise the winners.
 
-Costs at most `users + 1` LLM requests, and none when nothing changed since the last
-run. When the budget or the provider says stop, what is already written stays and
-the run is reported as "limited".
+Costs at most one ranking request per user plus `summary_requests_per_run`, and none
+when nothing changed since the last run. Only articles in someone's current top N are
+summarised; their pages are read in memory first (news/article.py). When the budget
+or the provider says stop, what is already written stays and the run is reported as
+"limited".
 """
 
 from __future__ import annotations
+
+from concurrent.futures import ThreadPoolExecutor
 
 from .llm import Budget, LimitReached, LlmConfig
 from .rank import rank_user, summarise
 
 
-def build_feeds(db, budget: Budget, config: LlmConfig, last_run) -> dict:
+def build_feeds(db, budget: Budget, config: LlmConfig, last_run, read_page=None) -> dict:
     counts = {"ranked_users": 0, "summarised": 0, "limited": False}
     try:
         for user in db.users_to_rank():
@@ -25,9 +29,24 @@ def build_feeds(db, budget: Budget, config: LlmConfig, last_run) -> dict:
                 continue
             db.write_feed(user["user_id"], rank_user(budget.call, user, found, n))
             counts["ranked_users"] += 1
-        todo = db.unsummarised(config.summaries_per_request)
-        if todo:
-            counts["summarised"] = db.save_summaries(summarise(budget.call, todo))
+        for _ in range(config.summary_requests_per_run):
+            todo = db.unsummarised(config.summaries_per_request)
+            if not todo:
+                break
+            images: dict[str, str | None] = {}
+            if read_page and config.read_full_articles:
+                with ThreadPoolExecutor(max_workers=5) as pool:
+                    pages = list(pool.map(read_page, [a["url"] for a in todo]))
+                for article, page in zip(todo, pages, strict=True):
+                    article["text"] = page.text
+                    images[str(article["id"])] = page.image_url
+            rows = summarise(budget.call, todo, config.article_text_chars)
+            for row in rows:
+                row["image_url"] = images.get(row["id"])
+            saved = db.save_summaries(rows)
+            counts["summarised"] += saved
+            if not saved:
+                break  # same articles would come back; try again next run
     except LimitReached:
         counts["limited"] = True
     return counts

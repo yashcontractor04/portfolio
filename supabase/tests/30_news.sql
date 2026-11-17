@@ -83,10 +83,35 @@ select t.is((select count(*)::int from news.candidates('00000000-0000-0000-0000-
             'an article already in the feed is not a candidate again');
 
 select t.is((select count(*)::int from news.unsummarised(10)), 2, 'only articles in a feed need a summary');
+
+-- Only a user's current top N is summarised: give alice 6 more, lower-scored items
+-- and a feed of 5. Her 6 best are the DAX story plus 4 of these; 2 stay unsummarised.
+select t.server();
+insert into public.news_articles (url, url_hash, title, source, topics)
+select 'https://x.example/' || g, 'topn' || g, 'Filler story number ' || g, 'X', '{markets}'
+  from generate_series(1, 6) g;
+update public.news_prefs set feed_size = 5 where user_id = '00000000-0000-0000-0000-00000000000a';
+select jsonb_agg(jsonb_build_object('article_id', id, 'score', 0.1, 'why', 'filler')) as fillers
+  from public.news_articles where url_hash like 'topn%' \gset
+set local role app_news;
+select news.write_feed('00000000-0000-0000-0000-00000000000a', :'fillers'::jsonb);
+select t.is((select count(*)::int from news.unsummarised(50)), 6,
+            'only articles in a user''s current top N need a summary (alice 5, bob 1)');
+select t.server();
+delete from public.news_feed_items where article_id in (select id from public.news_articles where url_hash like 'topn%');
+delete from public.news_articles where url_hash like 'topn%';
+update public.news_prefs set feed_size = 10 where user_id = '00000000-0000-0000-0000-00000000000a';
+set local role app_news;
 select news.save_summaries(jsonb_build_array(
   jsonb_build_object('id', :'dax', 'intro', 'Record close.', 'summary', 'First summary.', 'image_url', 'https://a.example/i.jpg')));
 select t.is(news.save_summaries(jsonb_build_array(
   jsonb_build_object('id', :'dax', 'intro', 'x', 'summary', 'Second summary.'))), 0, 'a summary is written once');
+select t.is(news.save_summaries(jsonb_build_array(
+  jsonb_build_object('id', :'ai', 'intro', 'x', 'summary', repeat('word ', 1200), 'image_url', 'javascript:x'))), 0,
+  'a summary with a non-https image is refused');
+select t.is(news.save_summaries(jsonb_build_array(
+  jsonb_build_object('id', :'ai', 'intro', 'x', 'summary', repeat('word ', 1200)))), 1,
+  'a 1200-word summary fits (about 500 words is the target)');
 
 -- request budget
 select t.is(news.reserve_llm_request('m', 2), true,  'LLM budget: 1st request allowed');

@@ -85,3 +85,20 @@ def test_per_run_cap():
         b.call("p")
     with pytest.raises(LimitReached):
         b.call("p")
+
+
+def test_one_bad_item_drops_only_itself():
+    answer = {
+        "items": [{"id": 0, "intro": "Fine.", "summary": "Fine."}, {"id": 1, "intro": "", "summary": "x"}]
+    }
+    assert summarise(lambda prompt: answer, CANDIDATES) == [
+        {"id": "a1", "intro": "Fine.", "summary": "Fine."}
+    ]
+    ranked = {"items": [{"id": 0, "score": 0.9, "why": "DAX"}, {"id": 1, "score": 7, "why": "bad"}]}
+    assert [r["article_id"] for r in rank_user(lambda prompt: ranked, USER, CANDIDATES, 5)] == ["a1"]
+
+
+def test_headline_only_articles_are_marked_as_such():
+    prompts = []
+    summarise(lambda prompt: prompts.append(prompt) or {"items": []}, CANDIDATES)
+    assert '"kind": "teaser"' in prompts[0] and '"kind": "headline"' in prompts[0]

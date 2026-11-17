@@ -254,14 +254,17 @@ flowchart LR
 - **Two layers.** A shared pool (`news_articles`: metadata, link, one generated summary) and a
   per-user layer (`news_feed_items`: rank, "why this matters to you"). An article is fetched,
   deduplicated and summarised at most once, however many users see it.
-- **Rank first, summarise second.** Each user's candidates are ranked on headline + snippet in
-  one batched LLM call, which also returns the "why it matters" note for the top N. Only the
-  union of all users' top-N articles is then summarised (one batched call). Per run that is
-  `users + 1` requests at most, and zero when no new article arrived.
+- **Rank first, summarise second.** Each user's newest 150 candidates are ranked on headline +
+  snippet in one batched LLM call, following the priority order in the user's free-text
+  interests; it also returns the "why" note (2-5 keywords) for the top N. Only articles in
+  some user's current top N are then summarised: their pages are read in memory
+  (`news/article.py`) and summarised in about 500 words, 5 per request, at most 2 requests
+  per run. Per run that is `users + 2` requests at most, and zero when nothing changed.
 - **Free-tier budget.** Limits read from Yash's AI Studio rate-limit page on 2026-11-16, for
   both `gemini-3.5-flash-lite` (default) and `gemini-3.1-flash-lite` (fallback): 15 requests/min,
   250,000 input tokens/min, 500 requests/day. The pipeline stops at 70 % of the daily limit (350),
-  counted in the database (`news_llm_usage`). 96 runs/day x 2 requests = 192 for one user. With
+  counted in the database (`news_llm_usage`). One user: at most 96 ranking requests a day
+  plus the summaries of cards that newly reach the top N, well under 350. With
   three or more users the worst case exceeds 350, so the pipeline lowers the effective N and
   then skips ranking runs rather than failing. On HTTP 429: back off, then the fallback model,
   then record the run as `limited`; the UI shows "limited, showing older items".
@@ -273,8 +276,11 @@ flowchart LR
 - **Idempotent.** Unique key on the hash of the canonical URL, upserts everywhere, each stage in
   its own transaction, and a workflow `concurrency` group so two runs never overlap. A failed
   run leaves earlier stages committed and is simply repeated by the next one.
-- **No article text is stored.** The body is fetched and extracted in memory for summarising
-  only, robots.txt is respected, and paywalled or blocked pages fall back to headline + snippet.
+- **No article text is stored.** The body is fetched and extracted (trafilatura) in memory for
+  summarising only. robots.txt is respected (unreadable robots.txt means stay away), only
+  public internet addresses are fetched and every redirect is re-checked (SSRF guard), and
+  pages are capped at 2 MB. Paywalled or blocked pages fall back to the feed teaser, or to
+  the headline alone, and the prompt tells the model which one it got so it writes less.
   Rows are purged after 3 days (feedback is kept for later learning).
 - **Untrusted input.** Article text and the user's free-text interests are data, never
   instructions: they go into clearly delimited blocks of the prompt, the model's answer must

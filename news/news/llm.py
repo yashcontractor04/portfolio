@@ -32,6 +32,9 @@ class LlmConfig(BaseModel):
     max_n: int = Field(ge=1, le=20)
     candidates_per_user: int = Field(ge=5, le=200)
     summaries_per_request: int = Field(ge=1, le=10)
+    summary_requests_per_run: int = Field(default=2, ge=1, le=5)
+    read_full_articles: bool = True
+    article_text_chars: int = Field(default=6000, ge=500, le=20000)
     window_hours: int = Field(ge=1, le=72)
     wide_window_hours: int = Field(ge=1, le=72)
     retry_wait_seconds: float = Field(ge=0, le=120)

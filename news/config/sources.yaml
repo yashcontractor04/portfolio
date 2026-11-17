@@ -21,7 +21,7 @@ settings:
 
 topics:
   - slug: ai-jobs
-    label: "AI & CS jobs"
+    label: "AI industry & CS jobs"
     feeds:
       - { name: Ars Technica, url: "https://feeds.arstechnica.com/arstechnica/index", lang: en }
       - { name: The Verge AI, url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", lang: en }
@@ -31,6 +31,9 @@ topics:
       - { query: "AI jobs software engineers", hl: en-US, gl: US, ceid: "US:en" }
       - { query: "tech layoffs", hl: en-US, gl: US, ceid: "US:en" }
       - { query: "Werkstudent Informatik", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "Nvidia", hl: en-US, gl: US, ceid: "US:en" }
+      - { query: "Anthropic OR OpenAI", hl: en-US, gl: US, ceid: "US:en" }
+      - { query: "AI bubble", hl: en-US, gl: US, ceid: "US:en" }
     hacker_news: { min_score: 150, max_items: 30 }
 
   - slug: germany-berlin
@@ -46,6 +49,9 @@ topics:
       - { query: "BVG Berlin", hl: de, gl: DE, ceid: "DE:de" }
       - { query: "Studierendenwerk Berlin", hl: de, gl: DE, ceid: "DE:de" }
       - { query: "Deutschlandticket", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "Einbürgerung Staatsangehörigkeit", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "Aufenthaltstitel Visum Studierende", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "Germany visa rules international students", hl: en-US, gl: US, ceid: "US:en" }
 
   - slug: markets
     label: "Markets & investing"
@@ -59,6 +65,8 @@ topics:
       - { query: "S&P 500", hl: en-US, gl: US, ceid: "US:en" }
       - { query: "ECB interest rates", hl: en-US, gl: US, ceid: "US:en" }
       - { query: "ETF investors", hl: en-US, gl: US, ceid: "US:en" }
+      - { query: "Konjunktur Deutschland", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "India economy", hl: en-IN, gl: IN, ceid: "IN:en" }
 
   - slug: geopolitics
     label: "Geopolitics (mainly US)"

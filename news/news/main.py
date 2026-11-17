@@ -16,6 +16,7 @@ import argparse
 import logging
 import os
 
+from .article import ArticleReader
 from .config import load_sources
 from .db import NewsDb
 from .feeds import build_feeds
@@ -60,7 +61,10 @@ def main(argv: list[str] | None = None) -> int:
         if api_key:
             llm = load_llm_config()
             budget = Budget(GeminiProvider(api_key), llm, db.reserve_llm_request)
-            result = build_feeds(db, budget, llm, last_run)
+            reader = ArticleReader(
+                config.settings.user_agent, config.settings.timeout_seconds, llm.article_text_chars
+            )
+            result = build_feeds(db, budget, llm, last_run, reader.read)
             counts.update(ranked_users=result["ranked_users"], summarised=result["summarised"])
             counts["llm_requests"] = budget.requests
             if result["limited"]:
