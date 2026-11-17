@@ -68,6 +68,8 @@ select t.throws($$select news.upsert_articles('[{"url":"javascript:alert(1)","ti
 select t.is((select count(*)::int from news.users_to_rank()), 2, 'only enabled users are ranked');
 select t.is((select count(*)::int from news.candidates('00000000-0000-0000-0000-00000000000b', 6, 50)), 2,
             'candidates follow the user''s topics (the DAX story gained the ai-jobs topic)');
+select t.is((select count(*)::int from news.candidates('00000000-0000-0000-0000-00000000000b', 6, 50) where url like 'https://%'), 2,
+            'candidates carry their link, so the ranking can tell readable articles apart');
 
 select id as dax from news.candidates('00000000-0000-0000-0000-00000000000a', 6, 50) limit 1 \gset
 select id as ai from news.candidates('00000000-0000-0000-0000-00000000000b', 6, 50) where title like 'Tech%' \gset

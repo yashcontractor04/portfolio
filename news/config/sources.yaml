@@ -27,6 +27,12 @@ topics:
       - { name: The Verge AI, url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", lang: en }
       - { name: MIT Technology Review, url: "https://www.technologyreview.com/feed/", lang: en }
       - { name: heise online, url: "https://www.heise.de/rss/heise-atom.xml", lang: de }
+      # Direct feeds for the AI industry: Google News links cannot be opened, so without
+      # these most AI stories would only get a headline summary.
+      - { name: TechCrunch AI, url: "https://techcrunch.com/category/artificial-intelligence/feed/", lang: en }
+      - { name: CNBC Technology, url: "https://www.cnbc.com/id/19854910/device/rss/rss.html", lang: en }
+      - { name: The Register, url: "https://www.theregister.com/headlines.atom", lang: en }
+      - { name: Wired AI, url: "https://www.wired.com/feed/tag/ai/latest/rss", lang: en }
     google_news:
       - { query: "AI jobs software engineers", hl: en-US, gl: US, ceid: "US:en" }
       - { query: "tech layoffs", hl: en-US, gl: US, ceid: "US:en" }
@@ -44,6 +50,7 @@ topics:
       - { name: Tagesspiegel Berlin, url: "https://www.tagesspiegel.de/contentexport/feed/berlin", lang: de }
       - { name: DW Germany, url: "https://rss.dw.com/rdf/rss-en-ger", lang: en }
       - { name: The Local Germany, url: "https://feeds.thelocal.com/rss/de", lang: en }
+      - { name: InfoMigrants, url: "https://www.infomigrants.net/en/rss", lang: en }
     google_news:
       - { query: "Berlin Studierende", hl: de, gl: DE, ceid: "DE:de" }
       - { query: "BVG Berlin", hl: de, gl: DE, ceid: "DE:de" }
@@ -59,6 +66,7 @@ topics:
       - { name: Handelsblatt Finanzen, url: "https://www.handelsblatt.com/contentexport/feed/finanzen", lang: de }
       - { name: CNBC Markets, url: "https://www.cnbc.com/id/20910258/device/rss/rss.html", lang: en }
       - { name: MarketWatch, url: "https://feeds.content.dowjones.io/public/rss/mw_topstories", lang: en }
+      - { name: Yahoo Finance, url: "https://finance.yahoo.com/news/rssindex", lang: en }
       - { name: ECB, url: "https://www.ecb.europa.eu/rss/press.html", lang: en }
     google_news:
       - { query: "DAX", hl: de, gl: DE, ceid: "DE:de" }
@@ -75,6 +83,7 @@ topics:
       - { name: NPR World, url: "https://feeds.npr.org/1004/rss.xml", lang: en }
       - { name: Al Jazeera, url: "https://www.aljazeera.com/xml/rss/all.xml", lang: en }
       - { name: Foreign Policy, url: "https://foreignpolicy.com/feed/", lang: en }
+      - { name: The Guardian World, url: "https://www.theguardian.com/world/rss", lang: en }
     google_news:
       - { query: "US foreign policy", hl: en-US, gl: US, ceid: "US:en" }
       - { query: "White House", hl: en-US, gl: US, ceid: "US:en" }
@@ -87,6 +96,7 @@ topics:
       - { name: Der Spiegel Politik, url: "https://www.spiegel.de/politik/index.rss", lang: de }
       - { name: The Hindu National, url: "https://www.thehindu.com/news/national/feeder/default.rss", lang: en }
       - { name: Indian Express India, url: "https://indianexpress.com/section/india/feed/", lang: en }
+      - { name: Times of India, url: "https://timesofindia.indiatimes.com/rssfeedstopstories.cms", lang: en }
     google_news:
       - { query: "Bundestag", hl: de, gl: DE, ceid: "DE:de" }
       - { query: "Bundesregierung", hl: de, gl: DE, ceid: "DE:de" }

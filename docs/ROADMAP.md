@@ -204,6 +204,14 @@ unknown project URLs return status 200 with the not-found page.
       run as `failed` with the status in `news_runs.note`, extra keys in an answer are
       ignored, and the log names the field and rule that rejected an item (never content).
       Cause of the empty ranking not yet confirmed.
+    - 2026-11-17 readable summaries: Yash's first full run picked 9 of 10 cards from Google
+      News, whose links cannot be opened, so only 1 card got a full summary. Added direct
+      feeds for the priority topics (TechCrunch AI, CNBC Technology, The Register, Wired AI,
+      Yahoo Finance, InfoMigrants, The Guardian World, Times of India; URLs not yet checked
+      by a dry run), and the ranking now sees `full_text` per candidate and prefers readable
+      links for the same story (migration `20261118000001_news_candidate_urls.sql`, to be
+      applied by hand). Decoding Google News links was rejected: it needs an undocumented
+      Google endpoint.
     - [ ] j. Go live: merge `news-app` into `main` (starts the schedule), then check with real
       data: feed in Chrome, Firefox and Safari, real images, a guest cannot open the app, and
       `news_runs.note` for sources that fail on GitHub's servers.
@@ -242,8 +250,8 @@ unknown project URLs return status 200 with the not-found page.
 - Migration `20261115000001_demo_api.sql` and `supabase/seed/runners.sql` must be applied by hand
   in the Supabase SQL editor (there is no automated migration deploy yet).
 - Migration `20261116000001_news.sql` was applied by hand on 2026-11-17 (Yash). For a fresh
-  project it must be applied the same way. `20261117000001_news_summaries.sql` must also be
-  applied by hand. After it:
+  project it must be applied the same way. `20261117000001_news_summaries.sql` and
+  `20261118000001_news_candidate_urls.sql` must also be applied by hand. After it:
   `alter role app_news login password '<long random>';` and
   `update public.profiles set news_enabled = true where id = '<Yash's user id>';`
 - `npm audit` reports 8 moderate findings in web dependencies; not yet reviewed.
