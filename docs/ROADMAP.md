@@ -171,8 +171,10 @@ unknown project URLs return status 200 with the not-found page.
       (provider interface, Gemini over HTTPS, budget + 429 fallback), `news/rank.py` (prompts
       with a data block, strict output schemas). Wired into the run (`news/feeds.py`, 22 tests, fakes
       only; never run against a real database or Gemini). Still open: fetch article bodies in memory (robots.txt, private-address
-      guard) so summaries are not snippet-only; turn thinking off; one real Gemini call to
-      confirm the request format and model names.
+      guard) so summaries are not snippet-only; turn thinking off.
+      2026-11-17: first real run by Yash against Supabase and Gemini: 663 fetched, 1 user
+      ranked, 10 feed items, 5 summaries, 2 requests on `gemini-3.5-flash-lite`. Request
+      format and model name confirmed.
     - [ ] e. `.github/workflows/news.yml`: schedule every 15 minutes + manual trigger.
       2026-11-16: file written, never run. It does nothing until the secret
       `NEWS_DATABASE_URL` exists, and schedules only run once it is on `main`.
@@ -216,7 +218,8 @@ unknown project URLs return status 200 with the not-found page.
 
 - Migration `20261115000001_demo_api.sql` and `supabase/seed/runners.sql` must be applied by hand
   in the Supabase SQL editor (there is no automated migration deploy yet).
-- Migration `20261116000001_news.sql` must also be applied by hand. After it:
+- Migration `20261116000001_news.sql` was applied by hand on 2026-11-17 (Yash). For a fresh
+  project it must be applied the same way. After it:
   `alter role app_news login password '<long random>';` and
   `update public.profiles set news_enabled = true where id = '<Yash's user id>';`
 - `npm audit` reports 8 moderate findings in web dependencies; not yet reviewed.
