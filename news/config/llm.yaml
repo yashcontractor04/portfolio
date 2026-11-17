@@ -5,12 +5,12 @@ provider: gemini
 model: gemini-3.5-flash-lite
 fallback_model: gemini-3.1-flash-lite
 daily_cap: 350            # 70 % of 500 requests/day, counted per model in the database
-per_run_cap: 6            # hard stop for a single run (per user: 1 ranking; plus up to 2 summary requests)
+per_run_cap: 6            # hard stop for a single run (per user: 1 ranking; plus up to 4 summary requests)
 max_n: 10                 # budget cap on N, whatever the user picked (5-20)
 candidates_per_user: 150  # headlines sent to one ranking request (about 10k tokens)
-summaries_per_request: 5  # about 500 words each; more per request means a longer answer that
-                          # is likelier to be cut off, which loses the whole batch
-summary_requests_per_run: 2
+summaries_per_request: 3  # up to 500 words each. Fewer per request: the model writes closer to
+                          # the target, and a cut-off answer loses fewer summaries
+summary_requests_per_run: 4  # 3 x 4 = 12, enough for a full feed of 10 in one run
 read_full_articles: true  # read the article page in memory (robots.txt respected, never stored)
 article_text_chars: 6000  # how much of each page goes into the summary prompt
 window_hours: 6           # widened to wide_window_hours when fewer than N candidates

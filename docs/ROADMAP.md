@@ -207,11 +207,13 @@ unknown project URLs return status 200 with the not-found page.
     - 2026-11-17 readable summaries: Yash's first full run picked 9 of 10 cards from Google
       News, whose links cannot be opened, so only 1 card got a full summary. Added direct
       feeds for the priority topics (TechCrunch AI, CNBC Technology, The Register, Wired AI,
-      Yahoo Finance, InfoMigrants, The Guardian World, Times of India; URLs not yet checked
-      by a dry run), and the ranking now sees `full_text` per candidate and prefers readable
-      links for the same story (migration `20261118000001_news_candidate_urls.sql`, to be
-      applied by hand). Decoding Google News links was rejected: it needs an undocumented
-      Google endpoint.
+      The Guardian World, Times of India; checked by Yash's dry run), and the ranking now sees `full_text` per candidate and prefers readable
+      links for the same story (migration `20261118000001_news_candidate_urls.sql`, applied by
+      Yash). Decoding Google News links was rejected: it needs an undocumented Google
+      endpoint. Next run: 5 of 10 readable. InfoMigrants (no working feed) removed; Yahoo
+      Finance replaced by its per-symbol feed (NVDA, MSFT, GOOGL, AMZN, META). Summaries now
+      get a target length from the text actually read (60 %, 80-500 words), 3 per request and
+      up to 4 requests per run; field names are stripped from the relevance keywords.
     - [ ] j. Go live: merge `news-app` into `main` (starts the schedule), then check with real
       data: feed in Chrome, Firefox and Safari, real images, a guest cannot open the app, and
       `news_runs.note` for sources that fail on GitHub's servers.

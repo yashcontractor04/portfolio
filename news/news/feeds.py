@@ -54,8 +54,15 @@ def build_feeds(db, budget: Budget, config: LlmConfig, last_run, read_page=None)
             for row in rows:
                 row["image_url"] = images.get(row["id"])
             saved = db.save_summaries(rows)
-            readable = sum(1 for a in todo if a.get("text"))
-            log.info("summaries: %d wanted, %d pages readable, %d saved", len(todo), readable, saved)
+            words = sorted(len(a["text"].split()) for a in todo if a.get("text"))
+            median = words[len(words) // 2] if words else 0
+            log.info(
+                "summaries: %d wanted, %d pages readable (median %d words), %d saved",
+                len(todo),
+                len(words),
+                median,
+                saved,
+            )
             if reasons:
                 log.info("pages not readable: %s", ", ".join(f"{r} {n}" for r, n in reasons.most_common()))
             counts["summarised"] += saved

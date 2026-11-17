@@ -50,7 +50,6 @@ topics:
       - { name: Tagesspiegel Berlin, url: "https://www.tagesspiegel.de/contentexport/feed/berlin", lang: de }
       - { name: DW Germany, url: "https://rss.dw.com/rdf/rss-en-ger", lang: en }
       - { name: The Local Germany, url: "https://feeds.thelocal.com/rss/de", lang: en }
-      - { name: InfoMigrants, url: "https://www.infomigrants.net/en/rss", lang: en }
     google_news:
       - { query: "Berlin Studierende", hl: de, gl: DE, ceid: "DE:de" }
       - { query: "BVG Berlin", hl: de, gl: DE, ceid: "DE:de" }
@@ -66,7 +65,9 @@ topics:
       - { name: Handelsblatt Finanzen, url: "https://www.handelsblatt.com/contentexport/feed/finanzen", lang: de }
       - { name: CNBC Markets, url: "https://www.cnbc.com/id/20910258/device/rss/rss.html", lang: en }
       - { name: MarketWatch, url: "https://feeds.content.dowjones.io/public/rss/mw_topstories", lang: en }
-      - { name: Yahoo Finance, url: "https://finance.yahoo.com/news/rssindex", lang: en }
+      # Yahoo's general finance feeds return 404 since October 2026; per-symbol headline
+      # feeds still work. These are the big AI stocks.
+      - { name: Yahoo Finance AI stocks, url: "https://feeds.finance.yahoo.com/rss/2.0/headline?s=NVDA,MSFT,GOOGL,AMZN,META&region=US&lang=en-US", lang: en }
       - { name: ECB, url: "https://www.ecb.europa.eu/rss/press.html", lang: en }
     google_news:
       - { query: "DAX", hl: de, gl: DE, ceid: "DE:de" }
