@@ -162,9 +162,10 @@ unknown project URLs return status 200 with the not-found page.
       `supabase/tests/30_news.sql`. Not yet applied to the real project (manual, see Known gaps).
     - [x] 2026-11-16 c. Pipeline without LLM (`news/`): `config/sources.yaml`, fetch (RSS/Atom,
       Google News RSS, Hacker News), canonical URLs, de-duplication, 8 tests with fake HTTP.
-      `python -m news --dry-run` fetches without a database. NOT yet run against the real
-      feeds or a real database: the feed URLs in the config are unverified; run the dry run
-      once and fix or remove every source it reports as failed.
+      `python -m news --dry-run` fetches without a database. 2026-11-17: Yash's dry run
+      fetched 633 articles from 40 sources; all feed URLs work. Google News answered errors
+      when its searches arrived together, so they now run one at a time with a 1 s pause and
+      one retry after 8 s (both in `sources.yaml`). Not yet run against a real database.
     - [ ] d. Provider interface + Gemini client, ranking, summaries, rate-limit handling.
       2026-11-16: built and unit-tested with a fake provider: `config/llm.yaml`, `news/llm.py`
       (provider interface, Gemini over HTTPS, budget + 429 fallback), `news/rank.py` (prompts

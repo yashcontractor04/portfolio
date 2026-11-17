@@ -10,6 +10,8 @@ import calendar
 import html
 import logging
 import re
+import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -140,6 +142,25 @@ def _get(client: httpx.Client, url: str) -> bytes:
         return b"".join(chunks)
 
 
+RETRY_STATUS = {429, 500, 502, 503}
+
+
+def _get_politely(
+    client: httpx.Client, url: str, lock: threading.Lock, pause: float, retry_wait: float, sleep
+) -> bytes:
+    """For a host that rate-limits us (Google News): one request at a time, a short
+    pause before each, and one more try after a longer wait if the answer is 429 or 5xx."""
+    with lock:
+        sleep(pause)
+        try:
+            return _get(client, url)
+        except httpx.HTTPStatusError as error:
+            if error.response.status_code not in RETRY_STATUS:
+                raise
+            sleep(retry_wait)
+            return _get(client, url)
+
+
 def google_news_url(query: str, hl: str, gl: str, ceid: str) -> str:
     return "https://news.google.com/rss/search?" + urlencode(
         {"q": f"{query} when:1d", "hl": hl, "gl": gl, "ceid": ceid}
@@ -181,7 +202,7 @@ def merge(articles: list[Article]) -> list[Article]:
 
 
 def fetch_all(
-    config: SourcesConfig, client: httpx.Client | None = None, now: datetime | None = None
+    config: SourcesConfig, client: httpx.Client | None = None, now: datetime | None = None, sleep=time.sleep
 ) -> tuple[list[Article], FetchStats]:
     settings = config.settings
     cutoff = (now or datetime.now(UTC)) - timedelta(hours=settings.max_age_hours)
@@ -193,6 +214,8 @@ def fetch_all(
         max_redirects=5,
         headers={"User-Agent": settings.user_agent},
     )
+
+    google_lock = threading.Lock()  # shared by all Google News searches: they run one by one
 
     # One small job per source: (name for the log, function that returns articles).
     jobs: list[tuple[str, object]] = []
@@ -216,7 +239,14 @@ def fetch_all(
                 (
                     f"Google News: {search.query}",
                     lambda s=search, t=topic: parse_feed(
-                        _get(client, google_news_url(s.query, s.hl, s.gl, s.ceid)),
+                        _get_politely(
+                            client,
+                            google_news_url(s.query, s.hl, s.gl, s.ceid),
+                            google_lock,
+                            settings.google_news_pause_seconds,
+                            settings.google_news_retry_seconds,
+                            sleep,
+                        ),
                         source="Google News",
                         lang=s.lang,
                         topic=t.slug,
@@ -244,7 +274,8 @@ def fetch_all(
         try:
             return work()  # type: ignore[operator]
         except Exception as error:  # noqa: BLE001 - one bad source must not stop the run
-            log.warning("source failed: %s (%s)", name, type(error).__name__)
+            status = error.response.status_code if isinstance(error, httpx.HTTPStatusError) else ""
+            log.warning("source failed: %s (%s %s)", name, type(error).__name__, status)
             stats.failed.append(name)
             return []
 

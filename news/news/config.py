@@ -64,6 +64,8 @@ class Settings(Strict):
     max_items_per_source: int = Field(default=25, ge=1, le=100)
     timeout_seconds: float = Field(default=10, gt=0, le=30)
     user_agent: str = Field(min_length=5, max_length=200)
+    google_news_pause_seconds: float = Field(default=1.0, ge=0, le=10)
+    google_news_retry_seconds: float = Field(default=8.0, ge=0, le=60)
 
 
 class SourcesConfig(Strict):

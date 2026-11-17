@@ -14,6 +14,10 @@ settings:
   max_items_per_source: 25   # newest N per feed or search
   timeout_seconds: 10
   user_agent: "yash-portfolio-news/1.0 (+https://github.com/yashcontractor04/portfolio)"
+  # Google News answers 429/503 when searches arrive together, so they are sent one at a
+  # time with this pause, and retried once after the longer wait.
+  google_news_pause_seconds: 1.0
+  google_news_retry_seconds: 8.0
 
 topics:
   - slug: ai-jobs

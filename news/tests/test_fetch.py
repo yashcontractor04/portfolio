@@ -112,10 +112,38 @@ def test_fetch_all_survives_a_broken_source():
         return httpx.Response(200, content=RSS)
 
     client = httpx.Client(transport=httpx.MockTransport(handler))
-    articles, stats = fetch_all(load_sources(), client=client, now=NOW)
+    articles, stats = fetch_all(load_sources(), client=client, now=NOW, sleep=lambda seconds: None)
     titles = {a.title for a in articles}
     assert {"Fresh & new", "DAX hits record", "Big story"} <= titles
     assert "Small story" not in titles
     assert set(stats.failed) == {"tagesschau", "tagesschau Inland"}
     fresh = next(a for a in articles if a.title == "Fresh & new")
     assert len(fresh.topics) == 5  # the same URL came back from every topic's feeds
+
+
+def test_google_news_is_fetched_one_at_a_time_and_retried_once():
+    state = {"active": 0, "most_at_once": 0, "calls": {}}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.host != "news.google.com":
+            return httpx.Response(404)
+        state["active"] += 1
+        state["most_at_once"] = max(state["most_at_once"], state["active"])
+        query = request.url.params["q"]
+        state["calls"][query] = state["calls"].get(query, 0) + 1
+        try:
+            if query.startswith("DAX") and state["calls"][query] == 1:
+                return httpx.Response(429)  # first try is rate-limited, the retry works
+            if query.startswith("Bundestag"):
+                return httpx.Response(503)  # stays broken: counted as failed, not fatal
+            return httpx.Response(200, content=GOOGLE)
+        finally:
+            state["active"] -= 1
+
+    waits = []
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    articles, stats = fetch_all(load_sources(), client=client, now=NOW, sleep=waits.append)
+    assert state["most_at_once"] == 1
+    assert state["calls"]["DAX when:1d"] == 2 and state["calls"]["Bundestag when:1d"] == 2
+    assert "Google News: Bundestag" in stats.failed and "Google News: DAX" not in stats.failed
+    assert waits.count(8.0) == 2 and "DAX hits record" in {a.title for a in articles}
