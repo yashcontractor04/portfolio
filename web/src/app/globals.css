@@ -189,3 +189,96 @@ body {
 summary::-webkit-details-marker {
   display: none;
 }
+
+/*
+ * News app: a reel of full-height cards. Layout and motion live here; colours come
+ * from the tokens. --card-hue is set per card from its topic.
+ */
+.news-scroller {
+  /* Fills the window between the menu bar and the dock. */
+  height: max(28rem, calc(100dvh - 19rem));
+  overscroll-behavior: contain;
+  scroll-behavior: auto;
+}
+.news-card > * {
+  transition:
+    opacity 320ms ease,
+    transform 320ms ease;
+}
+/* Cards that are not in view rest slightly lower and dimmer, then settle in. */
+.news-card[data-active="false"] > .news-body,
+.news-card[data-active="false"] > .news-end-mark {
+  opacity: 0.35;
+  transform: translateY(10px);
+}
+.news-fallback {
+  color: var(--card-hue);
+  background:
+    radial-gradient(60% 90% at 80% 10%, color-mix(in oklab, var(--card-hue) 30%, transparent), transparent),
+    linear-gradient(135deg, color-mix(in oklab, var(--card-hue) 16%, var(--bg)), var(--tile));
+}
+.news-tag {
+  color: var(--text);
+  border-color: color-mix(in oklab, var(--card-hue) 55%, var(--line));
+  background: color-mix(in oklab, var(--card-hue) 12%, transparent);
+}
+.news-segment {
+  background: var(--line-strong);
+  transition: background-color 240ms ease;
+}
+.news-segment[data-done="true"] {
+  background: var(--accent);
+}
+.news-chip[aria-pressed="true"] {
+  color: var(--text);
+  border-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
+}
+.news-range {
+  accent-color: var(--accent);
+}
+.news-press:active {
+  transform: scale(0.94);
+}
+.news-press {
+  transition: transform 120ms ease;
+}
+.news-press[aria-pressed="true"] svg {
+  animation: news-pop 260ms ease;
+}
+.news-end-mark {
+  color: var(--accent);
+}
+.news-card[data-active="true"] > .news-end-mark {
+  animation: news-pop 420ms ease;
+}
+@keyframes news-pop {
+  0% {
+    transform: scale(0.8);
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .news-card > *,
+  .news-segment,
+  .news-press {
+    transition: none;
+  }
+  .news-card[data-active="false"] > .news-body,
+  .news-card[data-active="false"] > .news-end-mark {
+    opacity: 1;
+    transform: none;
+  }
+  .news-press:active {
+    transform: none;
+  }
+  .news-press[aria-pressed="true"] svg,
+  .news-card[data-active="true"] > .news-end-mark {
+    animation: none;
+  }
+}

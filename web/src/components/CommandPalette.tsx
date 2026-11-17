@@ -3,7 +3,7 @@
 import { Command } from "cmdk";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { APPS } from "@/apps/registry";
+import { useApps } from "@/apps/useApps";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useAuth } from "./AuthProvider";
 
@@ -18,6 +18,7 @@ export function CommandPalette({ projects }: { projects: { slug: string; name: s
   const pathname = usePathname();
   const { user, available, signOut } = useAuth();
   const [open, setOpen] = useState(false);
+  const apps = useApps();
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -66,8 +67,15 @@ export function CommandPalette({ projects }: { projects: { slug: string; name: s
           ))}
         </Command.Group>
         <Command.Group heading={t("palette.apps")} className={heading}>
-          {APPS.map((app) => (
-            <Command.Item key={app.key} value={t(`apps.names.${app.key}`)} onSelect={go(app.href)} className={item}>
+          {apps.map((app) => (
+            <Command.Item
+              key={app.key}
+              value={t(`apps.names.${app.key}`)}
+              // A full page load on purpose: the page needs its own response headers (see registry.ts).
+              // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+              onSelect={app.fullLoad ? run(() => window.location.assign(`/${locale}${app.href}`)) : go(app.href)}
+              className={item}
+            >
               {t(`apps.names.${app.key}`)} <span className={kind}>{user ? t("palette.app") : t("apps.demo")}</span>
             </Command.Item>
           ))}

@@ -96,7 +96,8 @@
     "login": "Für deine eigene private Version anmelden",
     "names": {
       "workspace": "Workspace",
-      "board": "Board"
+      "board": "Board",
+      "news": "News"
     }
   },
   "auth": {
@@ -243,6 +244,60 @@
       "invalid": "Bitte prüfe deine Angaben. Die Nachricht braucht mindestens 10 Zeichen.",
       "rate_limited": "Gerade zu viele Nachrichten. Bitte versuche es später erneut oder nutze den E-Mail-Link.",
       "unavailable": "Das Formular ist gerade nicht verfügbar. Bitte nutze den E-Mail-Link unten."
+    }
+  },
+  "news": {
+    "loading": "Lädt…",
+    "loadError": "Der Feed konnte nicht geladen werden.",
+    "saveError": "Das konnte nicht gespeichert werden. Der Feed wurde neu geladen.",
+    "retry": "Erneut versuchen",
+    "notEnabled": "News ist für dieses Konto nicht freigeschaltet.",
+    "feedLabel": "News-Feed. Mit den Pfeiltasten oder J und K zwischen den Karten wechseln.",
+    "position": "{current} von {total}",
+    "previous": "Vorherige Karte",
+    "next": "Nächste Karte",
+    "relevance": "Relevanz",
+    "read": "Gelesen",
+    "markRead": "Als gelesen markieren",
+    "markAllRead": "Alle als gelesen markieren",
+    "thumbUp": "Mehr davon",
+    "thumbDown": "Weniger davon",
+    "original": "Originalartikel",
+    "summaryPending": "Die Zusammenfassung kommt mit der nächsten Aktualisierung.",
+    "caughtUp": "Alles gelesen",
+    "nextRefresh": "Die nächste Aktualisierung ist gegen {time}. Bis dahin gibt es nichts mehr zu scrollen.",
+    "checkNow": "Nach Neuem sehen",
+    "empty": {
+      "neverTitle": "Noch nichts da",
+      "never": "Die News-Pipeline ist noch nicht gelaufen. Karten erscheinen nach dem ersten Lauf.",
+      "noTopics": "Wähle in den Einstellungen mindestens ein Thema, um einen Feed zu bekommen."
+    },
+    "notice": {
+      "never": "Die News-Pipeline ist noch nicht gelaufen.",
+      "limited": "Der Zusammenfassungsdienst ist gedrosselt, deshalb siehst du ältere Einträge.",
+      "failed": "Die letzte Aktualisierung ist fehlgeschlagen, deshalb siehst du ältere Einträge.",
+      "stale": "Die Aktualisierungen verspäten sich, deshalb siehst du ältere Einträge."
+    },
+    "topics": {
+      "ai-jobs": "KI-Branche & IT-Jobs",
+      "germany-berlin": "Deutschland/Berlin & Studium",
+      "markets": "Märkte & Geldanlage",
+      "geopolitics": "Geopolitik",
+      "local-politics": "Politik: Deutschland, Indien"
+    },
+    "settings": {
+      "open": "Einstellungen",
+      "title": "News-Einstellungen",
+      "topics": "Themen",
+      "interests": "Was mich interessiert",
+      "interestsHelp": "Freitext, nach Priorität geordnet. Er wird an den KI-Dienst gesendet, der deine News sortiert, also keine persönlichen Angaben.",
+      "size": "Karten pro Feed: {count}",
+      "sizeHelp": "Jede Aktualisierung bringt höchstens 10 neue Karten.",
+      "save": "Speichern",
+      "saving": "Speichert…",
+      "cancel": "Abbrechen",
+      "applies": "Änderungen gelten ab der nächsten Aktualisierung.",
+      "error": "Die Einstellungen konnten nicht gespeichert werden."
     }
   }
 }

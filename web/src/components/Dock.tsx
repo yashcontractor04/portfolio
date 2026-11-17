@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { APPS } from "@/apps/registry";
+import { useApps } from "@/apps/useApps";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "./AuthProvider";
 import { Icon } from "./Icons";
@@ -17,6 +17,7 @@ export function Dock() {
   const t = useTranslations();
   const locale = useLocale();
   const { user, available, signOut } = useAuth();
+  const apps = useApps();
   const sections = [
     { href: `/${locale}`, label: t("nav.home"), icon: "home", hue: "blue" },
     ...(user
@@ -38,13 +39,21 @@ export function Dock() {
           </li>
         ))}
         <li aria-hidden="true" className="mx-1 h-10 w-px self-center bg-line" />
-        {APPS.map((app) => {
+        {apps.map((app) => {
           const label = t(`apps.names.${app.key}`) + (user ? "" : ` (${t("apps.demo")})`);
+          const props = { "aria-label": label, title: label, className: tile, style: { color: `var(--hue-${app.hue})` } };
           return (
             <li key={app.key}>
-              <Link href={app.href} aria-label={label} title={label} className={tile} style={{ color: `var(--hue-${app.hue})` }}>
-                <Icon name={app.icon} size={22} />
-              </Link>
+              {app.fullLoad ? (
+                // A plain link: the browser loads the page fresh, with that page's own headers.
+                <a href={`/${locale}${app.href}`} {...props}>
+                  <Icon name={app.icon} size={22} />
+                </a>
+              ) : (
+                <Link href={app.href} {...props}>
+                  <Icon name={app.icon} size={22} />
+                </Link>
+              )}
             </li>
           );
         })}

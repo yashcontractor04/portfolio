@@ -61,6 +61,12 @@ rule wins. To change a rule, change this file in the same commit and say why.
 - All UI text goes through next-intl in both `en` and `de`. No hard-coded strings.
 - Data access for each app sits behind one interface with two implementations: `demo`
   (sample data, guests) and `supabase` (logged in). Components never know which one they use.
+  Exception: an app that only exists for logged-in users (News) has the interface and the
+  `supabase` implementation only. Its registry entry has `requires: "<profile flag>"`, which
+  hides it from the dock and the palette; the data is still protected by RLS, not by hiding.
+- Text produced by an LLM or taken from a feed is rendered as plain text nodes. Never pass it
+  to `dangerouslySetInnerHTML` or the Markdown component, and check links with
+  `safeHttpUrl` before using them as `href` or `src`.
 
 ## Design system
 

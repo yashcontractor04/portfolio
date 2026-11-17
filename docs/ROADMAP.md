@@ -179,9 +179,15 @@ unknown project URLs return status 200 with the not-found page.
     - [ ] e. `.github/workflows/news.yml`: schedule every 15 minutes + manual trigger.
       2026-11-16: file written, never run. It does nothing until the secret
       `NEWS_DATABASE_URL` exists, and schedules only run once it is on `main`.
-    - [ ] f. App shell: registry entry with `auth: "required"`, hidden from dock and palette for
-      guests, feed UI with empty, error and "limited" states.
-    - [ ] g. Settings panel (topics, free text, N) and feedback (read, thumbs).
+    - [x] 2026-11-17 f. App shell (`web/src/apps/news/`, page `/apps/news`): registry entry with
+      `requires: "news_enabled"`, so the dock and the palette list it only for accounts that
+      have News switched on (`useApps`); guests are sent to login. Scroll-snap cards, progress
+      segments and "3 of 10", arrow keys and J/K, "All caught up" card with the next refresh
+      time, empty / error / limited / late states. "Why" is shown as "Relevance".
+    - [x] 2026-11-17 g. Settings panel (topic chips, free text with 500-character limit, N 5-20)
+      and feedback (mark as read, mark all as read, thumbs up/down), written optimistically.
+      Checked in headless Chrome with sample data (keyboard, snap, states); not yet used
+      against the real database in a browser.
     - [ ] h. Images: hotlinked `og:image` with gradient fallback; CSP `img-src` and COEP
       `credentialless`; check the in-browser games in Safari and Firefox.
     - [ ] i. Accessibility + Lighthouse check, docs, add the tables to data export (item 17).
