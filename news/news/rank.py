@@ -9,6 +9,7 @@ ids we sent. A hijacked answer therefore fails validation and is dropped.
 from __future__ import annotations
 
 import json
+import logging
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -36,34 +37,55 @@ Answer with JSON only: {{"items": [{{"id": <number from the list>,
 "intro": "<one line, max 200 characters>", "summary": "<the summary>"}}]}}"""
 
 
-class Strict(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+log = logging.getLogger("news.rank")  # public log: counts, field names and error types only
 
 
-class RankItem(Strict):
+class Answer(BaseModel):
+    # Extra keys the model adds (it sometimes echoes the title) are ignored: only the
+    # fields declared below are ever read. Types, ranges and lengths are still enforced.
+    model_config = ConfigDict(extra="ignore")
+
+
+class RankItem(Answer):
     id: int
     score: float = Field(ge=0, le=1)
     why: str = Field(max_length=400)
 
 
-class SummaryItem(Strict):
+class SummaryItem(Answer):
     id: int
     intro: str = Field(min_length=1, max_length=300)
     summary: str = Field(min_length=1, max_length=8000)
 
 
-def _valid_items(answer: object, model: type[Strict], limit: int) -> list:
+def _valid_items(answer: object, model: type[Answer], limit: int) -> list:
     """Each item is checked on its own: one bad item drops only itself. An answer that
     is not {"items": [...]} at all is dropped whole."""
+    if isinstance(answer, list):
+        answer = {"items": answer}  # some models skip the wrapper object
     if not isinstance(answer, dict) or not isinstance(answer.get("items"), list):
+        log.warning("%s: answer is not {items: [...]} but %s", model.__name__, type(answer).__name__)
         return []
-    valid = []
+    valid, problems = [], set()
     for raw in answer["items"][:limit]:
         try:
             valid.append(model.model_validate(raw))
-        except ValidationError:
-            continue
+        except ValidationError as error:
+            # Which field broke which rule, e.g. "score:less_than_equal". Never the content.
+            problems |= {f"{'.'.join(map(str, e['loc']))}:{e['type']}" for e in error.errors()}
+    if problems:
+        dropped = len(answer["items"][:limit]) - len(valid)
+        log.warning("%s: %d items dropped (%s)", model.__name__, dropped, ", ".join(sorted(problems)))
     return valid
+
+
+def _ask(call, prompt: str, model: type[Answer], limit: int) -> list:
+    try:
+        return _valid_items(call(prompt), model, limit)
+    except (ValueError, KeyError, IndexError, TypeError) as error:
+        # Not JSON, cut off, or empty: thrown away. Say which, so it can be fixed.
+        log.warning("%s: unusable answer (%s)", model.__name__, type(error).__name__)
+        return []
 
 
 def _prompt(rules: str, data: dict) -> str:
@@ -78,10 +100,7 @@ def rank_user(call, user: dict, candidates: list[dict], n: int) -> list[dict]:
         for i, c in enumerate(candidates)
     ]
     data = {"topics": user["topics"], "interests": user["interests"][:500], "articles": listing}
-    try:
-        items = _valid_items(call(_prompt(RANK_RULES.format(n=n), data)), RankItem, 40)
-    except (ValueError, KeyError, IndexError, TypeError):
-        return []  # not JSON, or cut off: thrown away
+    items = _ask(call, _prompt(RANK_RULES.format(n=n), data), RankItem, 40)
     rows, seen = [], set()
     for item in sorted(items, key=lambda i: i.score, reverse=True):
         if 0 <= item.id < len(candidates) and item.id not in seen:
@@ -106,10 +125,7 @@ def summarise(call, articles: list[dict], max_chars: int = 6000) -> list[dict]:
         {"id": i, "title": a["title"], "source": a["source"], **_material(a, max_chars)}
         for i, a in enumerate(articles)
     ]
-    try:
-        items = _valid_items(call(_prompt(SUMMARY_RULES, {"articles": listing})), SummaryItem, 20)
-    except (ValueError, KeyError, IndexError, TypeError):
-        return []
+    items = _ask(call, _prompt(SUMMARY_RULES, {"articles": listing}), SummaryItem, 20)
     rows, seen = [], set()
     for item in items:
         if 0 <= item.id < len(articles) and item.id not in seen:

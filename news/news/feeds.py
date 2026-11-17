@@ -12,14 +12,14 @@ from __future__ import annotations
 import logging
 from concurrent.futures import ThreadPoolExecutor
 
-from .llm import Budget, LimitReached, LlmConfig
+from .llm import Budget, LimitReached, LlmConfig, ProviderError
 from .rank import rank_user, summarise
 
 log = logging.getLogger("news.feeds")  # counts only: these logs are public
 
 
 def build_feeds(db, budget: Budget, config: LlmConfig, last_run, read_page=None) -> dict:
-    counts = {"ranked_users": 0, "summarised": 0, "limited": False}
+    counts = {"ranked_users": 0, "summarised": 0, "limited": False, "error": None}
     try:
         for user in db.users_to_rank():
             n = min(user["feed_size"], config.max_n)  # the budget caps N, whatever the user picked
@@ -57,4 +57,8 @@ def build_feeds(db, budget: Budget, config: LlmConfig, last_run, read_page=None)
                 break  # same articles would come back; try again next run
     except LimitReached:
         counts["limited"] = True
+    except ProviderError as error:
+        # The provider refused the request. Keep what is stored, report it, do not crash.
+        log.error("the LLM provider answered HTTP %d", error.status)
+        counts["error"] = error.status
     return counts

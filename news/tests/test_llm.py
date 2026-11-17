@@ -1,6 +1,7 @@
+import httpx
 import pytest
 
-from news.llm import Budget, LimitReached, RateLimited, load_llm_config
+from news.llm import Budget, GeminiProvider, LimitReached, ProviderError, RateLimited, load_llm_config
 from news.rank import rank_user, summarise
 
 CONFIG = load_llm_config()
@@ -50,7 +51,7 @@ def test_untrusted_text_stays_inside_the_data_block():
         {"oops": 1},
         "text",
         None,
-        {"items": [{"id": 0, "score": 1, "why": "x", "html": "<script>"}]},
+        {"items": [{"id": "abc", "score": 1, "why": "x"}]},
     ],
 )
 def test_answers_that_break_the_schema_are_dropped(bad):
@@ -102,3 +103,37 @@ def test_headline_only_articles_are_marked_as_such():
     prompts = []
     summarise(lambda prompt: prompts.append(prompt) or {"items": []}, CANDIDATES)
     assert '"kind": "teaser"' in prompts[0] and '"kind": "headline"' in prompts[0]
+
+
+def test_extra_keys_from_the_model_are_ignored_not_rendered():
+    answer = {"items": [{"id": 0, "score": 0.9, "why": "DAX", "title": "echoed", "html": "<script>"}]}
+    assert rank_user(lambda prompt: answer, USER, CANDIDATES, 5) == [
+        {"article_id": "a1", "score": 0.9, "why": "DAX"}
+    ]
+
+
+def gemini(status, body):
+    transport = httpx.MockTransport(lambda request: httpx.Response(status, json=body))
+    return GeminiProvider("test-key", client=httpx.Client(transport=transport))
+
+
+def test_gemini_answer_parts_are_joined_and_thoughts_skipped():
+    parts = [{"text": "thinking...", "thought": True}, {"text": '{"items": '}, {"text": "[]}"}]
+    body = {"candidates": [{"content": {"parts": parts}}]}
+    assert gemini(200, body).generate_json("m", "p") == {"items": []}
+
+
+def test_gemini_overload_is_retryable_and_other_errors_are_reported():
+    for status in (429, 500, 503):
+        with pytest.raises(RateLimited):
+            gemini(status, {}).generate_json("m", "p")
+    with pytest.raises(ProviderError) as caught:
+        gemini(400, {}).generate_json("m", "p")
+    assert caught.value.status == 400
+    with pytest.raises(ValueError):
+        gemini(200, {"candidates": [{"finishReason": "MAX_TOKENS"}]}).generate_json("m", "p")
+
+
+def test_a_bare_list_answer_is_accepted():
+    answer = [{"id": 0, "score": 0.9, "why": "DAX"}]
+    assert [r["article_id"] for r in rank_user(lambda prompt: answer, USER, CANDIDATES, 5)] == ["a1"]

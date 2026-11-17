@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 from news.article import Page
 from news.feeds import build_feeds
-from news.llm import Budget, load_llm_config
+from news.llm import Budget, ProviderError, load_llm_config
 
 CONFIG = load_llm_config()
 NOW = datetime(2026, 11, 16, 12, 0, tzinfo=UTC)
@@ -72,7 +72,7 @@ def test_new_articles_are_ranked_and_n_is_capped_by_the_budget():
     counts, provider = run(db)
     assert len(db.feed) == CONFIG.max_n  # the user asked for 20
     # 10 shown, 5 per summary request, 2 summary requests per run: all 10 in one run
-    assert counts == {"ranked_users": 1, "summarised": 10, "limited": False}
+    assert counts == {"ranked_users": 1, "summarised": 10, "limited": False, "error": None}
     assert provider.calls == 1 + CONFIG.summary_requests_per_run
 
 
@@ -101,3 +101,14 @@ def test_unreadable_page_falls_back_to_the_teaser():
     db = FakeDb(fetched_at=NOW)
     counts, provider = run(db, read_page=lambda url: Page())
     assert '"kind": "teaser"' in provider.prompts[1] and '"kind": "article"' not in provider.prompts[1]
+
+
+def test_a_provider_error_is_reported_not_raised():
+    class Refusing:
+        def generate_json(self, model, prompt):
+            raise ProviderError(400)
+
+    db = FakeDb(fetched_at=NOW)
+    budget = Budget(Refusing(), CONFIG, lambda model, cap: True, sleep=lambda s: None)
+    counts = build_feeds(db, budget, CONFIG, NOW - timedelta(minutes=15))
+    assert counts["error"] == 400 and db.feed == []

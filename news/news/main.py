@@ -16,6 +16,8 @@ import argparse
 import logging
 import os
 
+import httpx
+
 from .article import ArticleReader
 from .config import load_sources
 from .db import NewsDb
@@ -69,6 +71,8 @@ def main(argv: list[str] | None = None) -> int:
             counts["llm_requests"] = budget.requests
             if result["limited"]:
                 status, note = "limited", "LLM limit reached, showing older items"
+            elif result["error"]:
+                status, note = "failed", f"LLM provider error {result['error']}"
         else:
             log.info("GEMINI_API_KEY is not set: articles stored, no ranking")
         db.purge()
@@ -79,7 +83,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     except Exception as error:
         # Record the failure for the UI, without details that could leak data into a public log.
-        log.error("run failed: %s", type(error).__name__)
+        code = error.response.status_code if isinstance(error, httpx.HTTPStatusError) else ""
+        log.error("run failed: %s %s", type(error).__name__, code)
         try:
             db.finish_run(run_id, "failed", counts, "pipeline error")
         except Exception:  # noqa: BLE001, S110 - the database itself may be the problem

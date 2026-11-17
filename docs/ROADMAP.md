@@ -199,6 +199,11 @@ unknown project URLs return status 200 with the not-found page.
       between cards, every control is reachable by Tab with a visible focus ring, motion is
       off under `prefers-reduced-motion`. Docs updated. Data export does not exist yet: the
       News tables are listed under item 17.
+    - 2026-11-17 hardening after two bad real runs (ranking returned nothing once; one run
+      crashed on a Gemini HTTP error): 5xx is retried like 429, other provider errors end the
+      run as `failed` with the status in `news_runs.note`, extra keys in an answer are
+      ignored, and the log names the field and rule that rejected an item (never content).
+      Cause of the empty ranking not yet confirmed.
     - [ ] j. Go live: merge `news-app` into `main` (starts the schedule), then check with real
       data: feed in Chrome, Firefox and Safari, real images, a guest cannot open the app, and
       `news_runs.note` for sources that fail on GitHub's servers.

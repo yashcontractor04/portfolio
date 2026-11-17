@@ -47,7 +47,15 @@ def load_llm_config(path: Path | None = None) -> LlmConfig:
 
 
 class RateLimited(Exception):
-    """The provider answered HTTP 429."""
+    """The provider is rate-limiting us (HTTP 429) or is overloaded (HTTP 5xx). Worth a retry."""
+
+
+class ProviderError(Exception):
+    """The provider refused the request (another HTTP status). Retrying will not help."""
+
+    def __init__(self, status: int) -> None:
+        super().__init__(f"HTTP {status}")
+        self.status = status
 
 
 class LimitReached(Exception):
@@ -74,11 +82,24 @@ class GeminiProvider:
                 "generationConfig": {"responseMimeType": "application/json", "temperature": 0.2},
             },
         )
-        if response.status_code == 429:
+        if response.status_code == 429 or response.status_code >= 500:
             raise RateLimited()
-        response.raise_for_status()
-        text = response.json()["candidates"][0]["content"]["parts"][0]["text"]
-        return json.loads(text)
+        if response.status_code != 200:
+            raise ProviderError(response.status_code)
+        return json.loads(self._text(response.json()))
+
+    @staticmethod
+    def _text(body: dict) -> str:
+        """The answer text. An answer can come in several parts, and a model that
+        "thinks" marks those parts with `thought`; only the real answer is kept."""
+        candidates = body.get("candidates") or [{}]
+        parts = (candidates[0].get("content") or {}).get("parts") or []
+        text = "".join(part.get("text", "") for part in parts if not part.get("thought"))
+        if not text:
+            # e.g. finishReason MAX_TOKENS or SAFETY. The reason is safe to log.
+            log.warning("empty answer, finish reason: %s", candidates[0].get("finishReason"))
+            raise ValueError("empty answer")
+        return text
 
 
 class Budget:
