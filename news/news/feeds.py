@@ -10,6 +10,7 @@ or the provider says stop, what is already written stays and the run is reported
 from __future__ import annotations
 
 import logging
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 
 from .llm import Budget, LimitReached, LlmConfig, ProviderError
@@ -40,18 +41,23 @@ def build_feeds(db, budget: Budget, config: LlmConfig, last_run, read_page=None)
             if not todo:
                 break
             images: dict[str, str | None] = {}
+            reasons: Counter[str] = Counter()
             if read_page and config.read_full_articles:
                 with ThreadPoolExecutor(max_workers=5) as pool:
                     pages = list(pool.map(read_page, [a["url"] for a in todo]))
                 for article, page in zip(todo, pages, strict=True):
                     article["text"] = page.text
                     images[str(article["id"])] = page.image_url
+                    if page.reason:
+                        reasons[page.reason] += 1
             rows = summarise(budget.call, todo, config.article_text_chars)
             for row in rows:
                 row["image_url"] = images.get(row["id"])
             saved = db.save_summaries(rows)
             readable = sum(1 for a in todo if a.get("text"))
             log.info("summaries: %d wanted, %d pages readable, %d saved", len(todo), readable, saved)
+            if reasons:
+                log.info("pages not readable: %s", ", ".join(f"{r} {n}" for r, n in reasons.most_common()))
             counts["summarised"] += saved
             if not saved:
                 break  # same articles would come back; try again next run

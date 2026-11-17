@@ -41,6 +41,8 @@ SKIP_HOSTS = {"news.google.com"}
 class Page:
     text: str | None = None
     image_url: str | None = None
+    # Why there is no text, for the (public) log: a fixed word, never page content.
+    reason: str | None = None
 
 
 def is_public_host(host: str) -> bool:
@@ -124,15 +126,21 @@ class ArticleReader:
 
     def read(self, url: str) -> Page:
         if (urlsplit(url).hostname or "") in SKIP_HOSTS:
-            return Page()
+            return Page(reason="google-news-link")
         try:
             if not self.allowed(url):
-                return Page()
+                return Page(reason="robots.txt")
             got = self._get(url)
+        except httpx.TimeoutException:
+            return Page(reason="timeout")
         except (httpx.HTTPError, ValueError):
-            return Page()
-        if not got or got[0] != 200 or "html" not in got[1].lower():
-            return Page()
+            return Page(reason="network-error")
+        if not got:
+            return Page(reason="blocked-or-too-big")
+        if got[0] != 200:
+            return Page(reason=f"http-{got[0]}")
+        if "html" not in got[1].lower():
+            return Page(reason="not-html")
         _, _, body, final_url = got
         try:
             # Third-party parser on untrusted HTML: any failure just means "unreadable".
@@ -141,8 +149,8 @@ class ArticleReader:
             )
             meta = trafilatura.extract_metadata(body.decode("utf-8", "replace"), default_url=final_url)
         except Exception:  # noqa: BLE001
-            return Page()
+            return Page(reason="parse-error")
         image = https_or_none(urljoin(final_url, meta.image)) if meta is not None and meta.image else None
         if not text or len(text) < MIN_TEXT_CHARS:
-            return Page(image_url=image)
+            return Page(image_url=image, reason="too-little-text")  # paywall or cookie wall
         return Page(text=text[: self.max_chars], image_url=image)

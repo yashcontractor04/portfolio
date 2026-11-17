@@ -52,7 +52,8 @@ def test_text_is_cut_to_the_limit():
 def test_robots_txt_is_respected():
     robots = (200, {"content-type": "text/plain"}, b"User-agent: *\nDisallow: /private/\n")
     r = reader({"news.example/robots.txt": robots, "news.example/private/a": (200, HTML, ARTICLE)})
-    assert r.read("https://news.example/private/a").text is None
+    page = r.read("https://news.example/private/a")
+    assert page.text is None and page.reason == "robots.txt"
 
 
 def test_unreadable_robots_txt_means_stay_away():
@@ -77,10 +78,10 @@ def test_paywall_and_non_html_count_as_unreadable():
             "news.example/file.pdf": (200, {"content-type": "application/pdf"}, b"%PDF"),
         }
     )
-    assert r.read("https://news.example/paywall").text is None
-    assert r.read("https://news.example/file.pdf").text is None
+    assert r.read("https://news.example/paywall").reason == "too-little-text"
+    assert r.read("https://news.example/file.pdf").reason == "not-html"
 
 
 def test_google_news_links_are_skipped():
     r = reader({})
-    assert r.read("https://news.google.com/rss/articles/abc").text is None
+    assert r.read("https://news.google.com/rss/articles/abc").reason == "google-news-link"
