@@ -178,9 +178,10 @@ unknown project URLs return status 200 with the not-found page.
       each item is validated on its own; only articles in a user's current top N are
       summarised (migration `20261117000001_news_summaries.sql`). Thinking is left at the
       model default: how to switch it off for 3.5 Flash-Lite is not verified.
-    - [ ] e. `.github/workflows/news.yml`: schedule every 15 minutes + manual trigger.
-      2026-11-16: file written, never run. It does nothing until the secret
-      `NEWS_DATABASE_URL` exists, and schedules only run once it is on `main`.
+    - [ ] e. `.github/workflows/news.yml`: hourly schedule (minute 7) + manual trigger.
+      2026-11-17: changed from every 15 minutes to hourly (Yash: stay well below the free
+      limits); test with "Run workflow". Never run yet: schedules only run once it is on
+      `main`.
     - [x] 2026-11-17 f. App shell (`web/src/apps/news/`, page `/apps/news`): registry entry with
       `requires: "news_enabled"`, so the dock and the palette list it only for accounts that
       have News switched on (`useApps`); guests are sent to login. Scroll-snap cards, progress
@@ -238,8 +239,9 @@ unknown project URLs return status 200 with the not-found page.
     Accept:
     - The pipeline runs on schedule and on manual trigger, is idempotent, and a failed run does
       not corrupt data.
-    - A new article from a monitored feed appears in a matching user's feed within about 30
-      minutes of publication under normal conditions.
+    - A new article from a monitored feed appears in a matching user's feed within about 90
+      minutes of publication under normal conditions (was 30 minutes with a 15-minute
+      schedule; changed to hourly by Yash on 2026-11-17).
     - Two users with different topics get different feeds. RLS tests prove one user cannot read
       another's prefs or feed.
     - Guests and logged-out visitors cannot see or open the app.

@@ -5,9 +5,9 @@ import { feedNotice, nextRefresh, paragraphs, relevanceTags, safeHttpUrl } from 
 
 const at = (time: string) => new Date(`2026-11-17T${time}Z`);
 
-test("next refresh is the next scheduled minute, also across the hour", () => {
+test("next refresh is the next hourly run at minute 7, also across the day", () => {
   assert.equal(nextRefresh(at("10:00:30")).toISOString(), "2026-11-17T10:07:00.000Z");
-  assert.equal(nextRefresh(at("10:22:00")).toISOString(), "2026-11-17T10:37:00.000Z");
+  assert.equal(nextRefresh(at("10:07:00")).toISOString(), "2026-11-17T11:07:00.000Z");
   assert.equal(nextRefresh(at("10:55:00")).toISOString(), "2026-11-17T11:07:00.000Z");
   assert.equal(nextRefresh(at("23:59:00")).toISOString(), "2026-11-18T00:07:00.000Z");
 });
@@ -18,7 +18,8 @@ test("the notice reflects the last pipeline run", () => {
   assert.equal(feedNotice({ status: "limited", started_at: "2026-11-17T11:52:00Z" }, now), "limited");
   assert.equal(feedNotice({ status: "failed", started_at: "2026-11-17T11:52:00Z" }, now), "failed");
   assert.equal(feedNotice({ status: "ok", started_at: "2026-11-17T11:52:00Z" }, now), null);
-  assert.equal(feedNotice({ status: "ok", started_at: "2026-11-17T10:00:00Z" }, now), "stale");
+  assert.equal(feedNotice({ status: "ok", started_at: "2026-11-17T10:07:00Z" }, now), null); // one late run is normal
+  assert.equal(feedNotice({ status: "ok", started_at: "2026-11-17T08:30:00Z" }, now), "stale");
 });
 
 test("relevance keywords are split, trimmed and capped", () => {

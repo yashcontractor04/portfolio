@@ -1,7 +1,9 @@
 import type { LastRun } from "./types";
 
-/** Minutes past the hour at which .github/workflows/news.yml starts the pipeline (UTC). */
-export const RUN_MINUTES = [7, 22, 37, 52];
+/** Minutes past the hour at which .github/workflows/news.yml starts the pipeline (UTC).
+ *  Keep in step with the cron line there. */
+export const RUN_MINUTES = [7];
+const RUN_INTERVAL_MINUTES = 60 / RUN_MINUTES.length;
 
 /** The next scheduled pipeline start after `now`. GitHub may start it some minutes late. */
 export function nextRefresh(now: Date): Date {
@@ -23,8 +25,8 @@ export function feedNotice(lastRun: LastRun, now: Date): Notice {
   if (!lastRun) return "never";
   if (lastRun.status === "limited") return "limited";
   if (lastRun.status === "failed") return "failed";
-  // Three missed 15-minute runs in a row: the schedule is late or switched off.
-  if (now.getTime() - new Date(lastRun.started_at).getTime() > 50 * 60_000) return "stale";
+  // About three missed runs in a row: the schedule is late or switched off.
+  if (now.getTime() - new Date(lastRun.started_at).getTime() > 3.3 * RUN_INTERVAL_MINUTES * 60_000) return "stale";
   return null;
 }
 

@@ -52,7 +52,7 @@ Four places run code, and each has exactly one job:
 | Browser | UI, and Python projects via Pyodide | the logged-in user (RLS decides what they see) |
 | Vercel | Page rendering, contact form, signup, API-key encryption, demo runs | `service_role` (bypasses RLS, never leaves the server) |
 | Worker VM | Runner jobs and bots | `app_worker` (can only call `queue.*` functions) |
-| GitHub Actions (planned) | News pipeline, every 15 minutes | `app_news` (can only call `news.*` functions) |
+| GitHub Actions (planned) | News pipeline, hourly | `app_news` (can only call `news.*` functions) |
 
 The VM exposes **no public ports**. It only makes outbound connections, so there is nothing
 on it to attack from the internet except SSH (key-only, used by the deploy workflow).
@@ -235,7 +235,7 @@ A short, finite, per-user feed of recent news shown as reel-style cards. Logged-
 
 ```mermaid
 flowchart LR
-  subgraph GHA[GitHub Actions, cron every 15 min]
+  subgraph GHA[GitHub Actions, cron hourly]
     F[1 fetch feeds] --> D[2 dedupe] --> R[3 rank per user] --> S[4 summarise winners] --> W[5 write feed] --> P[6 purge]
   end
   SRC[RSS/Atom, Google News RSS, Hacker News API] --> F
@@ -266,8 +266,9 @@ flowchart LR
 - **Free-tier budget.** Limits read from Yash's AI Studio rate-limit page on 2026-11-16, for
   both `gemini-3.5-flash-lite` (default) and `gemini-3.1-flash-lite` (fallback): 15 requests/min,
   250,000 input tokens/min, 500 requests/day. The pipeline stops at 70 % of the daily limit (350),
-  counted in the database (`news_llm_usage`). One user: at most 96 ranking requests a day
-  plus the summaries of cards that newly reach the top N, well under 350. With
+  counted in the database (`news_llm_usage`). The schedule is hourly (Yash, 2026-11-17: stay
+  well below the limits), so one user costs at most 24 ranking requests a day plus the
+  summaries of cards that newly reach the top N, far under 350. With
   three or more users the worst case exceeds 350, so the pipeline lowers the effective N and
   then skips ranking runs rather than failing. On HTTP 429: back off, then the fallback model,
   then record the run as `limited`; the UI shows "limited, showing older items".
@@ -304,8 +305,8 @@ flowchart LR
   Trade-offs: the reader's IP reaches the publisher's image host, and a hotlinked image can
   fail (blocked, removed, slow). Fallback when there is no image or it fails: a gradient in
   the topic's hue plus the topic icon.
-- **Known limits.** GitHub cron can start 5 to 30 minutes late, so "in the feed within 30
-  minutes" is a normal-conditions target. GitHub disables scheduled workflows after 60 days
+- **Known limits.** The schedule is hourly and GitHub cron can start 5 to 30 minutes late, so
+  a new article normally reaches the feed within about 90 minutes. GitHub disables scheduled workflows after 60 days
   without repository activity; re-enable under Actions > News pipeline > Enable workflow. The
   repository is public, so are the workflow logs: the pipeline logs counts and ids, never
   interests or prefs. Google News RSS links are opaque redirects; when one cannot be resolved the

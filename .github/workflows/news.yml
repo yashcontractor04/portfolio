@@ -10,7 +10,10 @@ name: News pipeline
 #     source names only.
 on:
   schedule:
-    - cron: "7,22,37,52 * * * *" # every 15 minutes, off the busy :00 mark
+    # Hourly, at minute 7 (off the busy :00 mark): about 24 runs a day keeps Gemini far
+    # below its free daily limit. To test, use "Run workflow" (workflow_dispatch) instead.
+    # If you change this, change RUN_MINUTES in web/src/apps/news/logic.ts too.
+    - cron: "7 * * * *"
   workflow_dispatch:
 
 # Least privilege: read the code, nothing else.
