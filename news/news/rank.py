@@ -28,7 +28,8 @@ Use ONLY the facts given; never add facts, numbers, names or quotes.
 `kind` tells you how much you have:
   "article": the article text. Write about 450 to 500 words in short paragraphs covering the
              key points: what happened, the important numbers, who is affected, what comes next.
-  "teaser":  only a short teaser. Write 2 to 4 sentences.
+  "teaser":  only a short teaser (the page was not readable, e.g. a paywall). Write at most
+             100 words, and only what the teaser says.
   "headline": only the headline. Write one sentence restating it; do not guess details.
 Plain text only: no Markdown, no HTML, no links. Separate paragraphs with a blank line.
 Answer with JSON only: {{"items": [{{"id": <number from the list>,

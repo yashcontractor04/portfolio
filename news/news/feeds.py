@@ -9,10 +9,13 @@ or the provider says stop, what is already written stays and the run is reported
 
 from __future__ import annotations
 
+import logging
 from concurrent.futures import ThreadPoolExecutor
 
 from .llm import Budget, LimitReached, LlmConfig
 from .rank import rank_user, summarise
+
+log = logging.getLogger("news.feeds")  # counts only: these logs are public
 
 
 def build_feeds(db, budget: Budget, config: LlmConfig, last_run, read_page=None) -> dict:
@@ -27,8 +30,11 @@ def build_feeds(db, budget: Budget, config: LlmConfig, last_run, read_page=None)
             changed = last_run is None or user["prefs_updated_at"] > last_run
             if not found or not (changed or any(c["fetched_at"] > last_run for c in found)):
                 continue
-            db.write_feed(user["user_id"], rank_user(budget.call, user, found, n))
+            picked = rank_user(budget.call, user, found, n)
+            db.write_feed(user["user_id"], picked)
             counts["ranked_users"] += 1
+            # 0 picked from many candidates means the model's answer was unusable.
+            log.info("ranking: %d candidates, %d picked", len(found), len(picked))
         for _ in range(config.summary_requests_per_run):
             todo = db.unsummarised(config.summaries_per_request)
             if not todo:
@@ -44,6 +50,8 @@ def build_feeds(db, budget: Budget, config: LlmConfig, last_run, read_page=None)
             for row in rows:
                 row["image_url"] = images.get(row["id"])
             saved = db.save_summaries(rows)
+            readable = sum(1 for a in todo if a.get("text"))
+            log.info("summaries: %d wanted, %d pages readable, %d saved", len(todo), readable, saved)
             counts["summarised"] += saved
             if not saved:
                 break  # same articles would come back; try again next run
