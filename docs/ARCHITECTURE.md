@@ -208,7 +208,10 @@ never fetched live. `web/scripts/prebuild.mjs` copies it, and the Pyodide runtim
 That needs cross-origin isolation, so COOP `same-origin` and COEP `require-corp` are sent on
 every page (site-wide, because client-side navigation keeps the first page's headers).
 Consequence: cross-origin images and scripts are blocked unless CORS-enabled; README images
-are therefore not rendered.
+are therefore not rendered. One exception: the News page sends COEP `credentialless` so that
+it can show publisher images (section 7). Chrome and Firefox stay isolated under that value.
+Safari does not, so someone who goes from News straight to a game in Safari sees the
+terminal's "reload the page" hint; the reload fetches the project page's own headers.
 
 ## 6. Auth
 
@@ -288,16 +291,19 @@ flowchart LR
   plain text nodes.
 - **Browser side.** No new API routes. The app reads feed items and writes prefs and feedback
   through supabase-js under RLS, check constraints and row caps, like Board. The registry entry
-  is marked `auth: "required"`: hidden from the dock and the palette for guests, and the page
-  shell is static, holds no data and redirects guests to login. Articles are readable by the
+  has `requires: "news_enabled"`: listed in the dock and the palette only for accounts with
+  that profile flag, and the page shell is static, holds no data and sends guests to login. Articles are readable by the
   `authenticated` role only, so the database is the gate (see section 6).
-- **Images.** `og:image` URLs are hotlinked, never downloaded or stored. To make that possible
-  the site moves from COEP `require-corp` to `credentialless` (cross-origin images load without
-  cookies; cross-origin isolation for the Pyodide terminal stays) and `img-src` widens to
-  `https:`. Images use `referrerpolicy="no-referrer"`. Trade-offs: the reader's IP reaches the
-  publisher's image host, and browsers without `credentialless` support lose `input()` in the
-  in-browser games (to be verified in Safari before this ships). Fallback when there is no image
-  or it fails to load: a generated gradient plus the topic icon.
+- **Images.** `og:image` URLs are hotlinked, never downloaded or stored. Two response headers
+  are different for the News page, and only there (`web/next.config.ts`): `img-src` allows any
+  `https:` image, and COEP is `credentialless` instead of `require-corp`, so cross-origin
+  images load without cookies. The `<img>` sends no referrer. The rest of the site keeps
+  `require-corp`, because Safari does not support `credentialless` and would lose the
+  cross-origin isolation the Pyodide terminal needs. Headers belong to the loaded document,
+  so the dock and the palette open News with a full page load (`fullLoad` in the registry).
+  Trade-offs: the reader's IP reaches the publisher's image host, and a hotlinked image can
+  fail (blocked, removed, slow). Fallback when there is no image or it fails: a gradient in
+  the topic's hue plus the topic icon.
 - **Known limits.** GitHub cron can start 5 to 30 minutes late, so "in the feed within 30
   minutes" is a normal-conditions target. GitHub disables scheduled workflows after 60 days
   without repository activity; re-enable under Actions > News pipeline > Enable workflow. The
@@ -339,7 +345,7 @@ Enable the role once by hand: `alter role app_worker login password '<long rando
 | News pipeline on GitHub Actions cron (planned) | free, no server to keep alive, secrets stay in GitHub | start times are not exact |
 | Rank on headlines, summarise only top-N articles (planned) | fits the free LLM tier; each article summarised once for all users | ranking sees less text than the summary does |
 | LLM behind a provider interface (planned) | model or vendor can be swapped in config | one more small abstraction |
-| COEP `credentialless` instead of `require-corp` (planned) | lets hotlinked news images load while keeping cross-origin isolation | not supported in every browser |
+| COEP `credentialless` on the News page only | lets hotlinked news images load; the rest of the site stays `require-corp`, which every browser supports | News must be opened with a full page load |
 
 ## 10. Open items that need Yash
 

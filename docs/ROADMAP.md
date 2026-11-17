@@ -115,7 +115,9 @@ unknown project URLs return status 200 with the not-found page.
     Accept: dragging in tab A moves the card in tab B within 2 s.
 16. [ ] **Focus**, **Habits**, **Stash** (title/favicon fetch must block private IP ranges: SSRF).
 17. [ ] **GDPR**: privacy policy, Impressum (after Yash decides the address question), data
-    export (JSON download of every table) and account deletion.
+    export (JSON download of every table) and account deletion. The export must include
+    `news_prefs`, `news_feed_items` and `news_feedback`; the privacy policy must mention
+    Gemini (free-text interests are sent to it) and the hotlinked news images.
 
 ## Phase 3: runner system
 
@@ -188,9 +190,18 @@ unknown project URLs return status 200 with the not-found page.
       and feedback (mark as read, mark all as read, thumbs up/down), written optimistically.
       Checked in headless Chrome with sample data (keyboard, snap, states); not yet used
       against the real database in a browser.
-    - [ ] h. Images: hotlinked `og:image` with gradient fallback; CSP `img-src` and COEP
-      `credentialless`; check the in-browser games in Safari and Firefox.
-    - [ ] i. Accessibility + Lighthouse check, docs, add the tables to data export (item 17).
+    - [x] 2026-11-17 h. Images: hotlinked `og:image` (no referrer, no cookies) with a gradient +
+      topic icon fallback. `img-src https:` and COEP `credentialless` apply to the News page
+      only, so the in-browser games keep working in Safari; News opens with a full page load.
+      Headers verified per route on a local build. Not yet seen with real publisher images.
+    - [x] 2026-11-17 i. Lighthouse on a local production build with sample data: News
+      accessibility 100, performance 91 (Board: 100 and 83). Keyboard: arrows and J/K move
+      between cards, every control is reachable by Tab with a visible focus ring, motion is
+      off under `prefers-reduced-motion`. Docs updated. Data export does not exist yet: the
+      News tables are listed under item 17.
+    - [ ] j. Go live: merge `news-app` into `main` (starts the schedule), then check with real
+      data: feed in Chrome, Firefox and Safari, real images, a guest cannot open the app, and
+      `news_runs.note` for sources that fail on GitHub's servers.
 
     Scope decisions (2026-11-16): sources are free only (RSS/Atom, Google News RSS, Hacker
     News API) and live in `news/config/sources.yaml`. Gemini free tier, no billing account;

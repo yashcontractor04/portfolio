@@ -16,13 +16,14 @@ try {
 } catch {}
 const supabaseSources = supabaseOrigin ? ` ${supabaseOrigin} ${supabaseOrigin.replace(/^http/, "ws")}` : "";
 
-const csp = [
+// imgSrc differs for the News app only (see newsHeaders below).
+const buildCsp = (imgSrc: string) => [
   "default-src 'self'",
   // 'wasm-unsafe-eval' lets the browser compile WebAssembly (Pyodide). It does not allow eval().
   `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${isDev ? " 'unsafe-eval'" : ""}`,
   "worker-src 'self'",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data:",
+  `img-src ${imgSrc}`,
   "font-src 'self'",
   `connect-src 'self'${supabaseSources}${isDev ? " ws:" : ""}`,
   "object-src 'none'",
@@ -30,6 +31,26 @@ const csp = [
   "form-action 'self'",
   "frame-ancestors 'none'",
 ].join("; ");
+
+const csp = buildCsp("'self' data:");
+
+// The News app shows each article's preview picture straight from the publisher
+// (hotlinked: nothing is copied or stored). Two headers have to change for that,
+// and they change for the News page ONLY:
+//  1. img-src allows any https image, because publishers host pictures anywhere.
+//     Images cannot run code; scripts, styles, fonts and connections stay locked down.
+//  2. COEP "credentialless" instead of "require-corp". require-corp blocks every
+//     cross-origin image whose server did not opt in, which is nearly all of them.
+//     credentialless loads them WITHOUT cookies, so the publisher learns nothing about
+//     the reader beyond the IP address (the <img> also sends no referrer).
+// Why not site-wide: Safari does not support "credentialless" and would lose
+// cross-origin isolation, which the in-browser Python terminal needs.
+// Why the dock opens News with a full page load (registry.ts: fullLoad): headers
+// belong to the document that was loaded, and client-side navigation keeps the old one.
+const newsHeaders = [
+  { key: "Content-Security-Policy", value: buildCsp("'self' data: https:") },
+  { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
+];
 
 const securityHeaders = [
   { key: "Content-Security-Policy", value: csp },
@@ -59,7 +80,11 @@ const nextConfig: NextConfig = {
     },
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // Later entries win for the same header name.
+      { source: "/:locale/apps/news", headers: newsHeaders },
+    ];
   },
 };
 
