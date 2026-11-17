@@ -35,7 +35,8 @@ Yash reported the demo-run setup as done; confirm once that Monte Carlo Pi → R
 7. Domain, then Resend domain verification so mail reaches other people (item 28).
 8. Phase 4.
 
-**In progress alongside (2026-11-16):** the News app (item 29, Phase 5), on branch `news-app`.
+**In progress alongside (2026-11-16):** the News app (item 29, Phase 5). Live since 2026-11-17;
+remaining checks in step j.
 
 **Small things noticed, not yet done:** test the games in Safari and Firefox; Yash to proofread
 both CV PDFs; undo on the Board does not cover deleting a column or board, and there is no redo;
@@ -216,9 +217,11 @@ unknown project URLs return status 200 with the not-found page.
       Finance replaced by its per-symbol feed (NVDA, MSFT, GOOGL, AMZN, META). Summaries now
       get a target length from the text actually read (60 %, 80-500 words), 3 per request and
       up to 4 requests per run; field names are stripped from the relevance keywords.
-    - [ ] j. Go live: merge `news-app` into `main` (starts the schedule), then check with real
-      data: feed in Chrome, Firefox and Safari, real images, a guest cannot open the app, and
-      `news_runs.note` for sources that fail on GitHub's servers.
+    - [ ] j. Go live. 2026-11-17: merged (PR #3), deployed by Vercel, first pipeline run on
+      GitHub succeeded (894 fetched, 8 ranked, 4 summaries; Google News no 429s there;
+      Indian Express answers 403 to GitHub's servers; one 429 on the default model was
+      handled by the fallback). Still to check with real data: the feed in Chrome, Firefox
+      and Safari, real images, and that a guest cannot open the app.
 
     Scope decisions (2026-11-16): sources are free only (RSS/Atom, Google News RSS, Hacker
     News API) and live in `news/config/sources.yaml`. Gemini free tier, no billing account;
