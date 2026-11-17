@@ -96,7 +96,8 @@
     "login": "Log in for your own private version",
     "names": {
       "workspace": "Workspace",
-      "board": "Board"
+      "board": "Board",
+      "news": "News"
     }
   },
   "auth": {
@@ -243,6 +244,60 @@
       "invalid": "Please check your entries. The message needs at least 10 characters.",
       "rate_limited": "Too many messages for now. Please try again later or use the email link.",
       "unavailable": "The form is not available right now. Please use the email link below."
+    }
+  },
+  "news": {
+    "loading": "Loading…",
+    "loadError": "The feed could not be loaded.",
+    "saveError": "That could not be saved. The feed was reloaded.",
+    "retry": "Try again",
+    "notEnabled": "News is not switched on for this account.",
+    "feedLabel": "News feed. Use the arrow keys or J and K to move between cards.",
+    "position": "{current} of {total}",
+    "previous": "Previous card",
+    "next": "Next card",
+    "relevance": "Relevance",
+    "read": "Read",
+    "markRead": "Mark as read",
+    "markAllRead": "Mark all as read",
+    "thumbUp": "More like this",
+    "thumbDown": "Less like this",
+    "original": "Original article",
+    "summaryPending": "The summary arrives with the next refresh.",
+    "caughtUp": "All caught up",
+    "nextRefresh": "The next refresh is at about {time}. Nothing more to scroll until then.",
+    "checkNow": "Check for new items",
+    "empty": {
+      "neverTitle": "Nothing here yet",
+      "never": "The news pipeline has not run yet. Cards appear after its first run.",
+      "noTopics": "Pick at least one topic in the settings to get a feed."
+    },
+    "notice": {
+      "never": "The news pipeline has not run yet.",
+      "limited": "The summary service is rate-limited, so you are seeing older items.",
+      "failed": "The last update failed, so you are seeing older items.",
+      "stale": "Updates are running late, so you are seeing older items."
+    },
+    "topics": {
+      "ai-jobs": "AI industry & CS jobs",
+      "germany-berlin": "Germany/Berlin & student life",
+      "markets": "Markets & investing",
+      "geopolitics": "Geopolitics",
+      "local-politics": "Politics: Germany, India"
+    },
+    "settings": {
+      "open": "Settings",
+      "title": "News settings",
+      "topics": "Topics",
+      "interests": "What I care about",
+      "interestsHelp": "Free text, in order of priority. It is sent to the AI service that ranks your news, so leave out personal details.",
+      "size": "Cards per feed: {count}",
+      "sizeHelp": "Each refresh adds at most 10 new cards.",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "applies": "Changes apply at the next refresh.",
+      "error": "The settings could not be saved."
     }
   }
 }

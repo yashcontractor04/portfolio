@@ -1,0 +1,105 @@
+# News sources. Edit this file to change what the News app reads; no code change needed.
+# Checked on every run by news/news/config.py (a typo fails loudly, nothing is fetched).
+# Try your edits without touching the database:   cd news && python -m news --dry-run
+#
+# A topic is one preset chip in the app. Its `slug` is what gets stored, so do not rename a
+# slug once people have picked it; change the `label` instead.
+#   feeds        RSS or Atom URLs
+#   google_news  Google News RSS searches (free, no key). hl/gl/ceid choose language and country.
+#   hacker_news  front-page stories above a score (official Hacker News API, free, no key)
+# Free sources only. Summaries are always written in English, whatever `lang` says.
+
+settings:
+  max_age_hours: 24          # ignore anything older than this
+  max_items_per_source: 25   # newest N per feed or search
+  timeout_seconds: 10
+  user_agent: "yash-portfolio-news/1.0 (+https://github.com/yashcontractor04/portfolio)"
+  # Google News answers 429/503 when searches arrive together, so they are sent one at a
+  # time with this pause, and retried once after the longer wait.
+  google_news_pause_seconds: 1.0
+  google_news_retry_seconds: 8.0
+
+topics:
+  - slug: ai-jobs
+    label: "AI industry & CS jobs"
+    feeds:
+      - { name: Ars Technica, url: "https://feeds.arstechnica.com/arstechnica/index", lang: en }
+      - { name: The Verge AI, url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", lang: en }
+      - { name: MIT Technology Review, url: "https://www.technologyreview.com/feed/", lang: en }
+      - { name: heise online, url: "https://www.heise.de/rss/heise-atom.xml", lang: de }
+      # Direct feeds for the AI industry: Google News links cannot be opened, so without
+      # these most AI stories would only get a headline summary.
+      - { name: TechCrunch AI, url: "https://techcrunch.com/category/artificial-intelligence/feed/", lang: en }
+      - { name: CNBC Technology, url: "https://www.cnbc.com/id/19854910/device/rss/rss.html", lang: en }
+      - { name: The Register, url: "https://www.theregister.com/headlines.atom", lang: en }
+      - { name: Wired AI, url: "https://www.wired.com/feed/tag/ai/latest/rss", lang: en }
+    google_news:
+      - { query: "AI jobs software engineers", hl: en-US, gl: US, ceid: "US:en" }
+      - { query: "tech layoffs", hl: en-US, gl: US, ceid: "US:en" }
+      - { query: "Werkstudent Informatik", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "Nvidia", hl: en-US, gl: US, ceid: "US:en" }
+      - { query: "Anthropic OR OpenAI", hl: en-US, gl: US, ceid: "US:en" }
+      - { query: "AI bubble", hl: en-US, gl: US, ceid: "US:en" }
+    hacker_news: { min_score: 150, max_items: 30 }
+
+  - slug: germany-berlin
+    label: "Germany/Berlin & student life"
+    feeds:
+      - { name: tagesschau, url: "https://www.tagesschau.de/index~rss2.xml", lang: de }
+      - { name: rbb24, url: "https://www.rbb24.de/aktuell/index.xml/feed=rss.xml", lang: de }
+      - { name: Tagesspiegel Berlin, url: "https://www.tagesspiegel.de/contentexport/feed/berlin", lang: de }
+      - { name: DW Germany, url: "https://rss.dw.com/rdf/rss-en-ger", lang: en }
+      - { name: The Local Germany, url: "https://feeds.thelocal.com/rss/de", lang: en }
+    google_news:
+      - { query: "Berlin Studierende", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "BVG Berlin", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "Studierendenwerk Berlin", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "Deutschlandticket", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "Einbürgerung Staatsangehörigkeit", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "Aufenthaltstitel Visum Studierende", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "Germany visa rules international students", hl: en-US, gl: US, ceid: "US:en" }
+
+  - slug: markets
+    label: "Markets & investing"
+    feeds:
+      - { name: Handelsblatt Finanzen, url: "https://www.handelsblatt.com/contentexport/feed/finanzen", lang: de }
+      - { name: CNBC Markets, url: "https://www.cnbc.com/id/20910258/device/rss/rss.html", lang: en }
+      - { name: MarketWatch, url: "https://feeds.content.dowjones.io/public/rss/mw_topstories", lang: en }
+      # Yahoo's general finance feeds return 404 since October 2026; per-symbol headline
+      # feeds still work. These are the big AI stocks.
+      - { name: Yahoo Finance AI stocks, url: "https://feeds.finance.yahoo.com/rss/2.0/headline?s=NVDA,MSFT,GOOGL,AMZN,META&region=US&lang=en-US", lang: en }
+      - { name: ECB, url: "https://www.ecb.europa.eu/rss/press.html", lang: en }
+    google_news:
+      - { query: "DAX", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "S&P 500", hl: en-US, gl: US, ceid: "US:en" }
+      - { query: "ECB interest rates", hl: en-US, gl: US, ceid: "US:en" }
+      - { query: "ETF investors", hl: en-US, gl: US, ceid: "US:en" }
+      - { query: "Konjunktur Deutschland", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "India economy", hl: en-IN, gl: IN, ceid: "IN:en" }
+
+  - slug: geopolitics
+    label: "Geopolitics (mainly US)"
+    feeds:
+      - { name: BBC World, url: "https://feeds.bbci.co.uk/news/world/rss.xml", lang: en }
+      - { name: NPR World, url: "https://feeds.npr.org/1004/rss.xml", lang: en }
+      - { name: Al Jazeera, url: "https://www.aljazeera.com/xml/rss/all.xml", lang: en }
+      - { name: Foreign Policy, url: "https://foreignpolicy.com/feed/", lang: en }
+      - { name: The Guardian World, url: "https://www.theguardian.com/world/rss", lang: en }
+    google_news:
+      - { query: "US foreign policy", hl: en-US, gl: US, ceid: "US:en" }
+      - { query: "White House", hl: en-US, gl: US, ceid: "US:en" }
+      - { query: "US China", hl: en-US, gl: US, ceid: "US:en" }
+
+  - slug: local-politics
+    label: "Local politics (Germany, India)"
+    feeds:
+      - { name: tagesschau Inland, url: "https://www.tagesschau.de/inland/index~rss2.xml", lang: de }
+      - { name: Der Spiegel Politik, url: "https://www.spiegel.de/politik/index.rss", lang: de }
+      - { name: The Hindu National, url: "https://www.thehindu.com/news/national/feeder/default.rss", lang: en }
+      - { name: Indian Express India, url: "https://indianexpress.com/section/india/feed/", lang: en }
+      - { name: Times of India, url: "https://timesofindia.indiatimes.com/rssfeedstopstories.cms", lang: en }
+    google_news:
+      - { query: "Bundestag", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "Bundesregierung", hl: de, gl: DE, ceid: "DE:de" }
+      - { query: "Lok Sabha", hl: en-IN, gl: IN, ceid: "IN:en" }
+      - { query: "India politics", hl: en-IN, gl: IN, ceid: "IN:en" }

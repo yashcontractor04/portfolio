@@ -1,0 +1,57 @@
+name: News pipeline
+
+# Fetches the news sources, stores new articles and builds the per-user feeds.
+# Runs only from the default branch. Things to know:
+#   * GitHub may start scheduled runs 5-30 minutes late, or skip one when busy. Every
+#     stage is idempotent, so a late, skipped or repeated run only delays the feed.
+#   * GitHub disables scheduled workflows after 60 days without repository activity.
+#     Re-enable: Actions > News pipeline > Enable workflow.
+#   * This repository is public, and so are these logs. The pipeline logs counts and
+#     source names only.
+on:
+  schedule:
+    # Hourly, at minute 7 (off the busy :00 mark): about 24 runs a day keeps Gemini far
+    # below its free daily limit. To test, use "Run workflow" (workflow_dispatch) instead.
+    # If you change this, change RUN_MINUTES in web/src/apps/news/logic.ts too.
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+# Least privilege: read the code, nothing else.
+permissions:
+  contents: read
+
+# Never two runs at once; a run that is still going is allowed to finish.
+concurrency:
+  group: news
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      NEWS_DATABASE_URL: ${{ secrets.NEWS_DATABASE_URL }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - name: Skip until the secrets exist
+        id: ready
+        run: |
+          if [ -n "$NEWS_DATABASE_URL" ]; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "NEWS_DATABASE_URL is not set; nothing to do"; fi
+      - uses: actions/checkout@v4
+        if: steps.ready.outputs.ok == 'true'
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        if: steps.ready.outputs.ok == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: news/pyproject.toml
+      - name: Install
+        if: steps.ready.outputs.ok == 'true'
+        working-directory: news
+        run: pip install .
+      - name: Run the pipeline
+        if: steps.ready.outputs.ok == 'true'
+        working-directory: news
+        run: python -m news

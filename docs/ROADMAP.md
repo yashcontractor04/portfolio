@@ -35,6 +35,8 @@ Yash reported the demo-run setup as done; confirm once that Monte Carlo Pi → R
 7. Domain, then Resend domain verification so mail reaches other people (item 28).
 8. Phase 4.
 
+**In progress alongside (2026-11-16):** the News app (item 29, Phase 5), on branch `news-app`.
+
 **Small things noticed, not yet done:** test the games in Safari and Firefox; Yash to proofread
 both CV PDFs; undo on the Board does not cover deleting a column or board, and there is no redo;
 unknown project URLs return status 200 with the not-found page.
@@ -113,7 +115,9 @@ unknown project URLs return status 200 with the not-found page.
     Accept: dragging in tab A moves the card in tab B within 2 s.
 16. [ ] **Focus**, **Habits**, **Stash** (title/favicon fetch must block private IP ranges: SSRF).
 17. [ ] **GDPR**: privacy policy, Impressum (after Yash decides the address question), data
-    export (JSON download of every table) and account deletion.
+    export (JSON download of every table) and account deletion. The export must include
+    `news_prefs`, `news_feed_items` and `news_feedback`; the privacy policy must mention
+    Gemini (free-text interests are sent to it) and the hotlinked news images.
 
 ## Phase 3: runner system
 
@@ -149,10 +153,112 @@ unknown project URLs return status 200 with the not-found page.
 27. [ ] Optional end-to-end encryption for Workspace (`workspace_keys`, `content_cipher`).
 28. [ ] SEO, Open Graph images, custom domain, Resend domain verification.
 
+## Phase 5: News app
+
+29. [ ] **News** (private app, logged-in users only; design in ARCHITECTURE.md section 7).
+    A short, finite, per-user feed of the most relevant news of the last hours as reel-style
+    cards. Built in small commits; tick the steps as they land.
+    - [x] 2026-11-16 a. Plan agreed with Yash; this item and the architecture notes.
+    - [x] 2026-11-16 b. Migration `20261116000001_news.sql`: `news_*` tables, role `app_news`,
+      `news.*` functions, `public.news_feed()`, RLS, purge; 52 SQL tests in
+      `supabase/tests/30_news.sql`. Not yet applied to the real project (manual, see Known gaps).
+    - [x] 2026-11-16 c. Pipeline without LLM (`news/`): `config/sources.yaml`, fetch (RSS/Atom,
+      Google News RSS, Hacker News), canonical URLs, de-duplication, 8 tests with fake HTTP.
+      `python -m news --dry-run` fetches without a database. 2026-11-17: Yash's dry run
+      fetched 633 articles from 40 sources; all feed URLs work. Google News answered errors
+      when its searches arrived together, so they now run one at a time with a 1 s pause and
+      one retry after 8 s (both in `sources.yaml`). Not yet run against a real database.
+    - [x] 2026-11-17 d. Provider interface + Gemini client, ranking, summaries, rate-limit
+      handling: `config/llm.yaml`, `news/llm.py`, `news/rank.py`, `news/feeds.py`,
+      `news/article.py`. Confirmed by a real run (2026-11-17: 1 user ranked, 10 feed items,
+      5 summaries, 2 requests on `gemini-3.5-flash-lite`). Tuned after Yash's review: ranking
+      follows the priority order in the free-text interests and sees 150 headlines; "why" is
+      2-5 keywords; summaries are about 500 words from the article page read in memory
+      (robots.txt, public addresses only, never stored), 5 per request, 2 requests per run;
+      each item is validated on its own; only articles in a user's current top N are
+      summarised (migration `20261117000001_news_summaries.sql`). Thinking is left at the
+      model default: how to switch it off for 3.5 Flash-Lite is not verified.
+    - [ ] e. `.github/workflows/news.yml`: hourly schedule (minute 7) + manual trigger.
+      2026-11-17: changed from every 15 minutes to hourly (Yash: stay well below the free
+      limits); test with "Run workflow". Never run yet: schedules only run once it is on
+      `main`.
+    - [x] 2026-11-17 f. App shell (`web/src/apps/news/`, page `/apps/news`): registry entry with
+      `requires: "news_enabled"`, so the dock and the palette list it only for accounts that
+      have News switched on (`useApps`); guests are sent to login. Scroll-snap cards, progress
+      segments and "3 of 10", arrow keys and J/K, "All caught up" card with the next refresh
+      time, empty / error / limited / late states. "Why" is shown as "Relevance".
+    - [x] 2026-11-17 g. Settings panel (topic chips, free text with 500-character limit, N 5-20)
+      and feedback (mark as read, mark all as read, thumbs up/down), written optimistically.
+      Checked in headless Chrome with sample data (keyboard, snap, states); not yet used
+      against the real database in a browser.
+    - [x] 2026-11-17 h. Images: hotlinked `og:image` (no referrer, no cookies) with a gradient +
+      topic icon fallback. `img-src https:` and COEP `credentialless` apply to the News page
+      only, so the in-browser games keep working in Safari; News opens with a full page load.
+      Headers verified per route on a local build. Not yet seen with real publisher images.
+    - [x] 2026-11-17 i. Lighthouse on a local production build with sample data: News
+      accessibility 100, performance 91 (Board: 100 and 83). Keyboard: arrows and J/K move
+      between cards, every control is reachable by Tab with a visible focus ring, motion is
+      off under `prefers-reduced-motion`. Docs updated. Data export does not exist yet: the
+      News tables are listed under item 17.
+    - 2026-11-17 hardening after two bad real runs (ranking returned nothing once; one run
+      crashed on a Gemini HTTP error): 5xx is retried like 429, other provider errors end the
+      run as `failed` with the status in `news_runs.note`, extra keys in an answer are
+      ignored, and the log names the field and rule that rejected an item (never content).
+      Cause of the empty ranking not yet confirmed.
+    - 2026-11-17 readable summaries: Yash's first full run picked 9 of 10 cards from Google
+      News, whose links cannot be opened, so only 1 card got a full summary. Added direct
+      feeds for the priority topics (TechCrunch AI, CNBC Technology, The Register, Wired AI,
+      The Guardian World, Times of India; checked by Yash's dry run), and the ranking now
+      sees `full_text` per candidate and prefers readable
+      links for the same story (migration `20261118000001_news_candidate_urls.sql`, applied by
+      Yash). Decoding Google News links was rejected: it needs an undocumented Google
+      endpoint. Next run: 5 of 10 readable. InfoMigrants (no working feed) removed; Yahoo
+      Finance replaced by its per-symbol feed (NVDA, MSFT, GOOGL, AMZN, META). Summaries now
+      get a target length from the text actually read (60 %, 80-500 words), 3 per request and
+      up to 4 requests per run; field names are stripped from the relevance keywords.
+    - [ ] j. Go live: merge `news-app` into `main` (starts the schedule), then check with real
+      data: feed in Chrome, Firefox and Safari, real images, a guest cannot open the app, and
+      `news_runs.note` for sources that fail on GitHub's servers.
+
+    Scope decisions (2026-11-16): sources are free only (RSS/Atom, Google News RSS, Hacker
+    News API) and live in `news/config/sources.yaml`. Gemini free tier, no billing account;
+    models and caps in `news/config/llm.yaml`. Summaries in English only. Topics: preset chips
+    plus a free-text field; presets: AI & CS jobs; Germany/Berlin & student life; Markets &
+    investing; Geopolitics (mainly US); Local politics (Germany, India). Feedback (read, thumbs)
+    is stored only. No guest demo. No GIFs. Second GitHub secret is `NEWS_DATABASE_URL` (role
+    `app_news`), not the Supabase secret key. Feed window: 6 hours, widened to 24 when fewer
+    than N items match. Settings changes apply at the next run.
+    Single-user for now (2026-11-16): Yash read the Gemini API terms; the unpaid tier may not
+    be used for an app offered to other users in the EEA. News is therefore switched on per
+    account with `profiles.news_enabled` (default off, server-only) and only Yash's account
+    gets it. Before enabling anyone else: paid tier or another provider (ask Yash).
+
+    Out of scope for v1: learning from feedback, push or email notifications, other languages,
+    native mobile, paid APIs, a custom domain.
+
+    Accept:
+    - The pipeline runs on schedule and on manual trigger, is idempotent, and a failed run does
+      not corrupt data.
+    - A new article from a monitored feed appears in a matching user's feed within about 90
+      minutes of publication under normal conditions (was 30 minutes with a 15-minute
+      schedule; changed to hourly by Yash on 2026-11-17).
+    - Two users with different topics get different feeds. RLS tests prove one user cannot read
+      another's prefs or feed.
+    - Guests and logged-out visitors cannot see or open the app.
+    - The feed ends with "All caught up". Read and thumb state persists across reloads.
+    - Gemini failures or rate limits degrade gracefully and are visible in the UI.
+    - Lint, typecheck, tests, SQL tests and build all pass. Lighthouse and keyboard
+      accessibility are not worse than the other apps.
+
 ## Known gaps to keep in mind
 
 - Migration `20261115000001_demo_api.sql` and `supabase/seed/runners.sql` must be applied by hand
   in the Supabase SQL editor (there is no automated migration deploy yet).
+- Migration `20261116000001_news.sql` was applied by hand on 2026-11-17 (Yash). For a fresh
+  project it must be applied the same way. `20261117000001_news_summaries.sql` and
+  `20261118000001_news_candidate_urls.sql` must also be applied by hand. After it:
+  `alter role app_news login password '<long random>';` and
+  `update public.profiles set news_enabled = true where id = '<Yash's user id>';`
 - `npm audit` reports 8 moderate findings in web dependencies; not yet reviewed.
 
 - Unknown project URLs render the not-found page with `noindex` but HTTP status 200 (a side
