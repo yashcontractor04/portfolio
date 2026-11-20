@@ -7,6 +7,16 @@ import { Card } from "./Card";
 import { feedNotice, nextRefresh } from "./logic";
 import type { FeedItem, LastRun, Topic } from "./types";
 
+// The visitor's own time zone, read from the browser. Without it the formatter would use
+// the zone of the server that built the page (US Pacific on Vercel). This component only
+// renders after the feed has loaded in the browser, so there is no server/client mismatch.
+const localTime = () => ({
+  hour: "2-digit" as const,
+  minute: "2-digit" as const,
+  timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  timeZoneName: "short" as const,
+});
+
 const button = "flex h-10 items-center gap-2 rounded-sm border border-line px-3 text-sm text-mute hover:text-text disabled:cursor-not-allowed disabled:opacity-50";
 
 type Props = {
@@ -143,7 +153,7 @@ export function Feed({ items, topics, lastRun, hasTopics, now, read, onRead, onT
               ? t("empty.noTopics")
               : notice === "never"
                 ? t("empty.never")
-                : t("nextRefresh", { time: format.dateTime(nextRefresh(now), { hour: "2-digit", minute: "2-digit" }) })}
+                : t("nextRefresh", { time: format.dateTime(nextRefresh(now), localTime()) })}
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             {unread.length > 0 ? (

@@ -222,6 +222,9 @@ unknown project URLs return status 200 with the not-found page.
       Indian Express answers 403 to GitHub's servers; one 429 on the default model was
       handled by the fallback). Still to check with real data: the feed in Chrome, Firefox
       and Safari, real images, and that a guest cannot open the app.
+    - 2026-11-20 fixes from Yash's use: the "All caught up" refresh time is shown in the
+      visitor's own time zone (it used the build server's, US Pacific), with the zone name;
+      the settings icon is now a cog (it looked like a brightness icon).
 
     Scope decisions (2026-11-16): sources are free only (RSS/Atom, Google News RSS, Hacker
     News API) and live in `news/config/sources.yaml`. Gemini free tier, no billing account;
